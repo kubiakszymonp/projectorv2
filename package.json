@@ -1,4 +1,13 @@
 {
   "name": "projector",
-  "packageManager": "yarn@4.12.0"
+  "private": true,
+  "packageManager": "yarn@4.12.0",
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "yarn workspaces foreach --all -p -i run dev",
+    "build": "yarn workspaces foreach --all -p -i run build",
+    "lint": "yarn workspaces foreach --all -p -i run lint"
+  }
 }

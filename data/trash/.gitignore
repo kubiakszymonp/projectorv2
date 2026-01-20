@@ -1,0 +1,5 @@
+# Ignoruj wszystkie usunięte pliki
+*
+# Ale zachowaj ten .gitignore
+!.gitignore
+

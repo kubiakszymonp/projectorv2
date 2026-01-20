@@ -15,3 +15,28 @@ node_modules
 
 #!.yarn/cache
 .pnp.*
+
+# Build outputs
+dist
+build
+coverage
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.idea
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db

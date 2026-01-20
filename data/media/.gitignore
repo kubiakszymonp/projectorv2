@@ -1,0 +1,5 @@
+# Ignoruj wszystkie pliki uploadowane przez użytkowników
+*
+# Ale zachowaj ten .gitignore
+!.gitignore
+
