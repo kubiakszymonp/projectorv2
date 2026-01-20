@@ -1,12 +1,12 @@
-// ========== MEDIA DOMAIN - DTOs ==========
+// ========== FILES DOMAIN - DTOs ==========
 
 import { IsString, IsOptional, IsNotEmpty } from 'class-validator';
 
 /**
  * Query params dla listowania folderu
- * GET /api/media?path=<path>
+ * GET /api/files?path=<path>
  */
-export class ListMediaDto {
+export class ListFilesDto {
   @IsOptional()
   @IsString()
   path?: string;
@@ -14,7 +14,7 @@ export class ListMediaDto {
 
 /**
  * Body dla tworzenia folderu
- * POST /api/media/folders
+ * POST /api/files/folders
  */
 export class CreateFolderDto {
   @IsNotEmpty()
@@ -24,9 +24,9 @@ export class CreateFolderDto {
 
 /**
  * Body dla rename
- * POST /api/media/rename
+ * POST /api/files/rename
  */
-export class RenameMediaDto {
+export class RenameFileDto {
   @IsNotEmpty()
   @IsString()
   path: string;
@@ -38,9 +38,9 @@ export class RenameMediaDto {
 
 /**
  * Query params dla delete
- * DELETE /api/media?path=<path>
+ * DELETE /api/files?path=<path>
  */
-export class DeleteMediaDto {
+export class DeleteFileDto {
   @IsNotEmpty()
   @IsString()
   path: string;
@@ -48,7 +48,7 @@ export class DeleteMediaDto {
 
 /**
  * Query params dla pobierania pliku
- * GET /api/media/file?path=<path>
+ * GET /api/files/file?path=<path>
  */
 export class GetFileDto {
   @IsNotEmpty()
@@ -58,12 +58,25 @@ export class GetFileDto {
 
 /**
  * Body fields dla uploadu (multipart/form-data)
- * POST /api/media/upload
+ * POST /api/files/upload
  */
-export class UploadMediaDto {
+export class UploadFileDto {
   @IsOptional()
   @IsString()
   path?: string;
   // file: Express.Multer.File - dodawane przez multer
+}
+
+/**
+ * Body dla zapisywania pliku tekstowego
+ * PUT /api/files/save
+ */
+export class SaveFileDto {
+  @IsNotEmpty()
+  @IsString()
+  path: string;
+
+  @IsString()
+  content: string;
 }
 

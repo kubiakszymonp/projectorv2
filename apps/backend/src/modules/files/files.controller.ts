@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Post,
+  Put,
   Delete,
   Query,
   Body,
@@ -23,27 +24,28 @@ import {
 import type { Response } from 'express';
 import * as fs from 'fs';
 import * as path from 'path';
-import { MediaService } from './media.service';
+import { FilesService } from './files.service';
 import {
-  ListMediaDto,
+  ListFilesDto,
   CreateFolderDto,
-  RenameMediaDto,
-  DeleteMediaDto,
+  RenameFileDto,
+  DeleteFileDto,
   GetFileDto,
-  UploadMediaDto,
-  MediaListResponse,
-  MediaTreeResponse,
-  MediaUploadResponse,
+  UploadFileDto,
+  SaveFileDto,
+  FileListResponse,
+  FolderTreeResponse,
+  FileUploadResponse,
 } from '../../types';
 import { FileTypeDetector } from './file-type-detector';
 
-@ApiTags('Media Drive')
-@Controller('api/media')
-export class MediaController {
-  constructor(private readonly mediaService: MediaService) {}
+@ApiTags('Files Explorer')
+@Controller('api/files')
+export class FilesController {
+  constructor(private readonly filesService: FilesService) {}
 
   /**
-   * GET /api/media?path=<path>
+   * GET /api/files?path=<path>
    * Listuje zawartość folderu
    */
   @Get()
@@ -51,20 +53,20 @@ export class MediaController {
   @ApiQuery({
     name: 'path',
     required: false,
-    description: 'Względna ścieżka do folderu (domyślnie root)',
-    example: 'ogloszenia',
+    description: 'Względna ścieżka do folderu (domyślnie root data/)',
+    example: 'media/ogloszenia',
   })
   @ApiResponse({
     status: 200,
     description: 'Lista plików i folderów',
-    type: Object, // MediaListResponse
+    type: Object, // FileListResponse
   })
-  async list(@Query() dto: ListMediaDto): Promise<MediaListResponse> {
-    return this.mediaService.list(dto.path || '');
+  async list(@Query() dto: ListFilesDto): Promise<FileListResponse> {
+    return this.filesService.list(dto.path || '');
   }
 
   /**
-   * GET /api/media/tree
+   * GET /api/files/tree
    * Zwraca drzewo folderów (do sidebaru)
    */
   @Get('tree')
@@ -72,14 +74,14 @@ export class MediaController {
   @ApiResponse({
     status: 200,
     description: 'Drzewo folderów',
-    type: Object, // MediaTreeResponse
+    type: Object, // FolderTreeResponse
   })
-  async getTree(): Promise<MediaTreeResponse> {
-    return this.mediaService.getTree();
+  async getTree(): Promise<FolderTreeResponse> {
+    return this.filesService.getTree();
   }
 
   /**
-   * POST /api/media/upload
+   * POST /api/files/upload
    * Upload pliku (multipart/form-data)
    * Body: { path: string, file: File }
    */
@@ -93,8 +95,8 @@ export class MediaController {
       properties: {
         path: {
           type: 'string',
-          description: 'Folder docelowy (np. "ogloszenia")',
-          example: 'ogloszenia',
+          description: 'Folder docelowy (np. "media/ogloszenia")',
+          example: 'media/ogloszenia',
         },
         file: {
           type: 'string',
@@ -108,22 +110,22 @@ export class MediaController {
   @ApiResponse({
     status: 201,
     description: 'Plik został uploadowany',
-    type: Object, // MediaUploadResponse
+    type: Object, // FileUploadResponse
   })
   @UseInterceptors(FileInterceptor('file'))
   async upload(
     @Body('path') relativePath: string = '',
     @UploadedFile() file: Express.Multer.File,
-  ): Promise<MediaUploadResponse> {
+  ): Promise<FileUploadResponse> {
     if (!file) {
       throw new BadRequestException('No file uploaded');
     }
 
-    return this.mediaService.uploadFile(relativePath, file);
+    return this.filesService.uploadFile(relativePath, file);
   }
 
   /**
-   * POST /api/media/folders
+   * POST /api/files/folders
    * Tworzy nowy folder
    */
   @Post('folders')
@@ -135,29 +137,46 @@ export class MediaController {
     schema: { type: 'object', properties: { success: { type: 'boolean' } } },
   })
   async createFolder(@Body() dto: CreateFolderDto): Promise<{ success: boolean }> {
-    await this.mediaService.createFolder(dto.path);
+    await this.filesService.createFolder(dto.path);
     return { success: true };
   }
 
   /**
-   * POST /api/media/rename
+   * POST /api/files/rename
    * Rename pliku lub folderu
    */
   @Post('rename')
   @ApiOperation({ summary: 'Rename pliku lub folderu' })
-  @ApiBody({ type: RenameMediaDto })
+  @ApiBody({ type: RenameFileDto })
   @ApiResponse({
     status: 200,
     description: 'Plik/folder został przemianowany',
     schema: { type: 'object', properties: { success: { type: 'boolean' } } },
   })
-  async rename(@Body() dto: RenameMediaDto): Promise<{ success: boolean }> {
-    await this.mediaService.rename(dto.path, dto.newName);
+  async rename(@Body() dto: RenameFileDto): Promise<{ success: boolean }> {
+    await this.filesService.rename(dto.path, dto.newName);
     return { success: true };
   }
 
   /**
-   * DELETE /api/media?path=<path>
+   * PUT /api/files/save
+   * Zapisuje/nadpisuje plik tekstowy
+   */
+  @Put('save')
+  @ApiOperation({ summary: 'Zapisuje zawartość pliku tekstowego' })
+  @ApiBody({ type: SaveFileDto })
+  @ApiResponse({
+    status: 200,
+    description: 'Plik został zapisany',
+    schema: { type: 'object', properties: { success: { type: 'boolean' } } },
+  })
+  async saveFile(@Body() dto: SaveFileDto): Promise<{ success: boolean }> {
+    await this.filesService.saveFile(dto.path, dto.content);
+    return { success: true };
+  }
+
+  /**
+   * DELETE /api/files?path=<path>
    * Soft delete (przenosi do trash)
    */
   @Delete()
@@ -166,20 +185,20 @@ export class MediaController {
     name: 'path',
     required: true,
     description: 'Ścieżka do pliku/folderu do usunięcia',
-    example: 'ogloszenia/plik.jpg',
+    example: 'media/ogloszenia/plik.jpg',
   })
   @ApiResponse({
     status: 200,
     description: 'Plik/folder został przeniesiony do trash',
     schema: { type: 'object', properties: { success: { type: 'boolean' } } },
   })
-  async delete(@Query() dto: DeleteMediaDto): Promise<{ success: boolean }> {
-    await this.mediaService.delete(dto.path);
+  async delete(@Query() dto: DeleteFileDto): Promise<{ success: boolean }> {
+    await this.filesService.delete(dto.path);
     return { success: true };
   }
 
   /**
-   * GET /api/media/file?path=<path>
+   * GET /api/files/file?path=<path>
    * Pobiera plik (binary streaming)
    */
   @Get('file')
@@ -188,7 +207,7 @@ export class MediaController {
     name: 'path',
     required: true,
     description: 'Ścieżka do pliku',
-    example: 'ogloszenia/plik.jpg',
+    example: 'media/ogloszenia/plik.jpg',
   })
   @ApiResponse({
     status: 200,
@@ -197,6 +216,7 @@ export class MediaController {
       'image/*': {},
       'video/*': {},
       'audio/*': {},
+      'text/*': {},
       'application/octet-stream': {},
     },
   })
@@ -204,7 +224,7 @@ export class MediaController {
     @Query() dto: GetFileDto,
     @Res({ passthrough: true }) res: Response,
   ): Promise<StreamableFile> {
-    const filePath = this.mediaService.getFilePath(dto.path);
+    const filePath = this.filesService.getFilePath(dto.path);
 
     // Sprawdź czy plik istnieje
     if (!fs.existsSync(filePath)) {
@@ -218,8 +238,7 @@ export class MediaController {
 
     // Ustaw Content-Type
     const fileName = path.basename(filePath);
-    const kind = FileTypeDetector.detectFromExtension(fileName);
-    const mimeType = this.getMimeType(kind, fileName);
+    const mimeType = this.getMimeType(fileName);
 
     res.set({
       'Content-Type': mimeType,
@@ -233,9 +252,9 @@ export class MediaController {
   }
 
   /**
-   * Mapuje MediaKind na MIME type
+   * Mapuje rozszerzenie na MIME type
    */
-  private getMimeType(kind: string, fileName: string): string {
+  private getMimeType(fileName: string): string {
     const ext = path.extname(fileName).toLowerCase();
 
     // Obrazy
@@ -266,11 +285,25 @@ export class MediaController {
       '.m4a': 'audio/mp4',
     };
 
+    // Tekst/Dokumenty
+    const textMap: Record<string, string> = {
+      '.txt': 'text/plain',
+      '.md': 'text/markdown',
+      '.yaml': 'text/yaml',
+      '.yml': 'text/yaml',
+      '.json': 'application/json',
+      '.html': 'text/html',
+      '.css': 'text/css',
+      '.js': 'text/javascript',
+    };
+
     return (
       imageMap[ext] ||
       videoMap[ext] ||
       audioMap[ext] ||
+      textMap[ext] ||
       'application/octet-stream'
     );
   }
 }
+

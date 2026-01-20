@@ -54,6 +54,13 @@ export class TextsService implements OnModuleInit {
     return this.textsMap.get(id) || null;
   }
 
+  /**
+   * Find text by reference path (e.g. "songs/barka__01HXZ3R8E7Q2V4VJ6T9G2J8N1P")
+   */
+  async findByPath(path: string): Promise<TextDoc | null> {
+    return this.loader.loadByReference(path);
+  }
+
   async create(data: CreateTextData): Promise<TextDoc> {
     const text = await this.creator.createText(data);
     this.textsMap.set(text.meta.id, text);

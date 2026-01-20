@@ -40,13 +40,42 @@ export class TextLoader {
       const files = await fs.readdir(domainPath);
       const textFiles = files.filter((file) => file.endsWith('.md'));
 
-      const texts = await Promise.all(
+      const results = await Promise.all(
         textFiles.map((file) => this.loadByFilename(domain, file)),
       );
+      const texts = results.filter((t): t is TextDoc => t !== null);
       allTexts.push(...texts);
     }
 
     return allTexts;
+  }
+
+  /**
+   * Load text by reference - supports format:
+   * - "domain/filename" (e.g. "songs/barka__01HXZ3R8E7Q2V4VJ6T9G2J8N1P")
+   * 
+   * This is consistent with media paths and human-readable.
+   * The .md extension is optional.
+   * 
+   * @param reference - text reference in format "domain/filename"
+   */
+  async loadByReference(reference: string): Promise<TextDoc | null> {
+    // Expected format: domain/filename (e.g. "songs/barka__01HXZ3R8E7Q2V4VJ6T9G2J8N1P")
+    if (reference.includes('/')) {
+      const slashIndex = reference.indexOf('/');
+      const domain = reference.substring(0, slashIndex);
+      let filename = reference.substring(slashIndex + 1);
+      
+      // Add .md extension if not present
+      if (!filename.endsWith('.md')) {
+        filename = `${filename}.md`;
+      }
+      
+      return this.loadByFilename(domain, filename);
+    }
+
+    // Fallback: treat as ID for backward compatibility
+    return this.loadById(reference);
   }
 
   /**
@@ -73,10 +102,14 @@ export class TextLoader {
   /**
    * Load text file from specific domain
    */
-  private async loadByFilename(domain: string, filename: string): Promise<TextDoc> {
+  private async loadByFilename(domain: string, filename: string): Promise<TextDoc | null> {
     const filePath = path.join(this.textsDirectory, domain, filename);
-    const content = await fs.readFile(filePath, 'utf-8');
-    return parseTextFile(content, domain);
+    try {
+      const content = await fs.readFile(filePath, 'utf-8');
+      return parseTextFile(content, domain);
+    } catch {
+      return null;
+    }
   }
 
   /**

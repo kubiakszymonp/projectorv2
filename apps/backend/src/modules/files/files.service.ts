@@ -3,32 +3,33 @@ import * as fs from 'fs/promises';
 import * as path from 'path';
 import { ulid } from 'ulid';
 import {
-  MediaNode,
-  MediaListResponse,
-  MediaTreeResponse,
-  MediaTreeFolder,
-  MediaUploadResponse,
+  FileNode,
+  FileListResponse,
+  FolderTreeResponse,
+  FolderTreeNode,
+  FileUploadResponse,
 } from '../../types';
 import { PathValidator } from './path-validator';
 import { FileTypeDetector } from './file-type-detector';
 
 @Injectable()
-export class MediaService {
+export class FilesService {
   private readonly pathValidator: PathValidator;
   private readonly trashRoot: string;
 
   constructor() {
     // W monorepo, cwd() zwraca apps/backend, więc idziemy 2 poziomy wyżej
     const projectRoot = path.resolve(process.cwd(), '..', '..');
-    const mediaRoot = path.resolve(projectRoot, 'data', 'media');
-    this.pathValidator = new PathValidator(mediaRoot);
-    this.trashRoot = path.resolve(projectRoot, 'data', 'trash', 'media');
+    // Root dla całego folderu data/ - nie tylko media
+    const dataRoot = path.resolve(projectRoot, 'data');
+    this.pathValidator = new PathValidator(dataRoot);
+    this.trashRoot = path.resolve(projectRoot, 'data', 'trash');
   }
 
   /**
    * Listuje zawartość folderu
    */
-  async list(relativePath: string = ''): Promise<MediaListResponse> {
+  async list(relativePath: string = ''): Promise<FileListResponse> {
     const fullPath = this.pathValidator.safeJoin(relativePath);
 
     // Sprawdź czy ścieżka istnieje
@@ -46,9 +47,14 @@ export class MediaService {
 
     // Wczytaj zawartość
     const entries = await fs.readdir(fullPath, { withFileTypes: true });
-    const items: MediaNode[] = [];
+    const items: FileNode[] = [];
 
     for (const entry of entries) {
+      // Pomijamy folder trash
+      if (relativePath === '' && entry.name === 'trash') {
+        continue;
+      }
+
       const entryPath = path.join(fullPath, entry.name);
       const relPath = this.pathValidator.getRelativePath(entryPath);
       
@@ -82,7 +88,7 @@ export class MediaService {
   /**
    * Zwraca drzewo folderów (rekurencyjnie)
    */
-  async getTree(): Promise<MediaTreeResponse> {
+  async getTree(): Promise<FolderTreeResponse> {
     const root = this.pathValidator.getRoot();
     const folders = await this.scanFoldersRecursive(root, '');
 
@@ -95,14 +101,19 @@ export class MediaService {
   private async scanFoldersRecursive(
     currentPath: string,
     relativePath: string,
-  ): Promise<MediaTreeFolder[]> {
-    const folders: MediaTreeFolder[] = [];
+  ): Promise<FolderTreeNode[]> {
+    const folders: FolderTreeNode[] = [];
 
     try {
       const entries = await fs.readdir(currentPath, { withFileTypes: true });
 
       for (const entry of entries) {
         if (entry.isDirectory()) {
+          // Pomijamy folder trash
+          if (relativePath === '' && entry.name === 'trash') {
+            continue;
+          }
+
           const folderPath = path.join(currentPath, entry.name);
           const relPath = relativePath ? `${relativePath}/${entry.name}` : entry.name;
 
@@ -147,7 +158,7 @@ export class MediaService {
   async uploadFile(
     relativePath: string,
     file: Express.Multer.File,
-  ): Promise<MediaUploadResponse> {
+  ): Promise<FileUploadResponse> {
     const folderPath = this.pathValidator.safeJoin(relativePath);
 
     // Upewnij się że folder istnieje
@@ -232,7 +243,7 @@ export class MediaService {
       throw new NotFoundException('File or folder not found');
     }
 
-    // Przygotuj ścieżkę w trash
+    // Przygotuj ścieżkę w trash - zachowaj strukturę folderów
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     const fileName = path.basename(fullPath);
     const trashPath = path.join(this.trashRoot, `${timestamp}__${fileName}`);
@@ -249,6 +260,29 @@ export class MediaService {
    */
   getFilePath(relativePath: string): string {
     return this.pathValidator.safeJoin(relativePath);
+  }
+
+  /**
+   * Zapisuje zawartość pliku tekstowego
+   */
+  async saveFile(relativePath: string, content: string): Promise<void> {
+    const fullPath = this.pathValidator.safeJoin(relativePath);
+
+    // Sprawdź czy plik istnieje
+    try {
+      const stat = await fs.stat(fullPath);
+      if (!stat.isFile()) {
+        throw new NotFoundException('Path is not a file');
+      }
+    } catch (err) {
+      if (err.code === 'ENOENT') {
+        throw new NotFoundException('File not found');
+      }
+      throw err;
+    }
+
+    // Zapisz zawartość
+    await fs.writeFile(fullPath, content, 'utf-8');
   }
 
   /**

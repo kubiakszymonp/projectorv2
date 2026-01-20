@@ -9,8 +9,8 @@ export type ScenarioStepType = 'text' | 'image' | 'video' | 'audio' | 'heading' 
 
 /**
  * Krok scenariusza - prosty format YAML:
- * - text: pieśń:pan-z-toba
- * - image: assets/logo.png
+ * - text: songs/barka__01HXZ3R8E7Q2V4VJ6T9G2J8N1P
+ * - image: ogloszenia/logo.png
  * - heading: Pieśni
  * - blank: true
  */

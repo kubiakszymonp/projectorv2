@@ -7,8 +7,8 @@ import { ApiProperty } from '@nestjs/swagger';
  */
 export class ScenarioStepDto {
   @ApiProperty({
-    description: 'Text reference (id or category:slug)',
-    example: 'pieśń:barka',
+    description: 'Text reference in format domain/filename (e.g. songs/barka__01HXZ3R8E7Q2V4VJ6T9G2J8N1P)',
+    example: 'songs/barka__01HXZ3R8E7Q2V4VJ6T9G2J8N1P',
     required: false,
   })
   @IsString()

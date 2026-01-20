@@ -6,11 +6,11 @@ export * from './texts';
 // Scenarios domain
 export * from './scenarios';
 
-// Media domain - types
-export * from './media';
+// Files domain - types
+export * from './files';
 
-// Media domain - DTOs
-export * from './media.dto';
+// Files domain - DTOs
+export * from './files.dto';
 
 // Settings domain - types
 export * from './settings';

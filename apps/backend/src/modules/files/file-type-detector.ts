@@ -1,11 +1,11 @@
 import * as path from 'path';
-import { MediaKind } from '../../types';
+import { FileKind } from '../../types';
 
 /**
  * Wykrywa typ pliku na podstawie MIME i rozszerzenia
  */
 export class FileTypeDetector {
-  private static readonly EXTENSION_MAP: Record<string, MediaKind> = {
+  private static readonly EXTENSION_MAP: Record<string, FileKind> = {
     // Images
     '.jpg': 'image',
     '.jpeg': 'image',
@@ -48,17 +48,27 @@ export class FileTypeDetector {
     '.xlsx': 'document',
     '.ppt': 'document',
     '.pptx': 'document',
-    '.txt': 'document',
     '.rtf': 'document',
     '.odt': 'document',
     '.ods': 'document',
     '.odp': 'document',
+
+    // Text files
+    '.txt': 'text',
+    '.md': 'text',
+    '.yaml': 'text',
+    '.yml': 'text',
+    '.json': 'text',
+    '.html': 'text',
+    '.css': 'text',
+    '.js': 'text',
+    '.ts': 'text',
   };
 
   /**
    * Wykrywa typ na podstawie MIME type (z uploadu) lub rozszerzenia
    */
-  static detect(mimeType?: string, fileName?: string): MediaKind {
+  static detect(mimeType?: string, fileName?: string): FileKind {
     // Najpierw spróbuj MIME
     if (mimeType) {
       const kindFromMime = this.detectFromMime(mimeType);
@@ -78,16 +88,16 @@ export class FileTypeDetector {
   /**
    * Wykrywa typ z MIME type
    */
-  private static detectFromMime(mimeType: string): MediaKind {
+  private static detectFromMime(mimeType: string): FileKind {
     const mime = mimeType.toLowerCase();
 
     if (mime.startsWith('image/')) return 'image';
     if (mime.startsWith('video/')) return 'video';
     if (mime.startsWith('audio/')) return 'audio';
+    if (mime.startsWith('text/')) return 'text';
     if (
       mime.startsWith('application/pdf') ||
-      mime.includes('document') ||
-      mime.includes('text/')
+      mime.includes('document')
     ) {
       return 'document';
     }
@@ -98,7 +108,7 @@ export class FileTypeDetector {
   /**
    * Wykrywa typ z rozszerzenia pliku
    */
-  static detectFromExtension(fileName: string): MediaKind {
+  static detectFromExtension(fileName: string): FileKind {
     const ext = path.extname(fileName).toLowerCase();
     return this.EXTENSION_MAP[ext] || 'other';
   }

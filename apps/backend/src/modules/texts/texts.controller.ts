@@ -6,6 +6,7 @@ import {
   Delete,
   Body,
   Param,
+  Query,
   NotFoundException,
   HttpCode,
   HttpStatus,
@@ -15,6 +16,7 @@ import {
   ApiOperation,
   ApiResponse,
   ApiParam,
+  ApiQuery,
   ApiBody,
 } from '@nestjs/swagger';
 import { TextsService } from './texts.service';
@@ -84,6 +86,37 @@ export class TextsController {
   })
   async findAll(): Promise<TextDoc[]> {
     return this.textsService.findAll();
+  }
+
+  @Get('by-path')
+  @ApiOperation({
+    summary: 'Get text by path',
+    description: 'Retrieve a text by its file path (domain/filename). Example: songs/barka__01HXZ3R8E7Q2V4VJ6T9G2J8N1P',
+  })
+  @ApiQuery({
+    name: 'path',
+    required: true,
+    description: 'Text path (domain/filename)',
+    example: 'songs/barka__01HXZ3R8E7Q2V4VJ6T9G2J8N1P',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Text found and returned',
+    type: TextDocDto,
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Text not found',
+  })
+  async findByPath(@Query('path') path: string): Promise<TextDoc> {
+    if (!path) {
+      throw new NotFoundException('Path is required');
+    }
+    const text = await this.textsService.findByPath(path);
+    if (!text) {
+      throw new NotFoundException(`Text not found: ${path}`);
+    }
+    return text;
   }
 
   @Get(':id')

@@ -3,9 +3,9 @@
 // Songs domain
 export * from './types/songs';
 
-// Media domain - types
-export * from './types/media';
+// Files domain - types
+export * from './types/files';
 
-// Media domain - DTOs
-export * from './dto/media.dto';
+// Files domain - DTOs
+export * from './dto/files.dto';
 
