@@ -1,0 +1,5 @@
+# Settings directory
+# Keep folder but ignore config file (contains sensitive data like WiFi passwords)
+*
+!.gitignore
+
