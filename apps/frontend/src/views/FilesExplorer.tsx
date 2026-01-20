@@ -8,7 +8,7 @@ import {
   PanelLeft,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { TooltipProvider } from '@/components/ui/tooltip';
+import { TooltipProvider, Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { FileTree } from '@/components/files/FileTree';
 import { FileList } from '@/components/files/FileList';
 import { Breadcrumb } from '@/components/files/Breadcrumb';
@@ -36,9 +36,7 @@ type OpenFile = {
 export function FilesExplorer() {
   // State - nawigacja
   const [currentPath, setCurrentPath] = useState('');
-  const [expandedFolders, setExpandedFolders] = useState<Set<string>>(
-    new Set(['media', 'texts'])
-  );
+  const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
   const [selectedFile, setSelectedFile] = useState<FileNode | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
@@ -162,12 +160,13 @@ export function FilesExplorer() {
     <TooltipProvider>
       <div className="h-screen flex flex-col bg-background">
         {/* Header */}
-        <header className="flex items-center justify-between px-4 py-3 border-b">
-          <div className="flex items-center gap-3">
+        <header className="flex items-center justify-between px-2 sm:px-4 py-3 border-b">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <Button
               variant="ghost"
               size="icon"
               onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="shrink-0"
             >
               {sidebarOpen ? (
                 <PanelLeftClose className="h-5 w-5" />
@@ -175,7 +174,7 @@ export function FilesExplorer() {
                 <PanelLeft className="h-5 w-5" />
               )}
             </Button>
-            <h1 className="text-lg font-semibold">Edytor plików</h1>
+            <h1 className="text-base sm:text-lg font-semibold truncate">Edytor plików</h1>
           </div>
           <div className="flex items-center gap-2">
             <Button
@@ -197,15 +196,22 @@ export function FilesExplorer() {
           {sidebarOpen && (
             <aside className="w-64 border-r flex flex-col bg-muted/20">
               <div className="p-2 border-b">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full justify-start"
-                  onClick={() => setCreateFolderOpen(true)}
-                >
-                  <FolderPlus className="h-4 w-4 mr-2" />
-                  Nowy folder
-                </Button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full justify-start"
+                      onClick={() => setCreateFolderOpen(true)}
+                    >
+                      <FolderPlus className="h-4 w-4 sm:mr-2" />
+                      <span className="hidden sm:inline">Nowy folder</span>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Nowy folder</p>
+                  </TooltipContent>
+                </Tooltip>
               </div>
               <FileTree
                 folders={folderTree?.folders ?? []}
@@ -220,21 +226,36 @@ export function FilesExplorer() {
           {/* Content */}
           <main className="flex-1 flex flex-col min-w-0">
             {/* Toolbar */}
-            <div className="flex items-center gap-2 px-4 py-2 border-b">
-              <Breadcrumb path={currentPath} onNavigate={handleSelectFolder} />
-              <div className="flex-1" />
-              <Button variant="outline" size="sm" onClick={handleUpload}>
-                <Upload className="h-4 w-4 mr-2" />
-                Upload
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setCreateFolderOpen(true)}
-              >
-                <FolderPlus className="h-4 w-4 mr-2" />
-                Folder
-              </Button>
+            <div className="flex items-center gap-2 px-2 sm:px-4 py-2 border-b overflow-hidden">
+              <div className="flex-1 min-w-0">
+                <Breadcrumb path={currentPath} onNavigate={handleSelectFolder} />
+              </div>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="outline" size="sm" onClick={handleUpload}>
+                    <Upload className="h-4 w-4 sm:mr-2" />
+                    <span className="hidden sm:inline">Upload</span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Upload</p>
+                </TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCreateFolderOpen(true)}
+                  >
+                    <FolderPlus className="h-4 w-4 sm:mr-2" />
+                    <span className="hidden sm:inline">Folder</span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Nowy folder</p>
+                </TooltipContent>
+              </Tooltip>
             </div>
 
             {/* File list */}

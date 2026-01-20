@@ -77,7 +77,7 @@ function TreeItem({
       <button
         onClick={() => onSelectFolder(node.path)}
         className={cn(
-          'flex w-full items-center gap-1 rounded-md px-2 py-1.5 text-sm hover:bg-muted transition-colors',
+          'flex w-full items-center gap-1 rounded-md px-2 py-1.5 text-sm hover:bg-muted transition-colors min-w-0',
           isSelected && 'bg-muted text-foreground font-medium'
         )}
         style={{ paddingLeft: `${level * 12 + 8}px` }}
@@ -88,7 +88,7 @@ function TreeItem({
               e.stopPropagation();
               onToggleExpand(node.path);
             }}
-            className="p-0.5 hover:bg-accent rounded"
+            className="p-0.5 hover:bg-accent rounded shrink-0"
           >
             {isExpanded ? (
               <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
@@ -97,10 +97,10 @@ function TreeItem({
             )}
           </button>
         ) : (
-          <span className="w-4" />
+          <span className="w-4 shrink-0" />
         )}
         <Folder className="h-4 w-4 text-blue-400 shrink-0" />
-        <span className="truncate">{node.name}</span>
+        <span className="truncate min-w-0">{node.name}</span>
       </button>
 
       {isExpanded && hasChildren && (
@@ -138,12 +138,12 @@ export function FileTree({
         <button
           onClick={() => onSelectFolder('')}
           className={cn(
-            'flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-muted transition-colors',
+            'flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-muted transition-colors min-w-0',
             currentPath === '' && 'bg-muted text-foreground font-medium'
           )}
         >
-          <HardDrive className="h-4 w-4 text-amber-400" />
-          <span>data</span>
+          <HardDrive className="h-4 w-4 text-amber-400 shrink-0" />
+          <span className="truncate">data</span>
         </button>
 
         {/* Tree */}

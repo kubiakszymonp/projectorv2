@@ -1,7 +1,7 @@
 schemaVersion: scenario-1
 id: 01JJEXAMPLE000000000000000
 title: Niedziela 11:00
-description: Msza święta niedzielna
+description: Msza święta niedzielna dzisiaj
 steps:
   - text: songs/barka__01HXZ3R8E7Q2V4VJ6T9G2J8N1P
   - text: songs/alleluja__01J0K1Q9B6K4T3P6E8F0R2A7X9

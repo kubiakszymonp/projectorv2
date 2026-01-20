@@ -16,6 +16,13 @@ import {
   ContextMenuSeparator,
   ContextMenuTrigger,
 } from '@/components/ui/context-menu';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import type { FileNode, FileKind } from '@/types/files';
 
@@ -71,63 +78,83 @@ export function FileItem({
   onRename,
   onDelete,
 }: FileItemProps) {
+  const menuContent = (
+    <ContextMenuContent>
+      <ContextMenuItem onClick={onOpen}>
+        {file.isDir ? 'Otwórz folder' : 'Otwórz'}
+      </ContextMenuItem>
+      <ContextMenuSeparator />
+      <ContextMenuItem onClick={onRename}>Zmień nazwę</ContextMenuItem>
+      <ContextMenuItem onClick={onDelete} className="text-destructive">
+        Usuń
+      </ContextMenuItem>
+    </ContextMenuContent>
+  );
+
   return (
-    <ContextMenu>
-      <ContextMenuTrigger asChild>
-        <div
-          onClick={onSelect}
-          onDoubleClick={onOpen}
-          className={cn(
-            'group flex items-center gap-3 px-3 py-2 rounded-md cursor-pointer transition-colors',
-            'hover:bg-muted/50',
-            isSelected && 'bg-muted'
-          )}
-        >
-          {/* Icon */}
-          <div className="shrink-0">{getFileIcon(file)}</div>
-
-          {/* Name */}
-          <div className="flex-1 min-w-0">
-            <p className="text-sm truncate">{file.name}</p>
-          </div>
-
-          {/* Size */}
-          {!file.isDir && (
-            <div className="hidden sm:block text-xs text-muted-foreground w-20 text-right">
-              {formatSize(file.size)}
-            </div>
-          )}
-
-          {/* Modified date */}
-          <div className="hidden md:block text-xs text-muted-foreground w-36 text-right">
-            {formatDate(file.modifiedAt)}
-          </div>
-
-          {/* Actions */}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 opacity-0 group-hover:opacity-100"
-            onClick={(e) => {
-              e.stopPropagation();
-            }}
+    <>
+      {/* Context menu for right-click on the item */}
+      <ContextMenu>
+        <ContextMenuTrigger asChild>
+          <div
+            onClick={onSelect}
+            onDoubleClick={onOpen}
+            className={cn(
+              'group flex items-center gap-2 sm:gap-3 px-2 sm:px-3 py-2 rounded-md cursor-pointer transition-colors',
+              'hover:bg-muted/50 overflow-hidden',
+              isSelected && 'bg-muted'
+            )}
           >
-            <MoreVertical className="h-4 w-4" />
-          </Button>
-        </div>
-      </ContextMenuTrigger>
+            {/* Icon */}
+            <div className="shrink-0">{getFileIcon(file)}</div>
 
-      <ContextMenuContent>
-        <ContextMenuItem onClick={onOpen}>
-          {file.isDir ? 'Otwórz folder' : 'Otwórz'}
-        </ContextMenuItem>
-        <ContextMenuSeparator />
-        <ContextMenuItem onClick={onRename}>Zmień nazwę</ContextMenuItem>
-        <ContextMenuItem onClick={onDelete} className="text-destructive">
-          Usuń
-        </ContextMenuItem>
-      </ContextMenuContent>
-    </ContextMenu>
+            {/* Name */}
+            <div className="flex-1 min-w-0 overflow-hidden">
+              <p className="text-sm truncate">{file.name}</p>
+            </div>
+
+            {/* Size */}
+            {!file.isDir && (
+              <div className="hidden sm:block text-xs text-muted-foreground w-16 sm:w-20 text-right shrink-0">
+                {formatSize(file.size)}
+              </div>
+            )}
+
+            {/* Modified date */}
+            <div className="hidden md:block text-xs text-muted-foreground w-36 text-right shrink-0">
+              {formatDate(file.modifiedAt)}
+            </div>
+
+            {/* Actions - dropdown menu for the button */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 shrink-0 opacity-0 sm:group-hover:opacity-100"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                  }}
+                >
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={onOpen}>
+                  {file.isDir ? 'Otwórz folder' : 'Otwórz'}
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={onRename}>Zmień nazwę</DropdownMenuItem>
+                <DropdownMenuItem onClick={onDelete} className="text-destructive">
+                  Usuń
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </ContextMenuTrigger>
+        {menuContent}
+      </ContextMenu>
+    </>
   );
 }
 

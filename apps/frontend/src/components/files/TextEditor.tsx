@@ -8,6 +8,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useFileContent } from '@/hooks/useFiles';
 import { getFileUrl } from '@/api/files';
 
@@ -74,29 +75,44 @@ export function TextEditorModal({
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && handleClose()}>
       <DialogContent className="max-w-4xl h-[80vh] flex flex-col">
         <DialogHeader className="flex-shrink-0">
-          <div className="flex items-center justify-between pr-8">
-            <DialogTitle className="flex items-center gap-2">
-              <FileCode className="h-5 w-5 text-cyan-400" />
-              <span>{fileName}</span>
+          <div className="flex items-center gap-2 justify-between pr-8">
+            <DialogTitle className="flex items-center gap-2 min-w-0 flex-1">
+              <FileCode className="h-5 w-5 text-cyan-400 shrink-0" />
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="truncate">{fileName}</span>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="break-all max-w-xs">{fileName}</p>
+                </TooltipContent>
+              </Tooltip>
               {hasChanges && (
-                <span className="text-xs text-amber-400 font-normal">
+                <span className="text-xs text-amber-400 font-normal shrink-0">
                   • niezapisane zmiany
                 </span>
               )}
             </DialogTitle>
-            <Button
-              variant="default"
-              size="sm"
-              onClick={handleSave}
-              disabled={!hasChanges || isSaving}
-            >
-              {isSaving ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Save className="h-4 w-4" />
-              )}
-              <span className="ml-1">Zapisz</span>
-            </Button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="default"
+                  size="sm"
+                  onClick={handleSave}
+                  disabled={!hasChanges || isSaving}
+                  className="shrink-0"
+                >
+                  {isSaving ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Save className="h-4 w-4" />
+                  )}
+                  <span className="ml-1 hidden sm:inline">Zapisz</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Zapisz</p>
+              </TooltipContent>
+            </Tooltip>
           </div>
         </DialogHeader>
 
@@ -137,7 +153,14 @@ export function FilePreviewModal({
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
       <DialogContent className="max-w-4xl max-h-[80vh]">
         <DialogHeader>
-          <DialogTitle>{fileName}</DialogTitle>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <DialogTitle className="truncate">{fileName}</DialogTitle>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p className="break-all max-w-xs">{fileName}</p>
+            </TooltipContent>
+          </Tooltip>
         </DialogHeader>
 
         <div className="flex items-center justify-center p-4 overflow-auto max-h-[60vh]">
