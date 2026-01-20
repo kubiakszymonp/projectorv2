@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-export class SongMetaDto {
+export class TextMetaDto {
   @ApiProperty({
     description: 'Schema version',
     example: 1,
@@ -8,46 +8,46 @@ export class SongMetaDto {
   schemaVersion: 1;
 
   @ApiProperty({
-    description: 'Unique song identifier (ULID)',
+    description: 'Unique text identifier (ULID)',
     example: '01HXZ3R8E7Q2V4VJ6T9G2J8N1P',
   })
   id: string;
 
   @ApiProperty({
-    description: 'Song title',
+    description: 'Text title',
     example: 'Barka',
   })
   title: string;
 
   @ApiProperty({
-    description: 'Song description',
+    description: 'Text description',
     example: 'Pieśń maryjna i pielgrzymkowa',
   })
   description: string;
 
   @ApiProperty({
-    description: 'Song categories',
+    description: 'Text categories',
     example: ['maryjne', 'pielgrzymkowe'],
     type: [String],
   })
   categories: string[];
 }
 
-export class SongDocDto {
+export class TextDocDto {
   @ApiProperty({
-    description: 'Song metadata',
-    type: SongMetaDto,
+    description: 'Text metadata',
+    type: TextMetaDto,
   })
-  meta: SongMetaDto;
+  meta: TextMetaDto;
 
   @ApiProperty({
-    description: 'Raw song content (full text)',
+    description: 'Raw text content (full text)',
     example: 'Refren:\nPanie mój, Ty wiesz dokąd zmierzam\n\nZwrotka 1:\nW deszczu dni...',
   })
   contentRaw: string;
 
   @ApiProperty({
-    description: 'Song slides (content split by blank lines)',
+    description: 'Text slides (content split by blank lines)',
     example: [
       'Refren:\nPanie mój, Ty wiesz dokąd zmierzam',
       'Zwrotka 1:\nW deszczu dni...',

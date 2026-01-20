@@ -75,13 +75,13 @@ export const DEFAULT_SETTINGS: ProjectorSettings = {
 /**
  * Types of content that can be displayed
  */
-export type DisplayContentType = 'blank' | 'song' | 'image' | 'video' | 'announcement';
+export type DisplayContentType = 'blank' | 'text' | 'image' | 'video' | 'announcement';
 
 /**
- * Content for displaying a song verse
+ * Content for displaying a text slide (song, reading, etc.)
  */
-export interface SongDisplayContent {
-  songId: string;
+export interface TextDisplayContent {
+  textId: string;
   verseIndex: number;
   text: string;
   title?: string;
@@ -106,7 +106,7 @@ export interface AnnouncementDisplayContent {
  * Union type for all display content types
  */
 export type DisplayContent = 
-  | SongDisplayContent 
+  | TextDisplayContent 
   | MediaDisplayContent 
   | AnnouncementDisplayContent 
   | null;

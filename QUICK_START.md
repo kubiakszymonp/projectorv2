@@ -18,7 +18,7 @@ projector/
 │   ├── backend/                  # NestJS backend
 │   │   ├── src/
 │   │   │   ├── modules/         # Feature modules
-│   │   │   │   ├── songs/       # Songs module
+│   │   │   │   ├── texts/       # Texts module (songs, readings, etc.)
 │   │   │   │   ├── playlists/   # Playlists module
 │   │   │   │   ├── media/       # Media module
 │   │   │   │   ├── player/      # Player module

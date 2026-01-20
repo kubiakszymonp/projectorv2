@@ -1,8 +1,8 @@
-// ========== SONGS DOMAIN ==========
+// ========== TEXTS DOMAIN ==========
 
-export type SongId = string;
+export type TextId = string;
 
-export type SongMeta = {
+export type TextMeta = {
   schemaVersion: 1;
   id: string; // ULID
   title: string;
@@ -10,8 +10,8 @@ export type SongMeta = {
   categories: string[];
 };
 
-export type SongDoc = {
-  meta: SongMeta;
+export type TextDoc = {
+  meta: TextMeta;
   contentRaw: string;
   slides: string[];
 };

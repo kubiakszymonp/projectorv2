@@ -1,0 +1,13 @@
+schemaVersion: scenario-1
+id: 01JJEXAMPLE000000000000000
+title: Niedziela 11:00
+description: Msza święta niedzielna
+steps:
+  - text: pieśń:pan-z-toba
+  - text: akt-pokuty
+  - image: ogłoszenia/logo-parafii.png
+  - heading: Pieśni
+  - text: chwała-na-wysokości
+  - text: baranku-boży
+  - video: ogłoszenia/ogloszenia.mp4
+

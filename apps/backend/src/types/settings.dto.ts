@@ -109,16 +109,16 @@ export class UpdateSettingsDto {
 // ========== DISPLAY STATE DTOs ==========
 
 /**
- * DTO for displaying a song verse
- * PUT /api/settings/display (type: 'song')
+ * DTO for displaying a text slide (song, reading, etc.)
+ * PUT /api/settings/display (type: 'text')
  */
-export class DisplaySongDto {
-  @IsIn(['song'])
-  type: 'song';
+export class DisplayTextDto {
+  @IsIn(['text'])
+  type: 'text';
 
   @IsNotEmpty()
   @IsString()
-  songId: string;
+  textId: string;
 
   @IsNumber()
   @Min(0)
@@ -175,13 +175,13 @@ export class DisplayBlankDto {
  * Note: In controller we manually validate based on type
  */
 export class UpdateDisplayStateDto {
-  @IsIn(['blank', 'song', 'image', 'video', 'announcement'])
+  @IsIn(['blank', 'text', 'image', 'video', 'announcement'])
   type: DisplayContentType;
 
-  // Song fields
+  // Text fields (song, reading, etc.)
   @IsOptional()
   @IsString()
-  songId?: string;
+  textId?: string;
 
   @IsOptional()
   @IsNumber()

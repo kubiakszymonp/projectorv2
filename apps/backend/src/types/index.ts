@@ -1,7 +1,10 @@
 // Re-export wszystkiego z podziałem na domeny
 
-// Songs domain
-export * from './songs';
+// Texts domain
+export * from './texts';
+
+// Scenarios domain
+export * from './scenarios';
 
 // Media domain - types
 export * from './media';

@@ -3,7 +3,7 @@ import {
   DisplayState,
   DisplayContentType,
   DisplayContent,
-  SongDisplayContent,
+  TextDisplayContent,
   MediaDisplayContent,
   AnnouncementDisplayContent,
   INITIAL_DISPLAY_STATE,
@@ -55,23 +55,23 @@ export class DisplayStateService {
   }
 
   /**
-   * Display a song verse
+   * Display a text slide (song, reading, etc.)
    */
-  displaySong(
-    songId: string,
+  displayText(
+    textId: string,
     verseIndex: number,
     text: string,
     title?: string,
   ): DisplayState {
-    const content: SongDisplayContent = {
-      songId,
+    const content: TextDisplayContent = {
+      textId,
       verseIndex,
       text,
       title,
     };
 
     this.state = {
-      type: 'song',
+      type: 'text',
       content,
       updatedAt: new Date().toISOString(),
     };
@@ -132,13 +132,13 @@ export class DisplayStateService {
       case 'blank':
         return null;
 
-      case 'song':
+      case 'text':
         return {
-          songId: dto.songId!,
+          textId: dto.textId!,
           verseIndex: dto.verseIndex!,
           text: dto.text!,
           title: dto.title,
-        } as SongDisplayContent;
+        } as TextDisplayContent;
 
       case 'image':
       case 'video':

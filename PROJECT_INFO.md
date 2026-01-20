@@ -3,7 +3,7 @@
 ## Overview
 
 **Project Name**: Projector  
-**Description**: A modern monorepo-based church presentation system for managing and displaying song lyrics and media content.  
+**Description**: A modern monorepo-based church presentation system for managing and displaying text content (songs, readings, etc.) and media.  
 **Monorepo Tool**: Yarn Berry v4.12.0 with Workspaces  
 **Setup Date**: January 20, 2026
 
@@ -31,7 +31,7 @@
 - YAML/Markdown parsing
 
 **Modules Created**:
-- `src/modules/songs/` - Song management
+- `src/modules/texts/` - Text content management (songs, readings, etc.)
 - `src/modules/playlists/` - Playlist management
 - `src/modules/media/` - Media file handling
 - `src/modules/player/` - Real-time presentation control
@@ -59,10 +59,10 @@
 **Usage**:
 ```typescript
 // In backend
-import { SongDoc } from '../../types';
+import { TextDoc } from '../../types';
 
 // In frontend
-import { SongDoc } from './types';
+import { TextDoc } from './types';
 ```
 
 ## Technology Stack

@@ -1,6 +1,6 @@
 # Projector
 
-A modern monorepo-based church presentation system for managing and displaying song lyrics and media content.
+A modern monorepo-based church presentation system for managing and displaying text content (songs, readings, etc.) and media.
 
 ## Architecture
 
@@ -57,7 +57,7 @@ projector/
 │   ├── backend/          # NestJS backend
 │   │   └── src/
 │   │       ├── modules/  # Feature modules
-│   │       │   ├── songs/
+│   │       │   ├── texts/
 │   │       │   ├── playlists/
 │   │       │   ├── media/
 │   │       │   ├── player/

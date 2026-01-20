@@ -146,10 +146,10 @@ export class SettingsController {
         // No additional fields required
         break;
 
-      case 'song':
-        if (!dto.songId || dto.verseIndex === undefined || !dto.text) {
+      case 'text':
+        if (!dto.textId || dto.verseIndex === undefined || !dto.text) {
           throw new BadRequestException(
-            'Song display requires: songId, verseIndex, text',
+            'Text display requires: textId, verseIndex, text',
           );
         }
         break;

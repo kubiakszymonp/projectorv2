@@ -1,17 +1,18 @@
-import { IsString, IsArray, IsOptional, IsNotEmpty } from 'class-validator';
+import { IsString, IsArray, IsOptional } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
-export class CreateSongDto {
+export class UpdateTextDto {
   @ApiProperty({
-    description: 'Song title',
+    description: 'Text title',
     example: 'Barka',
+    required: false,
   })
   @IsString()
-  @IsNotEmpty()
-  title: string;
+  @IsOptional()
+  title?: string;
 
   @ApiProperty({
-    description: 'Song description',
+    description: 'Text description',
     example: 'Pieśń maryjna i pielgrzymkowa',
     required: false,
   })
@@ -20,7 +21,7 @@ export class CreateSongDto {
   description?: string;
 
   @ApiProperty({
-    description: 'Song categories',
+    description: 'Text categories',
     example: ['maryjne', 'pielgrzymkowe'],
     type: [String],
     required: false,
@@ -31,7 +32,7 @@ export class CreateSongDto {
   categories?: string[];
 
   @ApiProperty({
-    description: 'Song content/lyrics (slides separated by blank lines)',
+    description: 'Text content (slides separated by blank lines)',
     example: 'Refren:\nPanie mój, Ty wiesz dokąd zmierzam\n\nZwrotka 1:\nW deszczu dni...',
     required: false,
   })

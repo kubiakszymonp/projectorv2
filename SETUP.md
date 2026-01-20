@@ -75,7 +75,7 @@ This project was set up using Yarn Berry (v4.12.0) with workspaces.
 
 ### Backend Modules
 All modules are scaffolded in `apps/backend/src/modules/`:
-- **songs/** - Song management module
+- **texts/** - Text content management module (songs, readings, etc.)
 - **playlists/** - Playlist management module
 - **media/** - Media file handling module
 - **player/** - Presentation player module
