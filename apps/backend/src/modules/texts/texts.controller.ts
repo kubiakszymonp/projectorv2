@@ -21,12 +21,56 @@ import { TextsService } from './texts.service';
 import { TextDoc } from '../../types';
 import { CreateTextDto } from './dto/create-text.dto';
 import { UpdateTextDto } from './dto/update-text.dto';
+import { CreateDomainDto } from './dto/create-domain.dto';
 import { TextDocDto } from './dto/text-response.dto';
 
 @ApiTags('Texts')
 @Controller('api/texts')
 export class TextsController {
   constructor(private readonly textsService: TextsService) {}
+
+  // ========== DOMAINS ==========
+
+  @Get('domains')
+  @ApiOperation({
+    summary: 'Get all domains',
+    description: 'Retrieve a list of all available text domains (folders like songs, readings, psalms, etc.)',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'List of domains retrieved successfully',
+    schema: {
+      type: 'array',
+      items: { type: 'string' },
+      example: ['songs', 'readings', 'psalms'],
+    },
+  })
+  async getDomains(): Promise<string[]> {
+    return this.textsService.getDomains();
+  }
+
+  @Post('domains')
+  @ApiOperation({
+    summary: 'Create new domain',
+    description: 'Create a new text domain (folder). Domain names must be lowercase with hyphens only.',
+  })
+  @ApiBody({
+    type: CreateDomainDto,
+    description: 'Domain data to create',
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Domain created successfully',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid domain name',
+  })
+  async createDomain(@Body() createDomainDto: CreateDomainDto): Promise<void> {
+    await this.textsService.createDomain(createDomainDto.name);
+  }
+
+  // ========== TEXTS ==========
 
   @Get()
   @ApiOperation({
@@ -94,7 +138,7 @@ export class TextsController {
   @Put(':id')
   @ApiOperation({
     summary: 'Update text',
-    description: 'Update an existing text. All fields are optional - only provided fields will be updated.',
+    description: 'Update an existing text. All fields are optional - only provided fields will be updated. Changing domain will move the file to a new folder.',
   })
   @ApiParam({
     name: 'id',

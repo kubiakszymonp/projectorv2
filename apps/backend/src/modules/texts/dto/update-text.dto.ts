@@ -3,6 +3,15 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class UpdateTextDto {
   @ApiProperty({
+    description: 'Domain (folder) to move text to',
+    example: 'songs',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  domain?: string;
+
+  @ApiProperty({
     description: 'Text title',
     example: 'Barka',
     required: false,

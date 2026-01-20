@@ -14,6 +14,12 @@ export class TextMetaDto {
   id: string;
 
   @ApiProperty({
+    description: 'Domain (folder) where text is stored',
+    example: 'songs',
+  })
+  domain: string;
+
+  @ApiProperty({
     description: 'Text title',
     example: 'Barka',
   })

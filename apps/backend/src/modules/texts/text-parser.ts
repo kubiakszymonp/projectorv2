@@ -8,7 +8,7 @@ export class TextParseError extends Error {
   }
 }
 
-function validateTextMeta(data: unknown): TextMeta {
+function validateTextMeta(data: unknown, domain: string): TextMeta {
   if (!data || typeof data !== 'object') {
     throw new TextParseError('Invalid YAML front matter');
   }
@@ -38,6 +38,7 @@ function validateTextMeta(data: unknown): TextMeta {
   return {
     schemaVersion: 1,
     id: meta.id,
+    domain, // domain comes from folder structure, not from frontmatter
     title: meta.title,
     description: meta.description,
     categories: meta.categories,
@@ -51,10 +52,15 @@ function splitByBlankLines(content: string): string[] {
     .filter((slide) => slide.length > 0);
 }
 
-export function parseTextFile(content: string): TextDoc {
+/**
+ * Parse text file content
+ * @param content - raw file content
+ * @param domain - domain name (folder name where file is located)
+ */
+export function parseTextFile(content: string, domain: string): TextDoc {
   const { data, content: body } = matter(content);
 
-  const meta = validateTextMeta(data);
+  const meta = validateTextMeta(data, domain);
   const contentRaw = body.trim();
   const slides = splitByBlankLines(contentRaw);
 

@@ -6,6 +6,7 @@ import { TextMeta, TextDoc } from '../../types';
 import { TextLoader } from './text-loader';
 
 export interface CreateTextData {
+  domain: string;
   title: string;
   description?: string;
   categories?: string[];
@@ -13,6 +14,7 @@ export interface CreateTextData {
 }
 
 function buildTextFile(meta: TextMeta, content: string): string {
+  // Note: domain is not stored in frontmatter - it's derived from folder structure
   const frontMatter = yaml.dump({
     schemaVersion: meta.schemaVersion,
     id: meta.id,
@@ -35,9 +37,13 @@ export class TextCreator {
       locale: 'pl',
     });
 
+    // Ensure domain folder exists
+    await this.loader.ensureDomain(data.domain);
+
     const meta: TextMeta = {
       schemaVersion: 1,
       id,
+      domain: data.domain,
       title: data.title,
       description: data.description || '',
       categories: data.categories || [],
@@ -45,7 +51,7 @@ export class TextCreator {
 
     const content = data.content || '<wpisz tekst>';
     const fileContent = buildTextFile(meta, content);
-    const filePath = this.loader.getFilePath(slug, id);
+    const filePath = this.loader.getFilePath(data.domain, slug, id);
 
     await fs.writeFile(filePath, fileContent, 'utf-8');
 

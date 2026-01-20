@@ -31,6 +31,21 @@ export class TextsService implements OnModuleInit {
     }
   }
 
+  /**
+   * Get list of available domains (subfolders)
+   */
+  async getDomains(): Promise<string[]> {
+    return this.loader.getDomains();
+  }
+
+  /**
+   * Create a new domain (folder)
+   */
+  async createDomain(name: string): Promise<void> {
+    await this.loader.ensureDomain(name);
+    this.logger.log(`Created domain: ${name}`);
+  }
+
   async findAll(): Promise<TextDoc[]> {
     return Array.from(this.textsMap.values());
   }
@@ -42,7 +57,7 @@ export class TextsService implements OnModuleInit {
   async create(data: CreateTextData): Promise<TextDoc> {
     const text = await this.creator.createText(data);
     this.textsMap.set(text.meta.id, text);
-    this.logger.log(`Created text: ${text.meta.title} (${text.meta.id})`);
+    this.logger.log(`Created text: ${text.meta.title} in domain ${text.meta.domain} (${text.meta.id})`);
     return text;
   }
 
@@ -50,7 +65,7 @@ export class TextsService implements OnModuleInit {
     const text = await this.updater.updateText(id, data);
     if (text) {
       this.textsMap.set(id, text);
-      this.logger.log(`Updated text: ${text.meta.title} (${id})`);
+      this.logger.log(`Updated text: ${text.meta.title} in domain ${text.meta.domain} (${id})`);
     }
     return text;
   }

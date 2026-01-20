@@ -3,6 +3,14 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateTextDto {
   @ApiProperty({
+    description: 'Domain (folder) where text will be stored',
+    example: 'songs',
+  })
+  @IsString()
+  @IsNotEmpty()
+  domain: string;
+
+  @ApiProperty({
     description: 'Text title',
     example: 'Barka',
   })
