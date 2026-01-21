@@ -6,3 +6,6 @@ export * from './texts';
 // Media domain
 export * from './media';
 
+// Scenarios domain
+export * from './scenarios';
+

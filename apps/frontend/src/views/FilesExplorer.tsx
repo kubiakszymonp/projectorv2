@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import {
   FolderPlus,
   Upload,
@@ -16,6 +16,7 @@ import { TextEditorModal, FilePreviewModal } from '@/components/files/TextEditor
 import { RenameDialog } from '@/components/files/dialogs/RenameDialog';
 import { CreateFolderDialog } from '@/components/files/dialogs/CreateFolderDialog';
 import { DeleteDialog } from '@/components/files/dialogs/DeleteDialog';
+import { AddToScenarioModal } from '@/components/scenarios/AddToScenarioModal';
 import {
   useFileList,
   useFolderTree,
@@ -26,6 +27,7 @@ import {
   useSaveFile,
 } from '@/hooks/useFiles';
 import type { FileNode } from '@/types/files';
+import type { ScenarioStep } from '@/types/scenarios';
 
 type OpenFile = {
   path: string;
@@ -33,9 +35,32 @@ type OpenFile = {
   isEditable: boolean;
 };
 
-export function FilesExplorer() {
+type FilesExplorerProps = {
+  initialPath?: string;
+  title?: string;
+};
+
+/**
+ * Create a scenario step from a media file
+ */
+function createMediaStep(file: FileNode): ScenarioStep | null {
+  if (file.isDir) return null;
+
+  switch (file.kind) {
+    case 'image':
+      return { image: file.path };
+    case 'video':
+      return { video: file.path };
+    case 'audio':
+      return { audio: file.path };
+    default:
+      return null;
+  }
+}
+
+export function FilesExplorer({ initialPath = '', title = 'Edytor plików' }: FilesExplorerProps) {
   // State - nawigacja
-  const [currentPath, setCurrentPath] = useState('');
+  const [currentPath, setCurrentPath] = useState(initialPath);
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
   const [selectedFile, setSelectedFile] = useState<FileNode | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -47,6 +72,25 @@ export function FilesExplorer() {
   const [renameTarget, setRenameTarget] = useState<FileNode | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<FileNode | null>(null);
   const [createFolderOpen, setCreateFolderOpen] = useState(false);
+
+  // State - add to scenario
+  const [addToScenarioFile, setAddToScenarioFile] = useState<FileNode | null>(null);
+
+  // Initialize with initial path
+  useEffect(() => {
+    if (initialPath) {
+      setCurrentPath(initialPath);
+      // Auto-expand parent folders
+      const parts = initialPath.split('/');
+      const newExpanded = new Set<string>();
+      let current = '';
+      for (const part of parts) {
+        current = current ? `${current}/${part}` : part;
+        newExpanded.add(current);
+      }
+      setExpandedFolders(newExpanded);
+    }
+  }, [initialPath]);
 
   // Queries
   const { data: fileList, isLoading: isLoadingFiles, refetch } = useFileList(currentPath);
@@ -156,6 +200,17 @@ export function FilesExplorer() {
     await saveFile.mutateAsync({ path: openFile.path, content });
   }, [openFile, saveFile]);
 
+  const handleAddToScenario = useCallback((file: FileNode) => {
+    setAddToScenarioFile(file);
+  }, []);
+
+  const handleCloseAddToScenario = useCallback(() => {
+    setAddToScenarioFile(null);
+  }, []);
+
+  // Get step for scenario modal
+  const scenarioStep = addToScenarioFile ? createMediaStep(addToScenarioFile) : null;
+
   return (
     <TooltipProvider>
       <div className="h-screen flex flex-col bg-background">
@@ -174,7 +229,7 @@ export function FilesExplorer() {
                 <PanelLeft className="h-5 w-5" />
               )}
             </Button>
-            <h1 className="text-base sm:text-lg font-semibold truncate">Edytor plików</h1>
+            <h1 className="text-base sm:text-lg font-semibold truncate">{title}</h1>
           </div>
           <div className="flex items-center gap-2">
             <Button
@@ -272,6 +327,7 @@ export function FilesExplorer() {
                   onOpenFile={handleOpenFile}
                   onRenameFile={setRenameTarget}
                   onDeleteFile={setDeleteTarget}
+                  onAddToScenario={handleAddToScenario}
                 />
               )}
             </div>
@@ -317,6 +373,14 @@ export function FilesExplorer() {
           onClose={() => setDeleteTarget(null)}
           onConfirm={handleDelete}
           isLoading={deleteFile.isPending}
+        />
+
+        {/* Add to scenario modal */}
+        <AddToScenarioModal
+          open={!!addToScenarioFile}
+          onClose={handleCloseAddToScenario}
+          step={scenarioStep}
+          itemTitle={addToScenarioFile?.name}
         />
       </div>
     </TooltipProvider>

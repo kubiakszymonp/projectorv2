@@ -7,6 +7,7 @@ import {
   FileText,
   FileCode,
   MoreVertical,
+  ListPlus,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
@@ -33,6 +34,7 @@ interface FileItemProps {
   onOpen: () => void;
   onRename: () => void;
   onDelete: () => void;
+  onAddToScenario?: () => void;
 }
 
 function getFileIcon(file: FileNode) {
@@ -70,6 +72,12 @@ function formatDate(iso?: string): string {
   });
 }
 
+// Check if file is a media file that can be added to scenario
+function isMediaFile(file: FileNode): boolean {
+  if (file.isDir) return false;
+  return file.kind === 'image' || file.kind === 'video' || file.kind === 'audio';
+}
+
 export function FileItem({
   file,
   isSelected,
@@ -77,12 +85,24 @@ export function FileItem({
   onOpen,
   onRename,
   onDelete,
+  onAddToScenario,
 }: FileItemProps) {
+  const canAddToScenario = isMediaFile(file) && onAddToScenario;
+
   const menuContent = (
     <ContextMenuContent>
       <ContextMenuItem onClick={onOpen}>
         {file.isDir ? 'Otwórz folder' : 'Otwórz'}
       </ContextMenuItem>
+      {canAddToScenario && (
+        <>
+          <ContextMenuSeparator />
+          <ContextMenuItem onClick={onAddToScenario}>
+            <ListPlus className="h-4 w-4 mr-2" />
+            Dodaj do scenariusza
+          </ContextMenuItem>
+        </>
+      )}
       <ContextMenuSeparator />
       <ContextMenuItem onClick={onRename}>Zmień nazwę</ContextMenuItem>
       <ContextMenuItem onClick={onDelete} className="text-destructive">
@@ -143,6 +163,15 @@ export function FileItem({
                 <DropdownMenuItem onClick={onOpen}>
                   {file.isDir ? 'Otwórz folder' : 'Otwórz'}
                 </DropdownMenuItem>
+                {canAddToScenario && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={onAddToScenario}>
+                      <ListPlus className="h-4 w-4 mr-2" />
+                      Dodaj do scenariusza
+                    </DropdownMenuItem>
+                  </>
+                )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={onRename}>Zmień nazwę</DropdownMenuItem>
                 <DropdownMenuItem onClick={onDelete} className="text-destructive">
