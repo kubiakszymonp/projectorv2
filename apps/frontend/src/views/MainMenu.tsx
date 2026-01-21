@@ -1,4 +1,4 @@
-import { Monitor, FileText, Image, Settings, ArrowRight } from 'lucide-react';
+import { Monitor, Music, Tags, FolderOpen, Settings, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 
@@ -23,20 +23,29 @@ const menuItems: MenuItem[] = [
     iconBg: 'bg-blue-500/10 group-hover:bg-blue-500/20',
   },
   {
-    id: 'texts',
-    title: 'Katalog tekstów',
-    description: 'Przeglądaj i edytuj teksty pieśni',
-    icon: FileText,
-    path: '/files/texts',
+    id: 'songs',
+    title: 'Katalog pieśni',
+    description: 'Przeglądaj, edytuj i dodawaj pieśni do scenariuszy',
+    icon: Music,
+    path: '/songs',
     iconColor: 'text-emerald-400',
     iconBg: 'bg-emerald-500/10 group-hover:bg-emerald-500/20',
   },
   {
-    id: 'media',
-    title: 'Katalog mediów',
-    description: 'Zarządzaj obrazami i multimediami',
-    icon: Image,
-    path: '/files/media',
+    id: 'song-meta',
+    title: 'Edytor metatagów',
+    description: 'Wyszukuj i edytuj metadane pieśni',
+    icon: Tags,
+    path: '/songs/meta',
+    iconColor: 'text-amber-400',
+    iconBg: 'bg-amber-500/10 group-hover:bg-amber-500/20',
+  },
+  {
+    id: 'files',
+    title: 'Edytor plików',
+    description: 'Niskopoziomowy dostęp do plików i konfiguracji',
+    icon: FolderOpen,
+    path: '/files',
     iconColor: 'text-purple-400',
     iconBg: 'bg-purple-500/10 group-hover:bg-purple-500/20',
   },
