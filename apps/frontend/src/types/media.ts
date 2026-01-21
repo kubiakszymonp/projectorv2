@@ -13,3 +13,4 @@ export type MediaMeta = {
   fileSize: number;
   mimeType: string;
 };
+
