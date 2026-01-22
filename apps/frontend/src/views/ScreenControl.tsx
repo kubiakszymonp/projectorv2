@@ -1,3 +1,4 @@
+import React from 'react';
 import {
   Monitor,
   SkipForward,
@@ -85,7 +86,7 @@ function getDisplayItemColor(item: DisplayItem): string {
 // ========== COMPONENT ==========
 
 export function ScreenControl() {
-  const { data: screenState, isLoading } = useScreenState(1000);
+  const { data: screenState, isLoading } = useScreenState();
   const clearScreen = useClearScreen();
   const navigateSlide = useNavigateSlide();
   const navigateStep = useNavigateStep();
@@ -266,19 +267,50 @@ function CurrentStateDisplay({ state }: { state: ScreenState }) {
     </div>
   );
 
-  // Iframe z rzeczywistym widokiem ekranu - pełna szerokość, skalowanie jak na ekranie
+  // Iframe z rzeczywistym widokiem ekranu - proporcje 1920x1080, skalowany jako mini podgląd
+  const containerRef = React.useRef<HTMLDivElement>(null);
+  const [scale, setScale] = React.useState(1);
+
+  React.useEffect(() => {
+    const updateScale = () => {
+      if (containerRef.current) {
+        const containerWidth = containerRef.current.offsetWidth;
+        const scaleValue = containerWidth / 1920;
+        setScale(scaleValue);
+      }
+    };
+
+    updateScale();
+    window.addEventListener('resize', updateScale);
+    return () => window.removeEventListener('resize', updateScale);
+  }, []);
+
   return (
     <div className="w-full">
-      <div className="w-full bg-black relative" style={{ height: '70vh', minHeight: '500px' }}>
-        <iframe
-          src="/display"
-          className="w-full h-full border-0"
-          title="Podgląd ekranu"
-          allow="fullscreen"
+      <div className="w-full flex items-center justify-center bg-black py-4">
+        <div 
+          ref={containerRef}
+          className="bg-black relative overflow-hidden"
           style={{
-            pointerEvents: 'none', // Zapobiega interakcji z iframe
+            width: '100%',
+            maxWidth: '1200px', // Mini podgląd - maksymalna szerokość
+            aspectRatio: '1920/1080', // Dokładne proporcje 1920x1080
           }}
-        />
+        >
+          <iframe
+            src="/display"
+            className="border-0"
+            title="Podgląd ekranu"
+            allow="fullscreen"
+            style={{
+              pointerEvents: 'none',
+              width: '1920px',
+              height: '1080px',
+              transform: `scale(${scale})`,
+              transformOrigin: 'top left',
+            }}
+          />
+        </div>
       </div>
       {itemInfo}
     </div>

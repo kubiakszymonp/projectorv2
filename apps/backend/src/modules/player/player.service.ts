@@ -8,6 +8,7 @@ import {
 import { ScenariosService } from '../scenarios/scenarios.service';
 import { TextsService } from '../texts/texts.service';
 import { getStepType, getStepValue } from '../../types/scenarios';
+import { NotificationsGateway } from '../notifications/notifications.gateway';
 
 @Injectable()
 export class PlayerService {
@@ -16,6 +17,7 @@ export class PlayerService {
   constructor(
     private readonly scenariosService: ScenariosService,
     private readonly textsService: TextsService,
+    private readonly notificationsGateway: NotificationsGateway,
   ) {}
 
   /**
@@ -30,6 +32,7 @@ export class PlayerService {
    */
   clearScreen(): ScreenState {
     this.screenState = { mode: 'empty' };
+    this.notifyScreenChanged();
     return this.screenState;
   }
 
@@ -48,6 +51,7 @@ export class PlayerService {
         visible: !this.screenState.visible,
       };
     }
+    this.notifyScreenChanged();
     return this.screenState;
   }
 
@@ -66,6 +70,7 @@ export class PlayerService {
         visible,
       };
     }
+    this.notifyScreenChanged();
     return this.screenState;
   }
 
@@ -94,6 +99,7 @@ export class PlayerService {
       },
     };
 
+    this.notifyScreenChanged();
     return this.screenState;
   }
 
@@ -109,6 +115,7 @@ export class PlayerService {
         path,
       },
     };
+    this.notifyScreenChanged();
     return this.screenState;
   }
 
@@ -123,6 +130,7 @@ export class PlayerService {
 
     if (scenario.steps.length === 0) {
       this.screenState = { mode: 'empty' };
+      this.notifyScreenChanged();
       return this.screenState;
     }
 
@@ -143,6 +151,7 @@ export class PlayerService {
       currentItem,
     };
 
+    this.notifyScreenChanged();
     return this.screenState;
   }
 
@@ -189,6 +198,7 @@ export class PlayerService {
       };
     }
 
+    this.notifyScreenChanged();
     return this.screenState;
   }
 
@@ -225,6 +235,7 @@ export class PlayerService {
       currentItem,
     };
 
+    this.notifyScreenChanged();
     return this.screenState;
   }
 
@@ -300,5 +311,12 @@ export class PlayerService {
           type: 'blank',
         };
     }
+  }
+
+  /**
+   * Helper - notyfikuje wszystkich klientów o zmianie stanu ekranu
+   */
+  private notifyScreenChanged() {
+    this.notificationsGateway.notifyScreenStateChanged();
   }
 }

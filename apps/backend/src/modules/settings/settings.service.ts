@@ -13,6 +13,7 @@ import {
   UpdateDisplaySettingsDto,
   UpdateWifiSettingsDto,
 } from '../../types/settings.dto';
+import { NotificationsGateway } from '../notifications/notifications.gateway';
 
 /**
  * Service responsible for managing projector settings.
@@ -26,7 +27,9 @@ export class SettingsService implements OnModuleInit {
   private readonly settingsPath: string;
   private settings: ProjectorSettings;
 
-  constructor() {
+  constructor(
+    private readonly notificationsGateway: NotificationsGateway,
+  ) {
     const projectRoot = path.resolve(process.cwd(), '..', '..');
     this.settingsDir = path.resolve(projectRoot, 'data', 'settings');
     this.settingsPath = path.resolve(this.settingsDir, 'config.yaml');
@@ -68,6 +71,10 @@ export class SettingsService implements OnModuleInit {
     }
 
     await this.saveSettings();
+    
+    // Notify all clients about settings change
+    this.notificationsGateway.notifySettingsChanged();
+    
     return this.getSettings();
   }
 
@@ -77,6 +84,10 @@ export class SettingsService implements OnModuleInit {
   async resetSettings(): Promise<ProjectorSettings> {
     this.settings = structuredClone(DEFAULT_SETTINGS);
     await this.saveSettings();
+    
+    // Notify all clients about settings change
+    this.notificationsGateway.notifySettingsChanged();
+    
     return this.getSettings();
   }
 

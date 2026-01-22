@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import * as settingsApi from '@/api/settings';
+import { useSocketEvent } from './useSocket';
 import type { ProjectorSettings } from '@/types/settings';
 
 // ========== QUERY KEYS ==========
@@ -13,14 +14,20 @@ export const settingsKeys = {
 
 /**
  * Hook do pobierania ustawień
- * @param pollingInterval - interwał pollingu w ms (opcjonalny)
+ * Aktualizacje przez WebSocket, bez pollingu
  */
-export function useSettings(pollingInterval?: number) {
+export function useSettings() {
+  const queryClient = useQueryClient();
+
+  // Listen to socket events for settings changes
+  useSocketEvent('settings:changed', () => {
+    queryClient.invalidateQueries({ queryKey: settingsKeys.detail() });
+  });
+
   return useQuery({
     queryKey: settingsKeys.detail(),
     queryFn: settingsApi.getSettings,
     staleTime: 5 * 60 * 1000, // 5 minutes
-    refetchInterval: pollingInterval,
   });
 }
 

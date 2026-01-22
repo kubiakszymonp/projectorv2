@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import * as playerApi from '@/api/player';
-import type { ScreenState } from '@/types/player';
+import { useSocketEvent } from './useSocket';
 
 // ========== QUERY KEYS ==========
 
@@ -13,13 +13,19 @@ export const playerKeys = {
 
 /**
  * Hook do pobierania aktualnego stanu ekranu
- * @param pollingInterval - interwał pollingu w ms (domyślnie wyłączony)
+ * Aktualizacje przez WebSocket, bez pollingu
  */
-export function useScreenState(pollingInterval?: number) {
+export function useScreenState() {
+  const queryClient = useQueryClient();
+
+  // Listen to socket events for screen state changes
+  useSocketEvent('screen:changed', () => {
+    queryClient.invalidateQueries({ queryKey: playerKeys.state() });
+  });
+
   return useQuery({
     queryKey: playerKeys.state(),
     queryFn: playerApi.getScreenState,
-    refetchInterval: pollingInterval,
   });
 }
 

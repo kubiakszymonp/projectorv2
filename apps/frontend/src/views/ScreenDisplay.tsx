@@ -8,8 +8,9 @@ import type { ScreenState, TextDisplayItem } from '@/types/player';
 // ========== MAIN COMPONENT ==========
 
 export function ScreenDisplay() {
-  const { data: screenState } = useScreenState(1000); // Poll every second
-  const { data: settings } = useSettings(10000); // Poll every 10 seconds
+  // Updates via WebSocket notifications only, no polling
+  const { data: screenState } = useScreenState();
+  const { data: settings } = useSettings();
 
   const state = screenState ?? { mode: 'empty' as const };
   const displaySettings = settings?.display ?? DEFAULT_SETTINGS.display;
