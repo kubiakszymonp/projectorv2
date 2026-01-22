@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
 import { PlayerService } from './player.service';
 import type { ScreenState } from '../../types/player';
-import { SetTextDto, SetMediaDto, SetScenarioDto, NavigateDto } from './dto/player.dto';
+import { SetTextDto, SetMediaDto, SetScenarioDto, NavigateDto, SetVisibilityDto } from './dto/player.dto';
 
 // ========== CONTROLLER ==========
 
@@ -76,6 +76,26 @@ export class PlayerController {
   @HttpCode(HttpStatus.OK)
   async navigateStep(@Body() dto: NavigateDto): Promise<ScreenState> {
     return this.playerService.navigateStep(dto.direction);
+  }
+
+  /**
+   * Przełącza widoczność zawartości
+   * POST /api/player/toggle-visibility
+   */
+  @Post('toggle-visibility')
+  @HttpCode(HttpStatus.OK)
+  toggleVisibility(): ScreenState {
+    return this.playerService.toggleVisibility();
+  }
+
+  /**
+   * Ustawia widoczność zawartości
+   * POST /api/player/visibility
+   */
+  @Post('visibility')
+  @HttpCode(HttpStatus.OK)
+  setVisibility(@Body() dto: SetVisibilityDto): ScreenState {
+    return this.playerService.setVisibility(dto.visible);
   }
 }
 

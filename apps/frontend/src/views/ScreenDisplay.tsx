@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useScreenState } from '@/hooks/usePlayer';
-import { useText } from '@/hooks/useTexts';
 import { getFileUrl } from '@/api/files';
-import type { ScreenState, DisplayItem, TextDisplayItem } from '@/types/player';
+import type { ScreenState, TextDisplayItem } from '@/types/player';
 import { cn } from '@/lib/utils';
 
 // ========== MAIN COMPONENT ==========
@@ -12,18 +11,27 @@ export function ScreenDisplay() {
 
   const state = screenState ?? { mode: 'empty' as const };
 
+  // Jeśli stan jest pusty lub zawartość jest ukryta, pokaż czarny ekran
+  const isHidden = state.mode === 'empty' || !state.visible;
+
   return (
     <div className="min-h-screen bg-black text-white flex items-center justify-center">
-      <DisplayContent state={state} />
+      {isHidden ? <BlackScreen /> : <DisplayContent state={state} />}
     </div>
   );
+}
+
+// ========== BLACK SCREEN ==========
+
+function BlackScreen() {
+  return <div className="w-full h-screen bg-black" />;
 }
 
 // ========== DISPLAY CONTENT ==========
 
 function DisplayContent({ state }: { state: ScreenState }) {
   if (state.mode === 'empty') {
-    return <EmptyDisplay />;
+    return <BlackScreen />;
   }
 
   const item = state.mode === 'single' ? state.item : state.currentItem;
@@ -40,37 +48,13 @@ function DisplayContent({ state }: { state: ScreenState }) {
     case 'heading':
       return <HeadingDisplay content={item.content} />;
     case 'blank':
-      return <EmptyDisplay />;
+      return <BlackScreen />;
   }
-}
-
-// ========== EMPTY DISPLAY ==========
-
-function EmptyDisplay() {
-  return (
-    <div className="w-full h-screen bg-black">
-      {/* Completely black screen */}
-    </div>
-  );
 }
 
 // ========== TEXT DISPLAY ==========
 
 function TextDisplay({ item }: { item: TextDisplayItem }) {
-  // Extract text ID from reference
-  const textId = item.textRef.split('__').pop() ?? '';
-  const { data: textDoc, isLoading } = useText(textId);
-
-  if (isLoading || !textDoc) {
-    return (
-      <div className="w-full h-screen bg-black flex items-center justify-center">
-        <div className="animate-pulse text-xl">Ładowanie...</div>
-      </div>
-    );
-  }
-
-  const slide = textDoc.slides[item.slideIndex] ?? '';
-
   return (
     <div className="w-full min-h-screen bg-gradient-to-b from-slate-950 to-black flex items-center justify-center p-8 md:p-16">
       <div className="max-w-5xl w-full">
@@ -81,7 +65,7 @@ function TextDisplay({ item }: { item: TextDisplayItem }) {
             'text-white drop-shadow-lg'
           )}
         >
-          {slide}
+          {item.slideContent || ''}
         </div>
       </div>
     </div>

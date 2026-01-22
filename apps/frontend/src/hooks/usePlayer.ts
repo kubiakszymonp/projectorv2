@@ -109,3 +109,31 @@ export function useNavigateStep() {
   });
 }
 
+/**
+ * Hook do przełączania widoczności
+ */
+export function useToggleVisibility() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: playerApi.toggleVisibility,
+    onSuccess: (newState) => {
+      queryClient.setQueryData(playerKeys.state(), newState);
+    },
+  });
+}
+
+/**
+ * Hook do ustawiania widoczności
+ */
+export function useSetVisibility() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: playerApi.setVisibility,
+    onSuccess: (newState) => {
+      queryClient.setQueryData(playerKeys.state(), newState);
+    },
+  });
+}
+

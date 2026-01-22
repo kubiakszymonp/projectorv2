@@ -3,7 +3,6 @@ import {
   ScreenState,
   DEFAULT_SCREEN_STATE,
   TextDisplayItem,
-  ScenarioScreenState,
   DisplayItem,
 } from '../../types/player';
 import { ScenariosService } from '../scenarios/scenarios.service';
@@ -35,26 +34,63 @@ export class PlayerService {
   }
 
   /**
+   * Przełącza widoczność zawartości na ekranie
+   */
+  toggleVisibility(): ScreenState {
+    if (this.screenState.mode === 'single') {
+      this.screenState = {
+        ...this.screenState,
+        visible: !this.screenState.visible,
+      };
+    } else if (this.screenState.mode === 'scenario') {
+      this.screenState = {
+        ...this.screenState,
+        visible: !this.screenState.visible,
+      };
+    }
+    return this.screenState;
+  }
+
+  /**
+   * Ustawia widoczność zawartości
+   */
+  setVisibility(visible: boolean): ScreenState {
+    if (this.screenState.mode === 'single') {
+      this.screenState = {
+        ...this.screenState,
+        visible,
+      };
+    } else if (this.screenState.mode === 'scenario') {
+      this.screenState = {
+        ...this.screenState,
+        visible,
+      };
+    }
+    return this.screenState;
+  }
+
+  /**
    * Ustawia pojedynczy tekst do wyświetlenia
    */
   async setText(textRef: string, slideIndex = 0): Promise<ScreenState> {
-    // Pobierz tekst, żeby zweryfikować że istnieje
     const textId = this.extractTextIdFromRef(textRef);
     const text = await this.textsService.findById(textId);
     if (!text) {
       throw new Error(`Text not found: ${textId}`);
     }
 
-    // Upewnij się, że slideIndex jest w granicach
     const maxSlide = text.slides.length - 1;
     const validSlideIndex = Math.max(0, Math.min(slideIndex, maxSlide));
 
     this.screenState = {
       mode: 'single',
+      visible: false, // domyślnie ukryte - user musi włączyć
       item: {
         type: 'text',
         textRef,
         slideIndex: validSlideIndex,
+        totalSlides: text.slides.length,
+        slideContent: text.slides[validSlideIndex] || '',
       },
     };
 
@@ -67,6 +103,7 @@ export class PlayerService {
   setMedia(type: 'image' | 'video' | 'audio', path: string): ScreenState {
     this.screenState = {
       mode: 'single',
+      visible: false, // domyślnie ukryte
       item: {
         type,
         path,
@@ -85,22 +122,20 @@ export class PlayerService {
     }
 
     if (scenario.steps.length === 0) {
-      // Pusty scenariusz - wyświetl pusty ekran
       this.screenState = { mode: 'empty' };
       return this.screenState;
     }
 
-    // Upewnij się, że stepIndex jest w granicach
     const maxStep = scenario.steps.length - 1;
     const validStepIndex = Math.max(0, Math.min(stepIndex, maxStep));
 
-    // Pobierz aktualny element
     const currentItem = await this.getDisplayItemFromStep(
       scenario.steps[validStepIndex],
     );
 
     this.screenState = {
       mode: 'scenario',
+      visible: false, // domyślnie ukryte
       scenarioId,
       scenarioTitle: scenario.meta.title,
       stepIndex: validStepIndex,
@@ -134,22 +169,23 @@ export class PlayerService {
       newSlideIndex = Math.max(textItem.slideIndex - 1, 0);
     }
 
-    // Aktualizuj stan
+    const newTextItem: TextDisplayItem = {
+      type: 'text',
+      textRef: textItem.textRef,
+      slideIndex: newSlideIndex,
+      totalSlides: text.slides.length,
+      slideContent: text.slides[newSlideIndex] || '',
+    };
+
     if (this.screenState.mode === 'single') {
       this.screenState = {
-        mode: 'single',
-        item: {
-          ...textItem,
-          slideIndex: newSlideIndex,
-        },
+        ...this.screenState,
+        item: newTextItem,
       };
     } else if (this.screenState.mode === 'scenario') {
       this.screenState = {
         ...this.screenState,
-        currentItem: {
-          ...textItem,
-          slideIndex: newSlideIndex,
-        },
+        currentItem: newTextItem,
       };
     }
 
@@ -179,7 +215,6 @@ export class PlayerService {
       newStepIndex = Math.max(this.screenState.stepIndex - 1, 0);
     }
 
-    // Pobierz nowy element
     const currentItem = await this.getDisplayItemFromStep(
       scenario.steps[newStepIndex],
     );
@@ -213,7 +248,6 @@ export class PlayerService {
    * Helper - wyciąga ID tekstu z referencji
    */
   private extractTextIdFromRef(textRef: string): string {
-    // Format: domain/slug__id
     const parts = textRef.split('__');
     return parts[parts.length - 1];
   }
@@ -228,12 +262,18 @@ export class PlayerService {
     const stepValue = getStepValue(step);
 
     switch (stepType) {
-      case 'text':
+      case 'text': {
+        const textRef = stepValue as string;
+        const textId = this.extractTextIdFromRef(textRef);
+        const text = await this.textsService.findById(textId);
         return {
           type: 'text',
-          textRef: stepValue as string,
+          textRef,
           slideIndex: 0,
+          totalSlides: text?.slides.length ?? 0,
+          slideContent: text?.slides[0] ?? '',
         };
+      }
       case 'image':
         return {
           type: 'image',
@@ -262,4 +302,3 @@ export class PlayerService {
     }
   }
 }
-

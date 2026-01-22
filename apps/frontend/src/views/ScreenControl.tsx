@@ -4,7 +4,6 @@ import {
   SkipBack,
   ChevronLeft,
   ChevronRight,
-  XCircle,
   Loader2,
   Image,
   Video,
@@ -13,16 +12,19 @@ import {
   Type,
   Square,
   ListOrdered,
+  Trash2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { Switch } from '@/components/ui/switch';
 import {
   useScreenState,
   useClearScreen,
   useNavigateSlide,
   useNavigateStep,
+  useToggleVisibility,
 } from '@/hooks/usePlayer';
-import type { ScreenState, DisplayItem } from '@/types/player';
+import type { ScreenState, DisplayItem, TextDisplayItem } from '@/types/player';
 import { cn } from '@/lib/utils';
 
 // ========== HELPERS ==========
@@ -55,28 +57,11 @@ function getDisplayItemLabel(item: DisplayItem): string {
     case 'image':
     case 'video':
     case 'audio':
-      return item.path;
+      return item.path.split('/').pop() ?? item.path;
     case 'heading':
       return item.content;
     case 'blank':
       return 'Pusty slajd';
-  }
-}
-
-function getDisplayItemTypeLabel(item: DisplayItem): string {
-  switch (item.type) {
-    case 'text':
-      return 'Tekst';
-    case 'image':
-      return 'Obraz';
-    case 'video':
-      return 'Wideo';
-    case 'audio':
-      return 'Audio';
-    case 'heading':
-      return 'Nagłówek';
-    case 'blank':
-      return 'Pusty';
   }
 }
 
@@ -100,10 +85,11 @@ function getDisplayItemColor(item: DisplayItem): string {
 // ========== COMPONENT ==========
 
 export function ScreenControl() {
-  const { data: screenState, isLoading } = useScreenState(1000); // Poll every second
+  const { data: screenState, isLoading } = useScreenState(1000);
   const clearScreen = useClearScreen();
   const navigateSlide = useNavigateSlide();
   const navigateStep = useNavigateStep();
+  const toggleVisibility = useToggleVisibility();
 
   const handleClearScreen = () => {
     clearScreen.mutate();
@@ -125,7 +111,10 @@ export function ScreenControl() {
     navigateStep.mutate('next');
   };
 
-  // Loading state
+  const handleToggleVisibility = () => {
+    toggleVisibility.mutate();
+  };
+
   if (isLoading) {
     return (
       <div className="h-screen flex flex-col bg-background">
@@ -141,6 +130,8 @@ export function ScreenControl() {
   }
 
   const state = screenState ?? { mode: 'empty' as const };
+  const isVisible = state.mode !== 'empty' && state.visible;
+  const hasContent = state.mode !== 'empty';
 
   return (
     <div className="h-screen flex flex-col bg-background">
@@ -150,16 +141,38 @@ export function ScreenControl() {
           <Monitor className="h-5 w-5 text-blue-400" />
           <h1 className="text-lg font-semibold">Sterowanie ekranem</h1>
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleClearScreen}
-          disabled={state.mode === 'empty' || clearScreen.isPending}
-          className="text-destructive hover:text-destructive"
-        >
-          <XCircle className="h-4 w-4 mr-2" />
-          Wyczyść ekran
-        </Button>
+        <div className="flex items-center gap-4">
+          {/* Visibility Switch */}
+          {hasContent && (
+            <div className="flex items-center gap-2">
+              <span className={cn(
+                'text-sm',
+                isVisible ? 'text-emerald-400' : 'text-muted-foreground'
+              )}>
+                {isVisible ? 'Ekran włączony' : 'Ekran wygaszony'}
+              </span>
+              <Switch
+                checked={isVisible}
+                onCheckedChange={handleToggleVisibility}
+                disabled={toggleVisibility.isPending}
+                className={cn(
+                  isVisible && 'data-[state=checked]:bg-emerald-600'
+                )}
+              />
+            </div>
+          )}
+          {/* Clear Button */}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleClearScreen}
+            disabled={!hasContent || clearScreen.isPending}
+            className="text-muted-foreground hover:text-destructive"
+            title="Wyczyść ekran"
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
       </header>
 
       {/* Main Content */}
@@ -175,7 +188,7 @@ export function ScreenControl() {
             </div>
           </Card>
 
-          {/* Controls Card - only show if there's something on screen */}
+          {/* Controls Card */}
           {state.mode !== 'empty' && (
             <Card>
               <div className="p-4 border-b">
@@ -194,30 +207,25 @@ export function ScreenControl() {
             </Card>
           )}
 
-          {/* Status Card */}
-          <Card>
-            <div className="p-4 border-b">
-              <h2 className="font-semibold">Status</h2>
-            </div>
-            <div className="p-4">
-              <div className="space-y-3 text-sm">
-                <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Tryb:</span>
-                  <span className="font-medium">
-                    {state.mode === 'empty' && 'Ekran pusty'}
-                    {state.mode === 'single' && 'Pojedynczy element'}
-                    {state.mode === 'scenario' && 'Scenariusz'}
-                  </span>
-                </div>
-                {state.mode === 'scenario' && (
-                  <div className="flex justify-between items-center">
-                    <span className="text-muted-foreground">Scenariusz:</span>
-                    <span className="font-medium">{state.scenarioTitle}</span>
-                  </div>
-                )}
+          {/* Info Card */}
+          {state.mode === 'scenario' && (
+            <Card>
+              <div className="p-4 border-b">
+                <h2 className="font-semibold">Scenariusz</h2>
               </div>
-            </div>
-          </Card>
+              <div className="p-4">
+                <div className="flex items-center gap-3">
+                  <ListOrdered className="h-5 w-5 text-cyan-400" />
+                  <div>
+                    <p className="font-medium">{state.scenarioTitle}</p>
+                    <p className="text-sm text-muted-foreground">
+                      Krok {state.stepIndex + 1} z {state.totalSteps}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </Card>
+          )}
         </div>
       </main>
     </div>
@@ -241,9 +249,35 @@ function CurrentStateDisplay({ state }: { state: ScreenState }) {
 
   const item = state.mode === 'single' ? state.item : state.currentItem;
 
+  // Dla tekstu pokazujemy zawartość slajdu
+  if (item.type === 'text') {
+    return (
+      <div className="space-y-4">
+        <div className="aspect-video bg-gradient-to-br from-slate-900 to-slate-800 rounded-lg flex items-center justify-center border p-8 overflow-hidden">
+          <div className="text-center text-white max-w-full">
+            <p className="text-xl md:text-2xl lg:text-3xl font-bold whitespace-pre-wrap leading-relaxed line-clamp-6">
+              {item.slideContent || '(Pusty slajd)'}
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center justify-between text-sm">
+          <div className="flex items-center gap-2">
+            <div className={cn('w-8 h-8 rounded-md flex items-center justify-center', getDisplayItemColor(item))}>
+              {getDisplayItemIcon(item)}
+            </div>
+            <span className="font-medium">{getDisplayItemLabel(item)}</span>
+          </div>
+          <span className="text-muted-foreground">
+            Slajd {item.slideIndex + 1} z {item.totalSlides}
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  // Dla innych typów
   return (
     <div className="space-y-4">
-      {/* Preview area */}
       <div className="aspect-video bg-gradient-to-br from-slate-900 to-slate-800 rounded-lg flex items-center justify-center border">
         <div className="text-center text-white p-8">
           <div
@@ -255,27 +289,8 @@ function CurrentStateDisplay({ state }: { state: ScreenState }) {
             {getDisplayItemIcon(item)}
           </div>
           <p className="text-xl font-medium">{getDisplayItemLabel(item)}</p>
-          <p className="text-sm text-slate-400 mt-1">{getDisplayItemTypeLabel(item)}</p>
-          {item.type === 'text' && (
-            <p className="text-sm text-slate-400 mt-2">
-              Slajd {item.slideIndex + 1}
-            </p>
-          )}
         </div>
       </div>
-
-      {/* Scenario info */}
-      {state.mode === 'scenario' && (
-        <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-          <div className="flex items-center gap-2">
-            <ListOrdered className="h-4 w-4 text-cyan-400" />
-            <span className="text-sm font-medium">{state.scenarioTitle}</span>
-          </div>
-          <span className="text-sm text-muted-foreground">
-            Krok {state.stepIndex + 1} z {state.totalSteps}
-          </span>
-        </div>
-      )}
     </div>
   );
 }
@@ -297,16 +312,26 @@ function ControlsSection({
   onNextStep,
   isNavigating,
 }: ControlsSectionProps) {
-  // Determine if current item is text (can navigate slides)
   const currentItem = state.mode === 'single' ? state.item : state.mode === 'scenario' ? state.currentItem : null;
   const isTextItem = currentItem?.type === 'text';
   const isScenarioMode = state.mode === 'scenario';
 
+  // Info o slajdach dla tekstu
+  const textItem = isTextItem ? (currentItem as TextDisplayItem) : null;
+  const isFirstSlide = textItem ? textItem.slideIndex === 0 : true;
+  const isLastSlide = textItem ? textItem.slideIndex === textItem.totalSlides - 1 : true;
+
+  // Info o krokach dla scenariusza
+  const isFirstStep = isScenarioMode ? (state as { stepIndex: number }).stepIndex === 0 : true;
+  const isLastStep = isScenarioMode 
+    ? (state as { stepIndex: number; totalSteps: number }).stepIndex === (state as { totalSteps: number }).totalSteps - 1 
+    : true;
+
   return (
     <div className="space-y-6">
       {/* Slide navigation - only for text items */}
-      {isTextItem && (
-        <div className="space-y-2">
+      {isTextItem && textItem && (
+        <div className="space-y-3">
           <p className="text-sm font-medium text-center text-muted-foreground">
             Nawigacja slajdów
           </p>
@@ -316,31 +341,34 @@ function ControlsSection({
               size="lg"
               className="h-14 w-14"
               onClick={onPrevSlide}
-              disabled={isNavigating}
+              disabled={isNavigating || isFirstSlide}
             >
               <ChevronLeft className="h-6 w-6" />
             </Button>
-            <div className="text-center min-w-[80px]">
+            <div className="text-center min-w-[100px]">
               <span className="text-2xl font-bold">
-                {(currentItem as { slideIndex: number }).slideIndex + 1}
+                {textItem.slideIndex + 1}
               </span>
+              <span className="text-muted-foreground text-lg"> / {textItem.totalSlides}</span>
             </div>
             <Button
               variant="outline"
               size="lg"
               className="h-14 w-14"
               onClick={onNextSlide}
-              disabled={isNavigating}
+              disabled={isNavigating || isLastSlide}
             >
               <ChevronRight className="h-6 w-6" />
             </Button>
           </div>
+          {isFirstSlide && <p className="text-xs text-center text-muted-foreground">Początek tekstu</p>}
+          {isLastSlide && !isFirstSlide && <p className="text-xs text-center text-muted-foreground">Koniec tekstu</p>}
         </div>
       )}
 
       {/* Step navigation - only for scenario mode */}
       {isScenarioMode && (
-        <div className="space-y-2">
+        <div className="space-y-3">
           <p className="text-sm font-medium text-center text-muted-foreground">
             Nawigacja elementów scenariusza
           </p>
@@ -350,7 +378,7 @@ function ControlsSection({
               size="lg"
               className="h-14 px-6"
               onClick={onPrevStep}
-              disabled={isNavigating || (state as { stepIndex: number }).stepIndex === 0}
+              disabled={isNavigating || isFirstStep}
             >
               <SkipBack className="h-5 w-5 mr-2" />
               Poprzedni
@@ -365,16 +393,14 @@ function ControlsSection({
               size="lg"
               className="h-14 px-6"
               onClick={onNextStep}
-              disabled={
-                isNavigating ||
-                (state as { stepIndex: number; totalSteps: number }).stepIndex ===
-                  (state as { totalSteps: number }).totalSteps - 1
-              }
+              disabled={isNavigating || isLastStep}
             >
               Następny
               <SkipForward className="h-5 w-5 ml-2" />
             </Button>
           </div>
+          {isFirstStep && <p className="text-xs text-center text-muted-foreground">Początek scenariusza</p>}
+          {isLastStep && !isFirstStep && <p className="text-xs text-center text-muted-foreground">Koniec scenariusza</p>}
         </div>
       )}
 

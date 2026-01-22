@@ -1,4 +1,4 @@
-import { IsString, IsNumber, IsOptional, IsIn, IsNotEmpty } from 'class-validator';
+import { IsString, IsNumber, IsOptional, IsIn, IsNotEmpty, IsBoolean } from 'class-validator';
 
 export class SetTextDto {
   @IsString()
@@ -34,5 +34,10 @@ export class NavigateDto {
   @IsString()
   @IsIn(['next', 'prev'])
   direction: 'next' | 'prev';
+}
+
+export class SetVisibilityDto {
+  @IsBoolean()
+  visible: boolean;
 }
 

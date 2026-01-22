@@ -108,3 +108,27 @@ export async function navigateStep(direction: NavigateDirection): Promise<Screen
   return res.json();
 }
 
+/**
+ * Przełącza widoczność zawartości
+ */
+export async function toggleVisibility(): Promise<ScreenState> {
+  const res = await fetch(`${API_BASE}/toggle-visibility`, {
+    method: 'POST',
+  });
+  if (!res.ok) throw new Error(`Failed to toggle visibility: ${res.statusText}`);
+  return res.json();
+}
+
+/**
+ * Ustawia widoczność zawartości
+ */
+export async function setVisibility(visible: boolean): Promise<ScreenState> {
+  const res = await fetch(`${API_BASE}/visibility`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ visible }),
+  });
+  if (!res.ok) throw new Error(`Failed to set visibility: ${res.statusText}`);
+  return res.json();
+}
+

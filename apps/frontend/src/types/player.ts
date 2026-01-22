@@ -12,6 +12,8 @@ export type TextDisplayItem = {
   type: 'text';
   textRef: string; // referencja do tekstu (domain/slug__id)
   slideIndex: number; // aktualny slajd (0-based)
+  totalSlides: number; // łączna liczba slajdów
+  slideContent: string; // zawartość aktualnego slajdu
 };
 
 /**
@@ -64,6 +66,7 @@ export type EmptyScreenState = {
 export type SingleItemScreenState = {
   mode: 'single';
   item: DisplayItem;
+  visible: boolean; // czy zawartość jest widoczna na ekranie
 };
 
 /**
@@ -76,6 +79,7 @@ export type ScenarioScreenState = {
   stepIndex: number; // aktualny krok scenariusza (0-based)
   totalSteps: number; // łączna liczba kroków
   currentItem: DisplayItem; // aktualnie wyświetlany element
+  visible: boolean; // czy zawartość jest widoczna na ekranie
 };
 
 /**
