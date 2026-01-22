@@ -13,12 +13,14 @@ export const settingsKeys = {
 
 /**
  * Hook do pobierania ustawień
+ * @param pollingInterval - interwał pollingu w ms (opcjonalny)
  */
-export function useSettings() {
+export function useSettings(pollingInterval?: number) {
   return useQuery({
     queryKey: settingsKeys.detail(),
     queryFn: settingsApi.getSettings,
     staleTime: 5 * 60 * 1000, // 5 minutes
+    refetchInterval: pollingInterval,
   });
 }
 

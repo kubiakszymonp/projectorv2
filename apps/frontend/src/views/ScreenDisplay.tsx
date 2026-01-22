@@ -1,69 +1,108 @@
 import { useEffect, useState } from 'react';
 import { useScreenState } from '@/hooks/usePlayer';
+import { useSettings } from '@/hooks/useSettings';
 import { getFileUrl } from '@/api/files';
+import { DEFAULT_SETTINGS } from '@/types/settings';
 import type { ScreenState, TextDisplayItem } from '@/types/player';
-import { cn } from '@/lib/utils';
 
 // ========== MAIN COMPONENT ==========
 
 export function ScreenDisplay() {
   const { data: screenState } = useScreenState(1000); // Poll every second
+  const { data: settings } = useSettings(10000); // Poll every 10 seconds
 
   const state = screenState ?? { mode: 'empty' as const };
+  const displaySettings = settings?.display ?? DEFAULT_SETTINGS.display;
 
   // Jeśli stan jest pusty lub zawartość jest ukryta, pokaż czarny ekran
   const isHidden = state.mode === 'empty' || !state.visible;
 
   return (
-    <div className="min-h-screen bg-black text-white flex items-center justify-center">
-      {isHidden ? <BlackScreen /> : <DisplayContent state={state} />}
+    <div 
+      className="min-h-screen text-white flex items-center justify-center"
+      style={{ backgroundColor: displaySettings.backgroundColor }}
+    >
+      {isHidden ? <BlackScreen displaySettings={displaySettings} /> : <DisplayContent state={state} displaySettings={displaySettings} />}
     </div>
   );
 }
 
 // ========== BLACK SCREEN ==========
 
-function BlackScreen() {
-  return <div className="w-full h-screen bg-black" />;
+function BlackScreen({ displaySettings }: { displaySettings: typeof DEFAULT_SETTINGS.display }) {
+  return (
+    <div 
+      className="w-full h-screen" 
+      style={{ backgroundColor: displaySettings.backgroundColor }}
+    />
+  );
 }
 
 // ========== DISPLAY CONTENT ==========
 
-function DisplayContent({ state }: { state: ScreenState }) {
+function DisplayContent({ 
+  state, 
+  displaySettings 
+}: { 
+  state: ScreenState;
+  displaySettings: typeof DEFAULT_SETTINGS.display;
+}) {
   if (state.mode === 'empty') {
-    return <BlackScreen />;
+    return <BlackScreen displaySettings={displaySettings} />;
   }
 
   const item = state.mode === 'single' ? state.item : state.currentItem;
 
   switch (item.type) {
     case 'text':
-      return <TextDisplay item={item} />;
+      return <TextDisplay item={item} displaySettings={displaySettings} />;
     case 'image':
-      return <ImageDisplay path={item.path} />;
+      return <ImageDisplay path={item.path} displaySettings={displaySettings} />;
     case 'video':
-      return <VideoDisplay path={item.path} />;
+      return <VideoDisplay path={item.path} displaySettings={displaySettings} />;
     case 'audio':
-      return <AudioDisplay path={item.path} />;
+      return <AudioDisplay path={item.path} displaySettings={displaySettings} />;
     case 'heading':
-      return <HeadingDisplay content={item.content} />;
+      return <HeadingDisplay content={item.content} displaySettings={displaySettings} />;
     case 'blank':
-      return <BlackScreen />;
+      return <BlackScreen displaySettings={displaySettings} />;
   }
 }
 
 // ========== TEXT DISPLAY ==========
 
-function TextDisplay({ item }: { item: TextDisplayItem }) {
+function TextDisplay({ 
+  item, 
+  displaySettings 
+}: { 
+  item: TextDisplayItem;
+  displaySettings: typeof DEFAULT_SETTINGS.display;
+}) {
+  const paddingStyle = {
+    paddingTop: `${displaySettings.padding.top}px`,
+    paddingRight: `${displaySettings.padding.right}px`,
+    paddingBottom: `${displaySettings.padding.bottom}px`,
+    paddingLeft: `${displaySettings.padding.left}px`,
+  };
+
+  const textStyle = {
+    fontSize: `${displaySettings.fontSize}px`,
+    fontFamily: displaySettings.fontFamily,
+    lineHeight: displaySettings.lineHeight,
+    letterSpacing: `${displaySettings.letterSpacing}px`,
+    color: displaySettings.textColor,
+    textAlign: displaySettings.textAlign,
+  };
+
   return (
-    <div className="w-full min-h-screen bg-gradient-to-b from-slate-950 to-black flex items-center justify-center p-8 md:p-16">
-      <div className="max-w-5xl w-full">
+    <div 
+      className="w-full min-h-screen flex items-center justify-center"
+      style={paddingStyle}
+    >
+      <div className="w-full">
         <div
-          className={cn(
-            'text-center whitespace-pre-wrap leading-relaxed',
-            'text-3xl md:text-5xl lg:text-6xl font-bold',
-            'text-white drop-shadow-lg'
-          )}
+          className="whitespace-pre-wrap drop-shadow-lg"
+          style={textStyle}
         >
           {item.slideContent || ''}
         </div>
@@ -74,11 +113,26 @@ function TextDisplay({ item }: { item: TextDisplayItem }) {
 
 // ========== IMAGE DISPLAY ==========
 
-function ImageDisplay({ path }: { path: string }) {
+function ImageDisplay({ 
+  path, 
+  displaySettings 
+}: { 
+  path: string;
+  displaySettings: typeof DEFAULT_SETTINGS.display;
+}) {
   const imageUrl = getFileUrl(path);
+  const paddingStyle = {
+    paddingTop: `${displaySettings.padding.top}px`,
+    paddingRight: `${displaySettings.padding.right}px`,
+    paddingBottom: `${displaySettings.padding.bottom}px`,
+    paddingLeft: `${displaySettings.padding.left}px`,
+  };
 
   return (
-    <div className="w-full h-screen bg-black flex items-center justify-center">
+    <div 
+      className="w-full h-screen flex items-center justify-center"
+      style={paddingStyle}
+    >
       <img
         src={imageUrl}
         alt=""
@@ -90,9 +144,21 @@ function ImageDisplay({ path }: { path: string }) {
 
 // ========== VIDEO DISPLAY ==========
 
-function VideoDisplay({ path }: { path: string }) {
+function VideoDisplay({ 
+  path, 
+  displaySettings 
+}: { 
+  path: string;
+  displaySettings: typeof DEFAULT_SETTINGS.display;
+}) {
   const videoUrl = getFileUrl(path);
   const [key, setKey] = useState(path);
+  const paddingStyle = {
+    paddingTop: `${displaySettings.padding.top}px`,
+    paddingRight: `${displaySettings.padding.right}px`,
+    paddingBottom: `${displaySettings.padding.bottom}px`,
+    paddingLeft: `${displaySettings.padding.left}px`,
+  };
 
   // Reset video when path changes
   useEffect(() => {
@@ -100,7 +166,10 @@ function VideoDisplay({ path }: { path: string }) {
   }, [path]);
 
   return (
-    <div className="w-full h-screen bg-black flex items-center justify-center">
+    <div 
+      className="w-full h-screen flex items-center justify-center"
+      style={paddingStyle}
+    >
       <video
         key={key}
         src={videoUrl}
@@ -114,10 +183,22 @@ function VideoDisplay({ path }: { path: string }) {
 
 // ========== AUDIO DISPLAY ==========
 
-function AudioDisplay({ path }: { path: string }) {
+function AudioDisplay({ 
+  path, 
+  displaySettings 
+}: { 
+  path: string;
+  displaySettings: typeof DEFAULT_SETTINGS.display;
+}) {
   const audioUrl = getFileUrl(path);
   const [key, setKey] = useState(path);
   const filename = path.split('/').pop() ?? path;
+  const paddingStyle = {
+    paddingTop: `${displaySettings.padding.top}px`,
+    paddingRight: `${displaySettings.padding.right}px`,
+    paddingBottom: `${displaySettings.padding.bottom}px`,
+    paddingLeft: `${displaySettings.padding.left}px`,
+  };
 
   // Reset audio when path changes
   useEffect(() => {
@@ -125,7 +206,10 @@ function AudioDisplay({ path }: { path: string }) {
   }, [path]);
 
   return (
-    <div className="w-full h-screen bg-gradient-to-b from-slate-950 to-black flex flex-col items-center justify-center p-8">
+    <div 
+      className="w-full h-screen flex flex-col items-center justify-center"
+      style={paddingStyle}
+    >
       <div className="text-center mb-8">
         <div className="w-24 h-24 rounded-full bg-amber-500/20 flex items-center justify-center mx-auto mb-6">
           <svg
@@ -142,7 +226,12 @@ function AudioDisplay({ path }: { path: string }) {
             />
           </svg>
         </div>
-        <p className="text-2xl font-medium text-white">{filename}</p>
+        <p 
+          className="text-2xl font-medium"
+          style={{ color: displaySettings.textColor }}
+        >
+          {filename}
+        </p>
       </div>
       <audio
         key={key}
@@ -157,13 +246,40 @@ function AudioDisplay({ path }: { path: string }) {
 
 // ========== HEADING DISPLAY ==========
 
-function HeadingDisplay({ content }: { content: string }) {
+function HeadingDisplay({ 
+  content, 
+  displaySettings 
+}: { 
+  content: string;
+  displaySettings: typeof DEFAULT_SETTINGS.display;
+}) {
+  const paddingStyle = {
+    paddingTop: `${displaySettings.padding.top}px`,
+    paddingRight: `${displaySettings.padding.right}px`,
+    paddingBottom: `${displaySettings.padding.bottom}px`,
+    paddingLeft: `${displaySettings.padding.left}px`,
+  };
+
+  const textStyle = {
+    fontSize: `${displaySettings.fontSize * 1.5}px`, // Większa czcionka dla nagłówków
+    fontFamily: displaySettings.fontFamily,
+    lineHeight: displaySettings.lineHeight,
+    letterSpacing: `${displaySettings.letterSpacing}px`,
+    color: displaySettings.textColor,
+    textAlign: displaySettings.textAlign,
+  };
+
   return (
-    <div className="w-full h-screen bg-gradient-to-b from-slate-950 to-black flex items-center justify-center p-8">
-      <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold text-white text-center drop-shadow-lg">
+    <div 
+      className="w-full h-screen flex items-center justify-center"
+      style={paddingStyle}
+    >
+      <h1 
+        className="font-bold drop-shadow-lg"
+        style={textStyle}
+      >
         {content}
       </h1>
     </div>
   );
 }
-

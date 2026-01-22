@@ -176,14 +176,14 @@ export function ScreenControl() {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 p-6 overflow-auto">
-        <div className="max-w-4xl mx-auto space-y-4">
+      <main className="flex-1 overflow-auto">
+        <div className="w-full space-y-4 p-6">
           {/* Current State Card */}
           <Card className="overflow-hidden">
             <div className="p-4 border-b">
               <h2 className="font-semibold">Aktualnie na ekranie</h2>
             </div>
-            <div className="p-6">
+            <div className="p-0">
               <CurrentStateDisplay state={state} />
             </div>
           </Card>
@@ -237,7 +237,7 @@ export function ScreenControl() {
 function CurrentStateDisplay({ state }: { state: ScreenState }) {
   if (state.mode === 'empty') {
     return (
-      <div className="aspect-video bg-muted/50 rounded-lg flex items-center justify-center border border-dashed">
+      <div className="w-full aspect-video bg-muted/50 flex items-center justify-center border border-dashed">
         <div className="text-center text-muted-foreground">
           <Square className="h-12 w-12 mx-auto mb-2 opacity-30" />
           <p className="text-lg font-medium">Ekran pusty</p>
@@ -249,48 +249,38 @@ function CurrentStateDisplay({ state }: { state: ScreenState }) {
 
   const item = state.mode === 'single' ? state.item : state.currentItem;
 
-  // Dla tekstu pokazujemy zawartość slajdu
-  if (item.type === 'text') {
-    return (
-      <div className="space-y-4">
-        <div className="aspect-video bg-gradient-to-br from-slate-900 to-slate-800 rounded-lg flex items-center justify-center border p-8 overflow-hidden">
-          <div className="text-center text-white max-w-full">
-            <p className="text-xl md:text-2xl lg:text-3xl font-bold whitespace-pre-wrap leading-relaxed line-clamp-6">
-              {item.slideContent || '(Pusty slajd)'}
-            </p>
-          </div>
+  // Info o aktualnym elemencie
+  const itemInfo = (
+    <div className="flex items-center justify-between text-sm p-4 border-t bg-muted/30">
+      <div className="flex items-center gap-2">
+        <div className={cn('w-8 h-8 rounded-md flex items-center justify-center', getDisplayItemColor(item))}>
+          {getDisplayItemIcon(item)}
         </div>
-        <div className="flex items-center justify-between text-sm">
-          <div className="flex items-center gap-2">
-            <div className={cn('w-8 h-8 rounded-md flex items-center justify-center', getDisplayItemColor(item))}>
-              {getDisplayItemIcon(item)}
-            </div>
-            <span className="font-medium">{getDisplayItemLabel(item)}</span>
-          </div>
-          <span className="text-muted-foreground">
-            Slajd {item.slideIndex + 1} z {item.totalSlides}
-          </span>
-        </div>
+        <span className="font-medium">{getDisplayItemLabel(item)}</span>
       </div>
-    );
-  }
+      {item.type === 'text' && (
+        <span className="text-muted-foreground">
+          Slajd {item.slideIndex + 1} z {item.totalSlides}
+        </span>
+      )}
+    </div>
+  );
 
-  // Dla innych typów
+  // Iframe z rzeczywistym widokiem ekranu - pełna szerokość, skalowanie jak na ekranie
   return (
-    <div className="space-y-4">
-      <div className="aspect-video bg-gradient-to-br from-slate-900 to-slate-800 rounded-lg flex items-center justify-center border">
-        <div className="text-center text-white p-8">
-          <div
-            className={cn(
-              'w-16 h-16 rounded-xl flex items-center justify-center mx-auto mb-4',
-              getDisplayItemColor(item)
-            )}
-          >
-            {getDisplayItemIcon(item)}
-          </div>
-          <p className="text-xl font-medium">{getDisplayItemLabel(item)}</p>
-        </div>
+    <div className="w-full">
+      <div className="w-full bg-black relative" style={{ height: '70vh', minHeight: '500px' }}>
+        <iframe
+          src="/display"
+          className="w-full h-full border-0"
+          title="Podgląd ekranu"
+          allow="fullscreen"
+          style={{
+            pointerEvents: 'none', // Zapobiega interakcji z iframe
+          }}
+        />
       </div>
+      {itemInfo}
     </div>
   );
 }
