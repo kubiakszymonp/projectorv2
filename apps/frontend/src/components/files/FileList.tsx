@@ -10,6 +10,7 @@ interface FileListProps {
   onRenameFile: (file: FileNode) => void;
   onDeleteFile: (file: FileNode) => void;
   onAddToScenario?: (file: FileNode) => void;
+  onProjectToScreen?: (file: FileNode) => void;
 }
 
 export function FileList({
@@ -20,6 +21,7 @@ export function FileList({
   onRenameFile,
   onDeleteFile,
   onAddToScenario,
+  onProjectToScreen,
 }: FileListProps) {
   // Sortuj: foldery na górze, potem alfabetycznie
   const sortedFiles = [...files].sort((a, b) => {
@@ -48,6 +50,7 @@ export function FileList({
             onRename={() => onRenameFile(file)}
             onDelete={() => onDeleteFile(file)}
             onAddToScenario={onAddToScenario ? () => onAddToScenario(file) : undefined}
+            onProjectToScreen={onProjectToScreen ? () => onProjectToScreen(file) : undefined}
           />
         ))}
       </div>

@@ -9,3 +9,6 @@ export * from './media';
 // Scenarios domain
 export * from './scenarios';
 
+// Player domain
+export * from './player';
+

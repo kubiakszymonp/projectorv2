@@ -18,6 +18,7 @@ import {
   Square,
   MoreVertical,
   Music,
+  Monitor,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -44,6 +45,7 @@ import {
   useUpdateScenario,
   useDeleteScenario,
 } from '@/hooks/useScenarios';
+import { useSetScenario, useScreenState } from '@/hooks/usePlayer';
 import type { ScenarioDoc, ScenarioStep } from '@/types/scenarios';
 import { getStepType, getStepValue } from '@/types/scenarios';
 import { cn } from '@/lib/utils';
@@ -217,6 +219,10 @@ export function ScenarioEditor() {
   const createScenario = useCreateScenario();
   const updateScenario = useUpdateScenario();
   const deleteScenario = useDeleteScenario();
+  const setScenario = useSetScenario();
+
+  // Screen state for projection indicator
+  const { data: screenState } = useScreenState();
 
   // Computed
   const filteredScenarios = useMemo(() => {
@@ -232,6 +238,15 @@ export function ScenarioEditor() {
       JSON.stringify(editedSteps) !== JSON.stringify(selectedScenario.steps)
     );
   }, [selectedScenario, editedTitle, editedDescription, editedSteps]);
+
+  // Check if current scenario is being projected
+  const isCurrentlyProjecting = useMemo(() => {
+    if (!selectedScenario || !screenState) return false;
+    if (screenState.mode === 'scenario') {
+      return screenState.scenarioId === selectedScenario.meta.id;
+    }
+    return false;
+  }, [selectedScenario, screenState]);
 
   // Handlers
   const handleSelectScenario = useCallback((scenario: ScenarioDoc) => {
@@ -300,6 +315,11 @@ export function ScenarioEditor() {
   const handleGoToSongs = useCallback(() => {
     navigate('/songs');
   }, [navigate]);
+
+  const handleProjectToScreen = useCallback(() => {
+    if (!selectedScenario) return;
+    setScenario.mutate({ scenarioId: selectedScenario.meta.id, stepIndex: 0 });
+  }, [selectedScenario, setScenario]);
 
   // Drag handlers
   const handleDragStart = useCallback((e: React.DragEvent, index: number) => {
@@ -434,6 +454,15 @@ export function ScenarioEditor() {
             </div>
           </div>
           <div className="flex items-center gap-2">
+            <Button
+              variant={isCurrentlyProjecting ? 'default' : 'outline'}
+              size="sm"
+              onClick={handleProjectToScreen}
+              disabled={editedSteps.length === 0}
+            >
+              <Monitor className="h-4 w-4 mr-2" />
+              Rzutuj
+            </Button>
             <Button
               variant="outline"
               size="sm"

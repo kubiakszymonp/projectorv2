@@ -46,6 +46,8 @@ export function SongCatalog() {
           onSave={editor.handleSave}
           onBack={editor.handleBack}
           onAddToScenario={() => editor.setIsAddToScenarioOpen(true)}
+          onProjectToScreen={editor.handleProjectToScreen}
+          isProjecting={editor.isCurrentlyProjecting}
           isMobile={isMobile}
           isMetadataOpen={editor.isMetadataOpen}
           onMetadataToggle={() => editor.setIsMetadataOpen(!editor.isMetadataOpen)}

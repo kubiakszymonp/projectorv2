@@ -18,3 +18,6 @@ export * from './settings';
 // Settings domain - DTOs
 export * from './settings.dto';
 
+// Player domain
+export * from './player';
+

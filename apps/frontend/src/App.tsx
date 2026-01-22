@@ -1,20 +1,25 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { MainMenu } from '@/views/MainMenu';
 import { FilesExplorer } from '@/views/FilesExplorer';
 import { MediaExplorer } from '@/views/MediaExplorer';
 import { ScreenControl } from '@/views/ScreenControl';
+import { ScreenDisplay } from '@/views/ScreenDisplay';
 import { Settings } from '@/views/Settings';
 import { SongCatalog } from '@/views/SongCatalog';
 import { ScenarioEditor } from '@/views/ScenarioEditor';
 import { Navbar } from '@/components/ui/navbar';
 
-function App() {
+function AppLayout() {
+  const location = useLocation();
+  const isDisplayRoute = location.pathname === '/display';
+
   return (
-    <BrowserRouter>
-      <Navbar />
+    <>
+      {!isDisplayRoute && <Navbar />}
       <Routes>
         <Route path="/" element={<MainMenu />} />
         <Route path="/screen" element={<ScreenControl />} />
+        <Route path="/display" element={<ScreenDisplay />} />
         <Route path="/scenarios" element={<ScenarioEditor />} />
         <Route path="/songs" element={<SongCatalog />} />
         <Route path="/media" element={<MediaExplorer />} />
@@ -22,6 +27,14 @@ function App() {
         <Route path="/settings" element={<Settings />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+    </>
+  );
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <AppLayout />
     </BrowserRouter>
   );
 }

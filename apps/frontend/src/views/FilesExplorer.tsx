@@ -26,6 +26,7 @@ import {
   useUploadFile,
   useSaveFile,
 } from '@/hooks/useFiles';
+import { useSetMedia } from '@/hooks/usePlayer';
 import type { FileNode } from '@/types/files';
 import type { ScenarioStep } from '@/types/scenarios';
 
@@ -102,6 +103,7 @@ export function FilesExplorer({ initialPath = '', title = 'Edytor plików' }: Fi
   const deleteFile = useDeleteFile();
   const uploadFile = useUploadFile();
   const saveFile = useSaveFile();
+  const setMedia = useSetMedia();
 
   // Handlers - nawigacja
   const handleSelectFolder = useCallback((path: string) => {
@@ -207,6 +209,14 @@ export function FilesExplorer({ initialPath = '', title = 'Edytor plików' }: Fi
   const handleCloseAddToScenario = useCallback(() => {
     setAddToScenarioFile(null);
   }, []);
+
+  const handleProjectToScreen = useCallback((file: FileNode) => {
+    if (file.isDir) return;
+    const mediaType = file.kind as 'image' | 'video' | 'audio';
+    if (mediaType === 'image' || mediaType === 'video' || mediaType === 'audio') {
+      setMedia.mutate({ type: mediaType, path: file.path });
+    }
+  }, [setMedia]);
 
   // Get step for scenario modal
   const scenarioStep = addToScenarioFile ? createMediaStep(addToScenarioFile) : null;
@@ -328,6 +338,7 @@ export function FilesExplorer({ initialPath = '', title = 'Edytor plików' }: Fi
                   onRenameFile={setRenameTarget}
                   onDeleteFile={setDeleteTarget}
                   onAddToScenario={handleAddToScenario}
+                  onProjectToScreen={handleProjectToScreen}
                 />
               )}
             </div>

@@ -1,5 +1,7 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useTexts, useDomains, useCreateText, useUpdateText } from '@/hooks/useTexts';
+import { useSetText, useScreenState } from '@/hooks/usePlayer';
+import { createTextReference } from '@/utils/textReference';
 import type { TextDoc } from '@/types/texts';
 import type {
   ViewMode,
@@ -40,6 +42,10 @@ export function useSongEditor() {
   // Mutations
   const createText = useCreateText();
   const updateText = useUpdateText();
+  const setText = useSetText();
+
+  // Screen state for projection indicator
+  const { data: screenState } = useScreenState();
 
   // All categories for suggestions
   const allCategories = useMemo(() => {
@@ -163,6 +169,22 @@ export function useSongEditor() {
     setNewCategory('');
   }, [editedMeta]);
 
+  const handleProjectToScreen = useCallback(() => {
+    if (!selectedSong) return;
+    const textRef = createTextReference(selectedSong);
+    setText.mutate({ textRef, slideIndex: 0 });
+  }, [selectedSong, setText]);
+
+  // Check if current song is being projected
+  const isCurrentlyProjecting = useMemo(() => {
+    if (!selectedSong || !screenState) return false;
+    if (screenState.mode === 'single' && screenState.item.type === 'text') {
+      const textRef = createTextReference(selectedSong);
+      return screenState.item.textRef === textRef;
+    }
+    return false;
+  }, [selectedSong, screenState]);
+
   return {
     // State
     search,
@@ -216,6 +238,10 @@ export function useSongEditor() {
     handleAddCategory,
     handleRemoveCategory,
     handleSelectCategory,
+    handleProjectToScreen,
+
+    // Projection state
+    isCurrentlyProjecting,
   };
 }
 

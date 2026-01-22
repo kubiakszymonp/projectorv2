@@ -1,4 +1,4 @@
-import { Save, X, ListPlus, Loader2, FileText, Tags } from 'lucide-react';
+import { Save, X, ListPlus, Loader2, FileText, Tags, Monitor } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SongContentEditor } from './SongContentEditor';
 import { SongMetadataEditor, MobileMetadataAccordion } from './SongMetadataEditor';
@@ -29,6 +29,8 @@ interface SongEditorProps {
   onSave: () => void;
   onBack: () => void;
   onAddToScenario: () => void;
+  onProjectToScreen: () => void;
+  isProjecting?: boolean;
   isMobile: boolean;
   isMetadataOpen: boolean;
   onMetadataToggle: () => void;
@@ -59,6 +61,8 @@ export function SongEditor({
   onSave,
   onBack,
   onAddToScenario,
+  onProjectToScreen,
+  isProjecting,
   isMobile,
   isMetadataOpen,
   onMetadataToggle,
@@ -77,6 +81,8 @@ export function SongEditor({
           onSave={onSave}
           onBack={onBack}
           onAddToScenario={onAddToScenario}
+          onProjectToScreen={onProjectToScreen}
+          isProjecting={isProjecting}
         />
 
         {/* Mobile Metadata Accordion */}
@@ -125,6 +131,8 @@ export function SongEditor({
         onSave={onSave}
         onBack={onBack}
         onAddToScenario={onAddToScenario}
+        onProjectToScreen={onProjectToScreen}
+        isProjecting={isProjecting}
       />
 
       {/* Editor content */}
@@ -165,6 +173,8 @@ interface MobileEditorHeaderProps {
   onSave: () => void;
   onBack: () => void;
   onAddToScenario: () => void;
+  onProjectToScreen: () => void;
+  isProjecting?: boolean;
 }
 
 function MobileEditorHeader({
@@ -175,6 +185,8 @@ function MobileEditorHeader({
   onSave,
   onBack,
   onAddToScenario,
+  onProjectToScreen,
+  isProjecting,
 }: MobileEditorHeaderProps) {
   return (
     <div className="p-3 border-b flex items-center justify-between gap-2">
@@ -188,6 +200,15 @@ function MobileEditorHeader({
         </div>
       </div>
       <div className="flex items-center gap-1.5">
+        <Button
+          variant={isProjecting ? 'default' : 'outline'}
+          size="icon"
+          className="h-8 w-8"
+          onClick={onProjectToScreen}
+          title="Rzutuj na ekran"
+        >
+          <Monitor className="h-4 w-4" />
+        </Button>
         <Button
           variant="outline"
           size="icon"
@@ -223,6 +244,8 @@ interface DesktopEditorHeaderProps {
   onSave: () => void;
   onBack: () => void;
   onAddToScenario: () => void;
+  onProjectToScreen: () => void;
+  isProjecting?: boolean;
 }
 
 function DesktopEditorHeader({
@@ -235,6 +258,8 @@ function DesktopEditorHeader({
   onSave,
   onBack,
   onAddToScenario,
+  onProjectToScreen,
+  isProjecting,
 }: DesktopEditorHeaderProps) {
   return (
     <div className="p-4 border-b flex items-center justify-between gap-4">
@@ -250,6 +275,14 @@ function DesktopEditorHeader({
       <div className="flex items-center gap-2">
         <EditorTabs activeTab={editorTab} onTabChange={onEditorTabChange} />
         <div className="w-px h-6 bg-border mx-2" />
+        <Button
+          variant={isProjecting ? 'default' : 'outline'}
+          size="sm"
+          onClick={onProjectToScreen}
+        >
+          <Monitor className="h-4 w-4 mr-2" />
+          Rzutuj
+        </Button>
         <Button variant="outline" size="sm" onClick={onAddToScenario}>
           <ListPlus className="h-4 w-4 mr-2" />
           Do scenariusza

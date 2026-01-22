@@ -8,6 +8,7 @@ import {
   FileCode,
   MoreVertical,
   ListPlus,
+  Monitor,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
@@ -35,6 +36,7 @@ interface FileItemProps {
   onRename: () => void;
   onDelete: () => void;
   onAddToScenario?: () => void;
+  onProjectToScreen?: () => void;
 }
 
 function getFileIcon(file: FileNode) {
@@ -86,22 +88,28 @@ export function FileItem({
   onRename,
   onDelete,
   onAddToScenario,
+  onProjectToScreen,
 }: FileItemProps) {
   const canAddToScenario = isMediaFile(file) && onAddToScenario;
+  const canProject = isMediaFile(file) && onProjectToScreen;
 
   const menuContent = (
     <ContextMenuContent>
       <ContextMenuItem onClick={onOpen}>
         {file.isDir ? 'Otwórz folder' : 'Otwórz'}
       </ContextMenuItem>
+      {(canProject || canAddToScenario) && <ContextMenuSeparator />}
+      {canProject && (
+        <ContextMenuItem onClick={onProjectToScreen}>
+          <Monitor className="h-4 w-4 mr-2" />
+          Rzutuj na ekran
+        </ContextMenuItem>
+      )}
       {canAddToScenario && (
-        <>
-          <ContextMenuSeparator />
-          <ContextMenuItem onClick={onAddToScenario}>
-            <ListPlus className="h-4 w-4 mr-2" />
-            Dodaj do scenariusza
-          </ContextMenuItem>
-        </>
+        <ContextMenuItem onClick={onAddToScenario}>
+          <ListPlus className="h-4 w-4 mr-2" />
+          Dodaj do scenariusza
+        </ContextMenuItem>
       )}
       <ContextMenuSeparator />
       <ContextMenuItem onClick={onRename}>Zmień nazwę</ContextMenuItem>
@@ -163,14 +171,18 @@ export function FileItem({
                 <DropdownMenuItem onClick={onOpen}>
                   {file.isDir ? 'Otwórz folder' : 'Otwórz'}
                 </DropdownMenuItem>
+                {(canProject || canAddToScenario) && <DropdownMenuSeparator />}
+                {canProject && (
+                  <DropdownMenuItem onClick={onProjectToScreen}>
+                    <Monitor className="h-4 w-4 mr-2" />
+                    Rzutuj na ekran
+                  </DropdownMenuItem>
+                )}
                 {canAddToScenario && (
-                  <>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={onAddToScenario}>
-                      <ListPlus className="h-4 w-4 mr-2" />
-                      Dodaj do scenariusza
-                    </DropdownMenuItem>
-                  </>
+                  <DropdownMenuItem onClick={onAddToScenario}>
+                    <ListPlus className="h-4 w-4 mr-2" />
+                    Dodaj do scenariusza
+                  </DropdownMenuItem>
                 )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={onRename}>Zmień nazwę</DropdownMenuItem>
