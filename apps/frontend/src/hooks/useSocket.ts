@@ -8,9 +8,12 @@ let socketInstance: Socket | null = null;
  */
 function getSocket(): Socket {
   if (!socketInstance) {
-    // Use direct backend URL - Socket.IO client automatically adds /socket.io/ prefix
-    // So 'http://localhost:3000/notifications' becomes 'http://localhost:3000/socket.io/notifications'
-    const backendUrl = 'http://localhost:3000';
+    // In production (Docker), use relative URL so nginx can proxy the request
+    // In development, use direct backend URL
+    const isDevelopment = import.meta.env.DEV;
+    const backendUrl = isDevelopment 
+      ? 'http://localhost:3000' 
+      : window.location.origin;
     const namespace = '/notifications';
     
     console.debug('[Socket] Creating new socket connection:', {
