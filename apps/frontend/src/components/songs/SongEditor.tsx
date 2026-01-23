@@ -1,4 +1,5 @@
-import { Save, X, ListPlus, Loader2, FileText, Tags, Monitor } from 'lucide-react';
+import { Save, X, ListPlus, Loader2, FileText, Tags, Monitor, FolderOpen } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { SongContentEditor } from './SongContentEditor';
 import { SongMetadataEditor, MobileMetadataAccordion } from './SongMetadataEditor';
@@ -113,6 +114,17 @@ export function SongEditor({
           mobileContentTab={mobileContentTab}
           onMobileContentTabChange={onMobileContentTabChange}
         />
+
+        {/* Mobile Footer with file link */}
+        <div className="border-t p-3 bg-muted/20">
+          <Link
+            to={`/files?path=${encodeURIComponent(song.filePath)}`}
+            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <FolderOpen className="h-4 w-4" />
+            <span>Otwórz w edytorze plików</span>
+          </Link>
+        </div>
       </div>
     );
   }
@@ -161,6 +173,17 @@ export function SongEditor({
           slidesCount={song.slides.length}
         />
       )}
+
+      {/* Desktop Footer with file link */}
+      <div className="border-t p-3 bg-muted/20">
+        <Link
+          to={`/files?path=${encodeURIComponent(song.filePath)}`}
+          className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <FolderOpen className="h-4 w-4" />
+          <span>Otwórz w edytorze plików</span>
+        </Link>
+      </div>
     </div>
   );
 }

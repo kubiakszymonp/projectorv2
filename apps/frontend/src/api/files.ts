@@ -79,6 +79,15 @@ export async function uploadFile(
 }
 
 /**
+ * Sprawdza czy ścieżka to folder czy plik
+ */
+export async function checkPathType(path: string): Promise<{ isDir: boolean }> {
+  const res = await fetch(`${API_BASE}/check?path=${encodeURIComponent(path)}`);
+  if (!res.ok) throw new Error(`Failed to check path type: ${res.statusText}`);
+  return res.json();
+}
+
+/**
  * Pobiera zawartość pliku tekstowego
  */
 export async function getFileContent(path: string): Promise<string> {

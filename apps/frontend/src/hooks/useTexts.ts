@@ -94,8 +94,13 @@ export function useUpdateText() {
     mutationFn: ({ id, data }: { id: string; data: textsApi.UpdateTextData }) =>
       textsApi.updateText(id, data),
     onSuccess: (updatedText) => {
+      // Invalidate all text lists and details
       queryClient.invalidateQueries({ queryKey: textKeys.lists() });
       queryClient.setQueryData(textKeys.detail(updatedText.meta.id), updatedText);
+      // Invalidate all scenarios because they may contain references to this text
+      queryClient.invalidateQueries({ queryKey: ['scenarios'] });
+      // Invalidate screen state as it may display this text
+      queryClient.invalidateQueries({ queryKey: ['player'] });
     },
   });
 }

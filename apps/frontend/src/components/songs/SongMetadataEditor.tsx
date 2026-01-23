@@ -2,6 +2,7 @@ import { Plus, X, ChevronDown, ChevronUp, Tags } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Select } from '@/components/ui/select';
 import { Card } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import type { EditedMeta } from '@/types/songCatalog';
@@ -188,20 +189,17 @@ function MetadataContent({
       {/* Domain */}
       <div className="space-y-2">
         <label className="text-sm font-medium">Domena</label>
-        <div className="relative">
-          <select
-            value={editedMeta.domain}
-            onChange={(e) => onMetaChange({ ...editedMeta, domain: e.target.value })}
-            className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring appearance-none cursor-pointer capitalize"
-          >
-            {domains?.map((domain) => (
-              <option key={domain} value={domain}>
-                {domain}
-              </option>
-            ))}
-          </select>
-          <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-        </div>
+        <Select
+          value={editedMeta.domain}
+          onChange={(e) => onMetaChange({ ...editedMeta, domain: e.target.value })}
+          className="capitalize"
+        >
+          {domains?.map((domain) => (
+            <option key={domain} value={domain}>
+              {domain}
+            </option>
+          ))}
+        </Select>
       </div>
 
       {/* Categories */}

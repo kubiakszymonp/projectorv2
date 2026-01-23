@@ -1,5 +1,6 @@
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useSongEditor } from '@/hooks/useSongEditor';
+import { useReloadTexts } from '@/hooks/useTexts';
 import { SongList, SongEditor, CreateSongDialog } from '@/components/songs';
 import { AddToScenarioModal } from '@/components/scenarios/AddToScenarioModal';
 import { createTextReference } from '@/utils/textReference';
@@ -7,6 +8,7 @@ import { createTextReference } from '@/utils/textReference';
 export function SongCatalog() {
   const isMobile = useIsMobile();
   const editor = useSongEditor();
+  const reloadTexts = useReloadTexts();
 
   return (
     <div className="h-screen flex flex-col bg-background">
@@ -21,6 +23,8 @@ export function SongCatalog() {
           isLoading={editor.isLoadingSongs}
           onSelectSong={editor.handleSelectSong}
           onCreateNew={() => editor.setIsCreateDialogOpen(true)}
+          onReload={() => reloadTexts.mutate()}
+          isReloading={reloadTexts.isPending}
         />
       ) : editor.selectedSong && editor.editedMeta ? (
         <SongEditor

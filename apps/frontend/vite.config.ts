@@ -12,13 +12,14 @@ export default defineConfig({
     },
   },
   server: {
+    port: 10001,
     proxy: {
       '/api': {
-        target: 'http://localhost:3000',
+        target: 'http://localhost:10000',
         changeOrigin: true,
       },
       '/notifications': {
-        target: 'http://localhost:3000',
+        target: 'http://localhost:10000',
         changeOrigin: true,
         ws: true, // Enable WebSocket proxy
       },

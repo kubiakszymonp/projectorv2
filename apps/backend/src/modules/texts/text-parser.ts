@@ -56,8 +56,9 @@ function splitByBlankLines(content: string): string[] {
  * Parse text file content
  * @param content - raw file content
  * @param domain - domain name (folder name where file is located)
+ * @param filePath - relative path from data/ folder (e.g. "texts/songs/barka__id.md")
  */
-export function parseTextFile(content: string, domain: string): TextDoc {
+export function parseTextFile(content: string, domain: string, filePath: string): TextDoc {
   const { data, content: body } = matter(content);
 
   const meta = validateTextMeta(data, domain);
@@ -68,6 +69,7 @@ export function parseTextFile(content: string, domain: string): TextDoc {
     meta,
     contentRaw,
     slides,
+    filePath,
   };
 }
 

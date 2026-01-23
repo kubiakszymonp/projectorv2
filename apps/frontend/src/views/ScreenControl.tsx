@@ -51,6 +51,7 @@ function getDisplayItemLabel(item: DisplayItem): string {
   switch (item.type) {
     case 'text':
       // Extract title from path like "songs/barka__01HXZ..."
+      // Note: This is a fallback - actual title should come from screenState
       const parts = item.textRef.split('/');
       const filename = parts[parts.length - 1];
       const title = filename.split('__')[0];

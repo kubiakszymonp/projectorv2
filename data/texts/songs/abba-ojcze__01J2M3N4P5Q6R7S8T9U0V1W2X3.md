@@ -1,9 +1,11 @@
 ---
 schemaVersion: 1
-id: "01J2M3N4P5Q6R7S8T9U0V1W2X3"
-title: "Abba Ojcze"
-description: "Pieśń o miłości Ojca"
-categories: ["uwielbienie", "modlitewne"]
+id: 01J2M3N4P5Q6R7S8T9U0V1W2X3
+title: Abba Ojcze abba ojcze xdd
+description: Pieśń o miłości Ojca
+categories:
+  - modlitewne
+  - uwielbienie
 ---
 
 Abba, Ojcze, Abba, Ojcze
@@ -30,4 +32,3 @@ Abba, Ojcze, Abba, Ojcze
 Abba, Ojcze, Ty jesteś moim Ojcem
 Abba, Ojcze, Abba, Ojcze
 Abba, Ojcze, Ty jesteś moim Ojcem
-

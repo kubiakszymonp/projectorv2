@@ -198,6 +198,32 @@ export class FilesController {
   }
 
   /**
+   * GET /api/files/check?path=<path>
+   * Sprawdza czy ścieżka to folder czy plik
+   */
+  @Get('check')
+  @ApiOperation({ summary: 'Sprawdza czy ścieżka to folder czy plik' })
+  @ApiQuery({
+    name: 'path',
+    required: true,
+    description: 'Ścieżka do sprawdzenia',
+    example: 'media/ogloszenia/plik.jpg',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Typ ścieżki',
+    schema: {
+      type: 'object',
+      properties: {
+        isDir: { type: 'boolean' },
+      },
+    },
+  })
+  async checkPath(@Query() dto: GetFileDto): Promise<{ isDir: boolean }> {
+    return this.filesService.checkPathType(dto.path);
+  }
+
+  /**
    * GET /api/files/file?path=<path>
    * Pobiera plik (binary streaming)
    */

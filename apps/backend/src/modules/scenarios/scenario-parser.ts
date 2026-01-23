@@ -98,7 +98,12 @@ function validateSteps(data: unknown): ScenarioStep[] {
   return steps.map((step, index) => validateStep(step, index));
 }
 
-export function parseScenarioFile(content: string): ScenarioDoc {
+/**
+ * Parse scenario file content
+ * @param content - raw file content
+ * @param filePath - relative path from data/ folder (e.g. "scenarios/niedziela-1100__id.yaml")
+ */
+export function parseScenarioFile(content: string, filePath: string): ScenarioDoc {
   let data: unknown;
   try {
     data = yaml.load(content);
@@ -109,7 +114,7 @@ export function parseScenarioFile(content: string): ScenarioDoc {
   const meta = validateScenarioMeta(data);
   const steps = validateSteps(data);
 
-  return { meta, steps };
+  return { meta, steps, filePath };
 }
 
 export function buildScenarioFile(meta: ScenarioMeta, steps: ScenarioStep[]): string {

@@ -91,8 +91,11 @@ export function useUpdateScenario() {
     mutationFn: ({ id, data }: { id: string; data: scenariosApi.UpdateScenarioData }) =>
       scenariosApi.updateScenario(id, data),
     onSuccess: (updatedScenario) => {
+      // Invalidate all scenario lists and details
       queryClient.invalidateQueries({ queryKey: scenarioKeys.lists() });
       queryClient.setQueryData(scenarioKeys.detail(updatedScenario.meta.id), updatedScenario);
+      // Invalidate screen state as it may display this scenario
+      queryClient.invalidateQueries({ queryKey: ['player'] });
     },
   });
 }
@@ -162,6 +165,20 @@ export function useReorderScenarioSteps() {
     onSuccess: (updatedScenario) => {
       queryClient.invalidateQueries({ queryKey: scenarioKeys.lists() });
       queryClient.setQueryData(scenarioKeys.detail(updatedScenario.meta.id), updatedScenario);
+    },
+  });
+}
+
+/**
+ * Hook do przeładowania scenariuszy z dysku
+ */
+export function useReloadScenarios() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: scenariosApi.reloadScenarios,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: scenarioKeys.all });
     },
   });
 }

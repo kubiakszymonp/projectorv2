@@ -106,7 +106,9 @@ export class TextLoader {
     const filePath = path.join(this.textsDirectory, domain, filename);
     try {
       const content = await fs.readFile(filePath, 'utf-8');
-      return parseTextFile(content, domain);
+      // Generate relative path from data/ folder: texts/domain/filename
+      const relativePath = `texts/${domain}/${filename}`;
+      return parseTextFile(content, domain, relativePath);
     } catch {
       return null;
     }

@@ -38,6 +38,7 @@ export type ScenarioMeta = {
 export type ScenarioDoc = {
   meta: ScenarioMeta;
   steps: ScenarioStep[];
+  filePath: string; // Relative path from data/ folder, e.g. "scenarios/niedziela-1100__01HXZ3R8E7Q2V4VJ6T9G2J8N1P.yaml"
 };
 
 /**

@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import {
   Search,
   Plus,
@@ -19,6 +19,8 @@ import {
   MoreVertical,
   Music,
   Monitor,
+  FolderOpen,
+  RefreshCw,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -45,8 +47,10 @@ import {
   useCreateScenario,
   useUpdateScenario,
   useDeleteScenario,
+  useReloadScenarios,
 } from '@/hooks/useScenarios';
 import { useSetScenario, useScreenState } from '@/hooks/usePlayer';
+import { useText } from '@/hooks/useTexts';
 import type { ScenarioDoc, ScenarioStep } from '@/types/scenarios';
 import { getStepType, getStepValue } from '@/types/scenarios';
 import { cn } from '@/lib/utils';
@@ -85,6 +89,11 @@ function StepItem({
   const stepType = getStepType(step);
   const stepValue = getStepValue(step);
 
+  // Extract text ID from textRef for fetching actual text
+  const textRef = stepType === 'text' ? (stepValue as string) : null;
+  const textId = textRef ? textRef.split('__').pop() || null : null;
+  const { data: textDoc } = useText(textId);
+
   const getStepIcon = () => {
     switch (stepType) {
       case 'text':
@@ -105,7 +114,11 @@ function StepItem({
   const getStepLabel = () => {
     switch (stepType) {
       case 'text':
-        // Extract title from path like "songs/barka__01HXZ..."
+        // Use actual text title from API if available, otherwise fallback to slug
+        if (textDoc) {
+          return textDoc.meta.title;
+        }
+        // Fallback: Extract title from path like "songs/barka__01HXZ..."
         const parts = (stepValue as string).split('/');
         const filename = parts[parts.length - 1];
         const title = filename.split('__')[0];
@@ -223,6 +236,7 @@ export function ScenarioEditor() {
   const createScenario = useCreateScenario();
   const updateScenario = useUpdateScenario();
   const deleteScenario = useDeleteScenario();
+  const reloadScenarios = useReloadScenarios();
   const setScenario = useSetScenario();
 
   // Screen state for projection indicator
@@ -394,10 +408,16 @@ export function ScenarioEditor() {
       <div className="p-4 space-y-4 border-b">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold tracking-tight">Scenariusze</h1>
-          <Button onClick={() => setIsCreateDialogOpen(true)}>
-            <Plus className="h-4 w-4 mr-2" />
-            Nowy scenariusz
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" onClick={() => reloadScenarios.mutate()} disabled={reloadScenarios.isPending}>
+              <RefreshCw className={`h-4 w-4 mr-2 ${reloadScenarios.isPending ? 'animate-spin' : ''}`} />
+              Odśwież
+            </Button>
+            <Button onClick={() => setIsCreateDialogOpen(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              Nowy scenariusz
+            </Button>
+          </div>
         </div>
 
         {/* Search */}
@@ -603,6 +623,17 @@ export function ScenarioEditor() {
               </div>
             </ScrollArea>
           </div>
+        </div>
+
+        {/* Footer with file link */}
+        <div className="border-t p-3 bg-muted/20">
+          <Link
+            to={`/files?path=${encodeURIComponent(selectedScenario.filePath)}`}
+            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <FolderOpen className="h-4 w-4" />
+            <span>Otwórz w edytorze plików</span>
+          </Link>
         </div>
       </div>
     );

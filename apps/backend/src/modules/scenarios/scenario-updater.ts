@@ -1,4 +1,5 @@
 import { promises as fs } from 'fs';
+import * as path from 'path';
 import { ScenarioDoc, ScenarioMeta, ScenarioStep } from '../../types/scenarios';
 import { ScenarioLoader } from './scenario-loader';
 import { parseScenarioFile, buildScenarioFile } from './scenario-parser';
@@ -35,7 +36,10 @@ export class ScenarioUpdater {
     await fs.writeFile(filePath, fileContent, 'utf-8');
 
     const rawContent = await fs.readFile(filePath, 'utf-8');
-    return parseScenarioFile(rawContent);
+    // Generate relative path from data/ folder: scenarios/filename
+    const filename = path.basename(filePath);
+    const relativePath = `scenarios/${filename}`;
+    return parseScenarioFile(rawContent, relativePath);
   }
 
   private async findFilePath(id: string): Promise<string | null> {

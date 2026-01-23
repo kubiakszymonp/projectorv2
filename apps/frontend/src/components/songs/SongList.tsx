@@ -4,6 +4,7 @@ import {
   Music,
   Loader2,
   ChevronRight,
+  RefreshCw,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -22,6 +23,8 @@ interface SongListProps {
   isLoading: boolean;
   onSelectSong: (song: TextDoc) => void;
   onCreateNew: () => void;
+  onReload?: () => void;
+  isReloading?: boolean;
 }
 
 export function SongList({
@@ -34,6 +37,8 @@ export function SongList({
   isLoading,
   onSelectSong,
   onCreateNew,
+  onReload,
+  isReloading,
 }: SongListProps) {
   return (
     <div className="flex-1 flex flex-col min-h-0">
@@ -41,10 +46,18 @@ export function SongList({
       <div className="p-4 space-y-4 border-b">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold tracking-tight">Katalog pieśni</h1>
-          <Button onClick={onCreateNew}>
-            <Plus className="h-4 w-4 mr-2" />
-            Nowa pieśń
-          </Button>
+          <div className="flex items-center gap-2">
+            {onReload && (
+              <Button variant="outline" onClick={onReload} disabled={isReloading}>
+                <RefreshCw className={`h-4 w-4 mr-2 ${isReloading ? 'animate-spin' : ''}`} />
+                Odśwież
+              </Button>
+            )}
+            <Button onClick={onCreateNew}>
+              <Plus className="h-4 w-4 mr-2" />
+              Nowa pieśń
+            </Button>
+          </div>
         </div>
 
         {/* Search */}

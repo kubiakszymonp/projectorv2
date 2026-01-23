@@ -12,7 +12,7 @@ function getSocket(): Socket {
     // In development, use direct backend URL
     const isDevelopment = import.meta.env.DEV;
     const backendUrl = isDevelopment 
-      ? 'http://localhost:3000' 
+      ? 'http://localhost:10000' 
       : window.location.origin;
     const namespace = '/notifications';
     

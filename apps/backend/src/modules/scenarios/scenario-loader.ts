@@ -42,7 +42,9 @@ export class ScenarioLoader {
   private async loadByFilename(filename: string): Promise<ScenarioDoc> {
     const filePath = path.join(this.scenariosDirectory, filename);
     const content = await fs.readFile(filePath, 'utf-8');
-    return parseScenarioFile(content);
+    // Generate relative path from data/ folder: scenarios/filename
+    const relativePath = `scenarios/${filename}`;
+    return parseScenarioFile(content, relativePath);
   }
 
   async deleteScenario(id: string): Promise<boolean> {

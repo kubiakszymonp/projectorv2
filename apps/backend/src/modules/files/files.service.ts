@@ -263,6 +263,23 @@ export class FilesService {
   }
 
   /**
+   * Sprawdza czy ścieżka to folder czy plik
+   */
+  async checkPathType(relativePath: string): Promise<{ isDir: boolean }> {
+    const fullPath = this.pathValidator.safeJoin(relativePath);
+    
+    try {
+      const stat = await fs.stat(fullPath);
+      return { isDir: stat.isDirectory() };
+    } catch (err: any) {
+      if (err.code === 'ENOENT') {
+        throw new NotFoundException('Path not found');
+      }
+      throw err;
+    }
+  }
+
+  /**
    * Zapisuje zawartość pliku tekstowego
    */
   async saveFile(relativePath: string, content: string): Promise<void> {

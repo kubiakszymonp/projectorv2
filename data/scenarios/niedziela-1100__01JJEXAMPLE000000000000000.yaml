@@ -7,6 +7,7 @@ steps:
   - text: songs/alleluja__01J0K1Q9B6K4T3P6E8F0R2A7X9
   - image: ogloszenia/test.png
   - heading: Pieśni
+  - text: songs/how-deep-is-your-love__01KFN56B1H8KTM4Z61GD0H1W8K
   - text: songs/abba-ojcze__01J2M3N4P5Q6R7S8T9U0V1W2X3
   - text: songs/barka__01HXZ3R8E7Q2V4VJ6T9G2J8N1P
   - image: ogloszenia/test__01KFDK68BPGQZCCVPM755XQKZP.png

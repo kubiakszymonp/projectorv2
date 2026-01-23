@@ -1,6 +1,7 @@
 import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Select } from '@/components/ui/select';
 import {
   Dialog,
   DialogContent,
@@ -47,10 +48,9 @@ export function CreateSongDialog({
           </div>
           <div className="space-y-2">
             <label className="text-sm font-medium">Domena</label>
-            <select
+            <Select
               value={data.domain}
               onChange={(e) => onDataChange({ ...data, domain: e.target.value })}
-              className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
             >
               {domains?.map((domain) => (
                 <option key={domain} value={domain}>
@@ -60,7 +60,7 @@ export function CreateSongDialog({
               {(!domains || domains.length === 0) && (
                 <option value="songs">songs</option>
               )}
-            </select>
+            </Select>
           </div>
         </div>
         <DialogFooter>

@@ -77,13 +77,19 @@ export class TextUpdater {
       await fs.unlink(fileInfo.filePath);
 
       const rawContent = await fs.readFile(newFilePath, 'utf-8');
-      return parseTextFile(rawContent, newDomain);
+      // Generate relative path from data/ folder: texts/domain/filename
+      const filename = path.basename(newFilePath);
+      const relativePath = `texts/${newDomain}/${filename}`;
+      return parseTextFile(rawContent, newDomain, relativePath);
     } else {
       // Same domain - update in place
       await fs.writeFile(fileInfo.filePath, fileContent, 'utf-8');
 
       const rawContent = await fs.readFile(fileInfo.filePath, 'utf-8');
-      return parseTextFile(rawContent, newDomain);
+      // Generate relative path from data/ folder: texts/domain/filename
+      const filename = path.basename(fileInfo.filePath);
+      const relativePath = `texts/${newDomain}/${filename}`;
+      return parseTextFile(rawContent, newDomain, relativePath);
     }
   }
 }
