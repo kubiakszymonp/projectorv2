@@ -21,6 +21,9 @@ import {
   Monitor,
   FolderOpen,
   RefreshCw,
+  ChevronDown,
+  ChevronUp,
+  Tags,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -51,6 +54,7 @@ import {
 } from '@/hooks/useScenarios';
 import { useSetScenario, useScreenState } from '@/hooks/usePlayer';
 import { useText } from '@/hooks/useTexts';
+import { useIsMobile } from '@/hooks/useIsMobile';
 import type { ScenarioDoc, ScenarioStep } from '@/types/scenarios';
 import { getStepType, getStepValue } from '@/types/scenarios';
 import { cn } from '@/lib/utils';
@@ -222,6 +226,7 @@ export function ScenarioEditor() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const scenarioIdFromUrl = searchParams.get('id');
+  const isMobile = useIsMobile();
 
   // State
   const [search, setSearch] = useState('');
@@ -234,6 +239,7 @@ export function ScenarioEditor() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [newScenarioTitle, setNewScenarioTitle] = useState('');
+  const [isMetadataOpen, setIsMetadataOpen] = useState(false);
 
   // Drag state
   const [dragIndex, setDragIndex] = useState<number | null>(null);
@@ -422,13 +428,11 @@ export function ScenarioEditor() {
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold tracking-tight">Scenariusze</h1>
           <div className="flex items-center gap-2">
-            <Button variant="outline" onClick={() => reloadScenarios.mutate()} disabled={reloadScenarios.isPending}>
-              <RefreshCw className={`h-4 w-4 mr-2 ${reloadScenarios.isPending ? 'animate-spin' : ''}`} />
-              Odśwież
+            <Button variant="outline" size="icon" onClick={() => reloadScenarios.mutate()} disabled={reloadScenarios.isPending} title="Odśwież">
+              <RefreshCw className={`h-4 w-4 ${reloadScenarios.isPending ? 'animate-spin' : ''}`} />
             </Button>
-            <Button onClick={() => setIsCreateDialogOpen(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              Nowy scenariusz
+            <Button size="icon" onClick={() => setIsCreateDialogOpen(true)} title="Nowy scenariusz">
+              <Plus className="h-4 w-4" />
             </Button>
           </div>
         </div>
@@ -496,12 +500,187 @@ export function ScenarioEditor() {
     </div>
   );
 
+  const hasMetaChanges = useMemo(() => {
+    if (!selectedScenario) return false;
+    return (
+      editedTitle !== selectedScenario.meta.title ||
+      editedDescription !== (selectedScenario.meta.description || '')
+    );
+  }, [selectedScenario, editedTitle, editedDescription]);
+
   const renderEditor = () => {
     if (!selectedScenario) return null;
 
+    if (isMobile) {
+      return (
+        <div className="flex-1 flex flex-col min-h-0">
+          {/* Mobile Header */}
+          <div className="p-3 border-b flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2 min-w-0">
+              <Button variant="ghost" size="icon" className="shrink-0" onClick={handleBack}>
+                <X className="h-5 w-5" />
+              </Button>
+              <div className="min-w-0">
+                <h1 className="text-base font-bold truncate">{selectedScenario.meta.title}</h1>
+                <p className="text-xs text-muted-foreground">
+                  {editedSteps.length} kroków
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <Button
+                variant={isCurrentlyProjecting ? 'default' : 'outline'}
+                size="icon"
+                className="h-8 w-8"
+                onClick={handleProjectToScreen}
+                disabled={editedSteps.length === 0}
+                title="Rzutuj na ekran"
+              >
+                <Monitor className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-8 w-8 text-destructive hover:text-destructive"
+                onClick={() => setDeleteDialogOpen(true)}
+                title="Usuń"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+              <Button
+                size="icon"
+                className="h-8 w-8"
+                onClick={handleSave}
+                disabled={!hasChanges || updateScenario.isPending}
+                title="Zapisz"
+              >
+                {updateScenario.isPending ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Save className="h-4 w-4" />
+                )}
+              </Button>
+            </div>
+          </div>
+
+          {/* Mobile Metadata Accordion */}
+          <div className="border-b">
+            <button
+              onClick={() => setIsMetadataOpen(!isMetadataOpen)}
+              className="w-full p-3 flex items-center justify-between bg-muted/30 hover:bg-muted/50 transition-colors"
+            >
+              <div className="flex items-center gap-2">
+                <Tags className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm font-medium">Metadane</span>
+                {hasMetaChanges && (
+                  <span className="text-xs text-amber-500">• zmiany</span>
+                )}
+              </div>
+              {isMetadataOpen ? (
+                <ChevronUp className="h-4 w-4 text-muted-foreground" />
+              ) : (
+                <ChevronDown className="h-4 w-4 text-muted-foreground" />
+              )}
+            </button>
+            {isMetadataOpen && (
+              <div className="p-4 bg-muted/10 space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Tytuł</label>
+                  <Input
+                    value={editedTitle}
+                    onChange={(e) => setEditedTitle(e.target.value)}
+                    placeholder="Tytuł scenariusza"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Opis</label>
+                  <Textarea
+                    value={editedDescription}
+                    onChange={(e) => setEditedDescription(e.target.value)}
+                    placeholder="Opcjonalny opis"
+                    rows={3}
+                  />
+                </div>
+                <Card className="p-4 bg-muted/30">
+                  <h4 className="text-sm font-medium mb-2">Informacje</h4>
+                  <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground">
+                    <div>ID:</div>
+                    <div className="font-mono text-xs truncate">{selectedScenario.meta.id}</div>
+                  </div>
+                </Card>
+              </div>
+            )}
+          </div>
+
+          {/* Mobile Steps list */}
+          <div className="flex-1 flex flex-col min-w-0">
+            <div className="p-3 border-b bg-muted/30 flex items-center justify-between">
+              <span className="text-sm font-medium">
+                Kroki ({editedSteps.length})
+              </span>
+              <Button size="icon" variant="outline" className="h-8 w-8" onClick={handleGoToSongs} title="Dodaj z katalogu">
+                <Music className="h-4 w-4" />
+              </Button>
+            </div>
+            <ScrollArea className="flex-1">
+              <div className="p-3 space-y-2">
+                {editedSteps.length === 0 ? (
+                  <div className="text-center py-12 text-muted-foreground">
+                    <ListOrdered className="h-12 w-12 mx-auto mb-4 opacity-30" />
+                    <p className="text-sm">Brak kroków</p>
+                    <p className="text-xs mt-1">
+                      Przejdź do katalogu pieśni i dodaj teksty
+                    </p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="mt-4"
+                      onClick={handleGoToSongs}
+                    >
+                      <Music className="h-4 w-4 mr-2" />
+                      Przejdź do katalogu
+                    </Button>
+                  </div>
+                ) : (
+                  editedSteps.map((step, index) => (
+                    <StepItem
+                      key={index}
+                      step={step}
+                      index={index}
+                      isSelected={selectedStepIndex === index}
+                      isDragging={dragIndex === index}
+                      isDragOver={dragOverIndex === index}
+                      onSelect={() => setSelectedStepIndex(index)}
+                      onDelete={() => handleDeleteStep(index)}
+                      onDragStart={handleDragStart}
+                      onDragEnd={handleDragEnd}
+                      onDragOver={handleDragOver}
+                      onDrop={handleDrop}
+                    />
+                  ))
+                )}
+              </div>
+            </ScrollArea>
+          </div>
+
+          {/* Mobile Footer with file link */}
+          <div className="border-t p-3 bg-muted/20">
+            <Link
+              to={`/files?path=${encodeURIComponent(selectedScenario.filePath)}`}
+              className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <FolderOpen className="h-4 w-4" />
+              <span>Otwórz w edytorze plików</span>
+            </Link>
+          </div>
+        </div>
+      );
+    }
+
+    // Desktop layout
     return (
       <div className="flex-1 flex flex-col min-h-0">
-        {/* Header */}
+        {/* Desktop Header */}
         <div className="p-4 border-b flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 min-w-0">
             <Button variant="ghost" size="icon" onClick={handleBack}>
@@ -517,33 +696,33 @@ export function ScenarioEditor() {
           <div className="flex items-center gap-2">
             <Button
               variant={isCurrentlyProjecting ? 'default' : 'outline'}
-              size="sm"
+              size="icon"
               onClick={handleProjectToScreen}
               disabled={editedSteps.length === 0}
+              title="Rzutuj na ekran"
             >
-              <Monitor className="h-4 w-4 mr-2" />
-              Rzutuj
+              <Monitor className="h-4 w-4" />
             </Button>
             <Button
               variant="outline"
-              size="sm"
+              size="icon"
               onClick={() => setDeleteDialogOpen(true)}
               className="text-destructive hover:text-destructive"
+              title="Usuń"
             >
-              <Trash2 className="h-4 w-4 mr-2" />
-              Usuń
+              <Trash2 className="h-4 w-4" />
             </Button>
             <Button
-              size="sm"
+              size="icon"
               onClick={handleSave}
               disabled={!hasChanges || updateScenario.isPending}
+              title="Zapisz"
             >
               {updateScenario.isPending ? (
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
-                <Save className="h-4 w-4 mr-2" />
+                <Save className="h-4 w-4" />
               )}
-              Zapisz
             </Button>
           </div>
         </div>
@@ -556,9 +735,8 @@ export function ScenarioEditor() {
               <span className="text-sm font-medium">
                 Kroki ({editedSteps.length})
               </span>
-              <Button size="sm" variant="outline" onClick={handleGoToSongs}>
-                <Music className="h-4 w-4 mr-2" />
-                Dodaj z katalogu
+              <Button size="icon" variant="outline" onClick={handleGoToSongs} title="Dodaj z katalogu">
+                <Music className="h-4 w-4" />
               </Button>
             </div>
             <ScrollArea className="flex-1">

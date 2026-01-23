@@ -11,6 +11,7 @@ import {
   Monitor,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useIsMobile } from '@/hooks/useIsMobile';
 import {
   ContextMenu,
   ContextMenuContent,
@@ -90,8 +91,14 @@ export function FileItem({
   onAddToScenario,
   onProjectToScreen,
 }: FileItemProps) {
+  const isMobile = useIsMobile();
   const canAddToScenario = isMediaFile(file) && onAddToScenario;
   const canProject = isMediaFile(file) && onProjectToScreen;
+
+  // Truncate filename for mobile (50 characters)
+  const displayName = isMobile && file.name.length > 50
+    ? `${file.name.substring(0, 50)}...`
+    : file.name;
 
   const menuContent = (
     <ContextMenuContent>
@@ -138,7 +145,7 @@ export function FileItem({
 
             {/* Name */}
             <div className="flex-1 min-w-0 overflow-hidden">
-              <p className="text-sm truncate">{file.name}</p>
+              <p className="text-sm truncate" title={file.name}>{displayName}</p>
             </div>
 
             {/* Size */}

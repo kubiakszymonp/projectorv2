@@ -18,7 +18,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { useSettings, useUpdateSettings, useResetSettings } from '@/hooks/useSettings';
-import { useSetQRCode, useClearScreen } from '@/hooks/usePlayer';
+import { useSetQRCode, useClearScreen, useScreenState } from '@/hooks/usePlayer';
 import type { ProjectorSettings, TextAlign } from '@/types/settings';
 import { DEFAULT_SETTINGS } from '@/types/settings';
 import { cn } from '@/lib/utils';
@@ -162,6 +162,7 @@ export function Settings() {
 
   // Queries & Mutations
   const { data: serverSettings, isLoading, error } = useSettings();
+  const { data: screenState } = useScreenState();
   const updateSettings = useUpdateSettings();
   const resetSettings = useResetSettings();
   const setQRCode = useSetQRCode();
@@ -174,6 +175,33 @@ export function Settings() {
       setIsDirty(false);
     }
   }, [serverSettings]);
+
+  // Sync showQRCodes with actual screen state
+  useEffect(() => {
+    if (screenState) {
+      const isQRCodeDisplayed = screenState.mode === 'single' && 
+                                screenState.item?.type === 'qrcode' && 
+                                screenState.visible;
+      setShowQRCodes(isQRCodeDisplayed);
+    } else {
+      setShowQRCodes(false);
+    }
+  }, [screenState]);
+
+  // Update QR code when WiFi settings change and QR is displayed
+  useEffect(() => {
+    if (showQRCodes && qrTab === 'wifi') {
+      const wifiQRValue = localSettings.wifi.ssid && localSettings.wifi.password
+        ? `WIFI:T:WPA;S:${localSettings.wifi.ssid};P:${localSettings.wifi.password};;`
+        : '';
+      if (wifiQRValue) {
+        setQRCode.mutate({
+          value: wifiQRValue,
+          label: `Połączenie z WiFi: ${localSettings.wifi.ssid}`,
+        });
+      }
+    }
+  }, [localSettings.wifi.ssid, localSettings.wifi.password, showQRCodes, qrTab, setQRCode]);
 
   // Clear success message after delay
   useEffect(() => {
