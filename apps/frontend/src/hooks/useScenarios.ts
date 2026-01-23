@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import * as scenariosApi from '@/api/scenarios';
-import type { ScenarioDoc, ScenarioStep } from '@/types/scenarios';
+import type { ScenarioStep } from '@/types/scenarios';
 
 // ========== QUERY KEYS ==========
 

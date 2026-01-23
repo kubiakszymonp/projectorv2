@@ -1,7 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import * as settingsApi from '@/api/settings';
 import { useSocketEvent } from './useSocket';
-import type { ProjectorSettings } from '@/types/settings';
 
 // ========== QUERY KEYS ==========
 

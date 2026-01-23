@@ -1,4 +1,4 @@
-import type { TextDoc, TextMeta } from '@/types/texts';
+import type { TextDoc } from '@/types/texts';
 
 const API_BASE = '/api/texts';
 
