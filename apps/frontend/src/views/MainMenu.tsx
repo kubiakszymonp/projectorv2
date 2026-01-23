@@ -1,4 +1,4 @@
-import { Monitor, Music, ListOrdered, Image, FolderOpen, Settings, ArrowRight } from 'lucide-react';
+import { Monitor, Music, ListOrdered, Image, FolderOpen, Settings, ArrowRight, Tv } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 
@@ -80,13 +80,41 @@ export function MainMenu() {
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-16">
         {/* Header */}
-        <div className="mb-16 space-y-3">
+        <div className="mb-8 space-y-3">
           <h1 className="text-5xl md:text-6xl font-bold tracking-tight">
             Projektor
           </h1>
           <p className="text-xl text-muted-foreground">
             System zarządzania prezentacjami i multimediami
           </p>
+        </div>
+
+        {/* Screen Display Card */}
+        <div className="mb-8 max-w-4xl">
+          <Card
+            className="group relative overflow-hidden cursor-pointer transition-all duration-200 hover:border-foreground/20 bg-card"
+            onClick={() => navigate('/display')}
+          >
+            <div className="p-6">
+              <div className="flex items-start gap-4">
+                {/* Icon */}
+                <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-indigo-500/10 group-hover:bg-indigo-500/20 flex items-center justify-center transition-colors duration-200">
+                  <Tv className="w-6 h-6 text-indigo-400" />
+                </div>
+
+                {/* Content */}
+                <div className="flex-1 min-w-0">
+                  <h2 className="text-lg font-semibold mb-1 flex items-center gap-2">
+                    Ekran wyświetlania
+                    <ArrowRight className="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200" />
+                  </h2>
+                  <p className="text-sm text-muted-foreground">
+                    Podgląd tego, co jest wyświetlane na ekranie
+                  </p>
+                </div>
+              </div>
+            </div>
+          </Card>
         </div>
 
         {/* Menu Grid */}
