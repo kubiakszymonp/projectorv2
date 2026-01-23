@@ -1,4 +1,4 @@
-import { ListOrdered, Music, Loader2 } from 'lucide-react';
+import { ListOrdered, Music } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { StepItem } from './StepItem';
