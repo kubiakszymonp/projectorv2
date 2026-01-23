@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import {
   Monitor,
   SkipForward,
@@ -14,6 +15,7 @@ import {
   Square,
   ListOrdered,
   Trash2,
+  Edit,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -23,9 +25,13 @@ import {
   useClearScreen,
   useNavigateSlide,
   useNavigateStep,
+  useSetScenario,
   useToggleVisibility,
 } from '@/hooks/usePlayer';
+import { useScenario } from '@/hooks/useScenarios';
+import { useText } from '@/hooks/useTexts';
 import type { ScreenState, DisplayItem, TextDisplayItem } from '@/types/player';
+import { getStepType, getStepValue } from '@/types/scenarios';
 import { cn } from '@/lib/utils';
 
 // ========== HELPERS ==========
@@ -91,7 +97,12 @@ export function ScreenControl() {
   const clearScreen = useClearScreen();
   const navigateSlide = useNavigateSlide();
   const navigateStep = useNavigateStep();
+  const setScenario = useSetScenario();
   const toggleVisibility = useToggleVisibility();
+  
+  // Get full scenario data if in scenario mode
+  const scenarioId = screenState?.mode === 'scenario' ? screenState.scenarioId : null;
+  const { data: scenario } = useScenario(scenarioId);
 
   const handleClearScreen = () => {
     clearScreen.mutate();
@@ -180,22 +191,16 @@ export function ScreenControl() {
       {/* Main Content */}
       <main className="flex-1 overflow-auto">
         <div className="w-full space-y-4 p-6">
-          {/* Current State Card */}
+          {/* Current State */}
           <Card className="overflow-hidden">
-            <div className="p-4 border-b">
-              <h2 className="font-semibold">Aktualnie na ekranie</h2>
-            </div>
             <div className="p-0">
               <CurrentStateDisplay state={state} />
             </div>
           </Card>
 
-          {/* Controls Card */}
+          {/* Controls */}
           {state.mode !== 'empty' && (
             <Card>
-              <div className="p-4 border-b">
-                <h2 className="font-semibold">Kontrola</h2>
-              </div>
               <div className="p-6">
                 <ControlsSection
                   state={state}
@@ -209,21 +214,43 @@ export function ScreenControl() {
             </Card>
           )}
 
-          {/* Info Card */}
-          {state.mode === 'scenario' && (
-            <Card>
-              <div className="p-4 border-b">
-                <h2 className="font-semibold">Scenariusz</h2>
+          {/* Scenario Info and Steps */}
+          {state.mode === 'scenario' && scenario && (
+            <Card className="flex flex-col" style={{ minHeight: 'calc(100vh - 400px)' }}>
+              <div className="p-4 border-b shrink-0">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <ListOrdered className="h-5 w-5 text-cyan-400" />
+                    <div>
+                      <p className="font-medium">{state.scenarioTitle}</p>
+                      <p className="text-sm text-muted-foreground">
+                        Krok {state.stepIndex + 1} z {state.totalSteps}
+                      </p>
+                    </div>
+                  </div>
+                  <Link
+                    to={`/scenarios?id=${state.scenarioId}`}
+                    className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors"
+                  >
+                    <Edit className="h-4 w-4" />
+                    Edytuj
+                  </Link>
+                </div>
               </div>
               <div className="p-4">
-                <div className="flex items-center gap-3">
-                  <ListOrdered className="h-5 w-5 text-cyan-400" />
-                  <div>
-                    <p className="font-medium">{state.scenarioTitle}</p>
-                    <p className="text-sm text-muted-foreground">
-                      Krok {state.stepIndex + 1} z {state.totalSteps}
-                    </p>
-                  </div>
+                <div className="space-y-1">
+                  {scenario.steps.map((step, index) => {
+                    const isActive = index === state.stepIndex;
+                    return (
+                      <ScenarioStepItem
+                        key={index}
+                        step={step}
+                        index={index}
+                        isActive={isActive}
+                        onClick={() => setScenario.mutate({ scenarioId: state.scenarioId, stepIndex: index })}
+                      />
+                    );
+                  })}
                 </div>
               </div>
             </Card>
@@ -352,42 +379,44 @@ function ControlsSection({
 
   return (
     <div className="space-y-6">
-      {/* Slide navigation - only for text items */}
-      {isTextItem && textItem && (
-        <div className="space-y-3">
-          <p className="text-sm font-medium text-center text-muted-foreground">
-            Nawigacja slajdów
-          </p>
-          <div className="flex items-center justify-center gap-4">
-            <Button
-              variant="outline"
-              size="lg"
-              className="h-14 w-14"
-              onClick={onPrevSlide}
-              disabled={isNavigating || isFirstSlide}
-            >
-              <ChevronLeft className="h-6 w-6" />
-            </Button>
-            <div className="text-center min-w-[100px]">
-              <span className="text-2xl font-bold">
-                {textItem.slideIndex + 1}
-              </span>
-              <span className="text-muted-foreground text-lg"> / {textItem.totalSlides}</span>
-            </div>
-            <Button
-              variant="outline"
-              size="lg"
-              className="h-14 w-14"
-              onClick={onNextSlide}
-              disabled={isNavigating || isLastSlide}
-            >
-              <ChevronRight className="h-6 w-6" />
-            </Button>
+      {/* Slide navigation - always visible, disabled for non-text items */}
+      <div className="space-y-3">
+        <p className="text-sm font-medium text-center text-muted-foreground">
+          Nawigacja slajdów
+        </p>
+        <div className="flex items-center justify-center gap-4">
+          <Button
+            variant="outline"
+            size="lg"
+            className="h-14 w-14"
+            onClick={onPrevSlide}
+            disabled={isNavigating || !isTextItem || isFirstSlide}
+          >
+            <ChevronLeft className="h-6 w-6" />
+          </Button>
+          <div className="text-center min-w-[100px]">
+            {isTextItem && textItem ? (
+              <>
+                <span className="text-2xl font-bold">
+                  {textItem.slideIndex + 1}
+                </span>
+                <span className="text-muted-foreground text-lg"> / {textItem.totalSlides}</span>
+              </>
+            ) : (
+              <span className="text-2xl font-bold text-muted-foreground">-</span>
+            )}
           </div>
-          {isFirstSlide && <p className="text-xs text-center text-muted-foreground">Początek tekstu</p>}
-          {isLastSlide && !isFirstSlide && <p className="text-xs text-center text-muted-foreground">Koniec tekstu</p>}
+          <Button
+            variant="outline"
+            size="lg"
+            className="h-14 w-14"
+            onClick={onNextSlide}
+            disabled={isNavigating || !isTextItem || isLastSlide}
+          >
+            <ChevronRight className="h-6 w-6" />
+          </Button>
         </div>
-      )}
+      </div>
 
       {/* Step navigation - only for scenario mode */}
       {isScenarioMode && (
@@ -422,17 +451,118 @@ function ControlsSection({
               <SkipForward className="h-5 w-5 ml-2" />
             </Button>
           </div>
-          {isFirstStep && <p className="text-xs text-center text-muted-foreground">Początek scenariusza</p>}
-          {isLastStep && !isFirstStep && <p className="text-xs text-center text-muted-foreground">Koniec scenariusza</p>}
-        </div>
-      )}
-
-      {/* Media info - for non-text items */}
-      {currentItem && !isTextItem && !isScenarioMode && (
-        <div className="text-center text-muted-foreground">
-          <p className="text-sm">Wyświetlane medium nie wymaga nawigacji</p>
         </div>
       )}
     </div>
+  );
+}
+
+// ========== SCENARIO STEP ITEM ==========
+
+interface ScenarioStepItemProps {
+  step: import('@/types/scenarios').ScenarioStep;
+  index: number;
+  isActive: boolean;
+  onClick: () => void;
+}
+
+function ScenarioStepItem({ step, index, isActive, onClick }: ScenarioStepItemProps) {
+  const stepType = getStepType(step);
+  const stepValue = getStepValue(step);
+  
+  // Extract text ID for fetching text title
+  const textRef = stepType === 'text' ? (stepValue as string) : null;
+  const textId = textRef ? textRef.split('__').pop() || null : null;
+  const { data: textDoc } = useText(textId);
+
+  const getStepIcon = () => {
+    switch (stepType) {
+      case 'text':
+        return <FileText className="h-4 w-4" />;
+      case 'image':
+        return <Image className="h-4 w-4" />;
+      case 'video':
+        return <Video className="h-4 w-4" />;
+      case 'audio':
+        return <Music2 className="h-4 w-4" />;
+      case 'heading':
+        return <Type className="h-4 w-4" />;
+      case 'blank':
+        return <Square className="h-4 w-4" />;
+    }
+  };
+
+  const getStepLabel = () => {
+    switch (stepType) {
+      case 'text':
+        if (textDoc) {
+          return textDoc.meta.title;
+        }
+        // Fallback: extract from textRef
+        const parts = (stepValue as string).split('/');
+        const filename = parts[parts.length - 1];
+        const title = filename.split('__')[0];
+        return title.charAt(0).toUpperCase() + title.slice(1).replace(/-/g, ' ');
+      case 'image':
+      case 'video':
+      case 'audio':
+        return (stepValue as string).split('/').pop() ?? (stepValue as string);
+      case 'heading':
+        return stepValue as string;
+      case 'blank':
+        return 'Pusty slajd';
+    }
+  };
+
+  const getStepColor = () => {
+    switch (stepType) {
+      case 'text':
+        return 'text-emerald-400 bg-emerald-500/10';
+      case 'image':
+        return 'text-purple-400 bg-purple-500/10';
+      case 'video':
+        return 'text-pink-400 bg-pink-500/10';
+      case 'audio':
+        return 'text-amber-400 bg-amber-500/10';
+      case 'heading':
+        return 'text-blue-400 bg-blue-500/10';
+      case 'blank':
+        return 'text-gray-400 bg-gray-500/10';
+    }
+  };
+
+  return (
+    <button
+      onClick={onClick}
+      className={cn(
+        'w-full flex items-center gap-3 p-2 rounded-md text-left transition-colors',
+        isActive
+          ? 'bg-primary/10 border border-primary/20'
+          : 'hover:bg-muted/50'
+      )}
+    >
+      <div className={cn(
+        'w-8 h-8 rounded-md flex items-center justify-center shrink-0',
+        getStepColor()
+      )}>
+        {getStepIcon()}
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-mono text-muted-foreground w-6">
+            {index + 1}
+          </span>
+          <span className={cn(
+            'text-sm font-medium truncate',
+            isActive && 'text-primary'
+          )}>
+            {getStepLabel()}
+          </span>
+        </div>
+      </div>
+      {isActive && (
+        <div className="w-2 h-2 rounded-full bg-primary shrink-0" />
+      )}
+    </button>
   );
 }
