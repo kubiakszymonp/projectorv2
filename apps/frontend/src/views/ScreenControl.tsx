@@ -16,6 +16,7 @@ import {
   ListOrdered,
   Trash2,
   Edit,
+  QrCode,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -50,6 +51,8 @@ function getDisplayItemIcon(item: DisplayItem) {
       return <Type className="h-5 w-5" />;
     case 'blank':
       return <Square className="h-5 w-5" />;
+    case 'qrcode':
+      return <QrCode className="h-5 w-5" />;
   }
 }
 
@@ -70,6 +73,8 @@ function getDisplayItemLabel(item: DisplayItem): string {
       return item.content;
     case 'blank':
       return 'Pusty slajd';
+    case 'qrcode':
+      return 'Kod QR';
   }
 }
 
@@ -87,6 +92,8 @@ function getDisplayItemColor(item: DisplayItem): string {
       return 'text-blue-400 bg-blue-500/10';
     case 'blank':
       return 'text-gray-400 bg-gray-500/10';
+    case 'qrcode':
+      return 'text-cyan-400 bg-cyan-500/10';
   }
 }
 
