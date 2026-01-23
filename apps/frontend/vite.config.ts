@@ -38,13 +38,25 @@ export default defineConfig({
       },
       workbox: {
         // No caching - all requests go to network
-        runtimeCaching: [],
         skipWaiting: true,
         clientsClaim: true,
         // Don't precache anything
         globPatterns: [],
-        // Don't cache any files
-        navigateFallback: null,
+        // Minimal runtime caching config to satisfy workbox requirements
+        // But we use network-first strategy so nothing is cached
+        runtimeCaching: [
+          {
+            urlPattern: /^https?:\/\/.*/,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'network-cache',
+              networkTimeoutSeconds: 0,
+              cacheableResponse: {
+                statuses: [],
+              },
+            },
+          },
+        ],
       },
       devOptions: {
         enabled: true,
