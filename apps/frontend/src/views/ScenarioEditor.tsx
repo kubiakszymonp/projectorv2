@@ -1,5 +1,5 @@
-import { useState, useMemo, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useMemo, useCallback, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Search,
   Plus,
@@ -41,6 +41,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import {
   useScenarios,
+  useScenario,
   useCreateScenario,
   useUpdateScenario,
   useDeleteScenario,
@@ -193,6 +194,8 @@ function StepItem({
 
 export function ScenarioEditor() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const scenarioIdFromUrl = searchParams.get('id');
 
   // State
   const [search, setSearch] = useState('');
@@ -214,6 +217,7 @@ export function ScenarioEditor() {
   const { data: scenarios, isLoading: isLoadingScenarios } = useScenarios({
     search: search || undefined,
   });
+  const { data: scenarioFromUrl } = useScenario(scenarioIdFromUrl);
 
   // Mutations
   const createScenario = useCreateScenario();
@@ -248,6 +252,26 @@ export function ScenarioEditor() {
     return false;
   }, [selectedScenario, screenState]);
 
+  // Load scenario from URL on mount or when URL changes
+  useEffect(() => {
+    if (scenarioIdFromUrl && scenarioFromUrl && selectedScenario?.meta.id !== scenarioFromUrl.meta.id) {
+      setSelectedScenario(scenarioFromUrl);
+      setEditedSteps([...scenarioFromUrl.steps]);
+      setEditedTitle(scenarioFromUrl.meta.title);
+      setEditedDescription(scenarioFromUrl.meta.description || '');
+      setViewMode('edit');
+      setSelectedStepIndex(null);
+    } else if (scenarioIdFromUrl === null && selectedScenario) {
+      // URL cleared, go back to list
+      setSelectedScenario(null);
+      setViewMode('list');
+      setEditedSteps([]);
+      setEditedTitle('');
+      setEditedDescription('');
+      setSelectedStepIndex(null);
+    }
+  }, [scenarioIdFromUrl, scenarioFromUrl, selectedScenario]);
+
   // Handlers
   const handleSelectScenario = useCallback((scenario: ScenarioDoc) => {
     setSelectedScenario(scenario);
@@ -256,7 +280,9 @@ export function ScenarioEditor() {
     setEditedDescription(scenario.meta.description || '');
     setViewMode('edit');
     setSelectedStepIndex(null);
-  }, []);
+    // Update URL
+    setSearchParams({ id: scenario.meta.id }, { replace: true });
+  }, [setSearchParams]);
 
   const handleBack = useCallback(() => {
     setSelectedScenario(null);
@@ -265,7 +291,9 @@ export function ScenarioEditor() {
     setEditedTitle('');
     setEditedDescription('');
     setSelectedStepIndex(null);
-  }, []);
+    // Clear URL
+    setSearchParams({}, { replace: true });
+  }, [setSearchParams]);
 
   const handleSave = useCallback(async () => {
     if (!selectedScenario) return;

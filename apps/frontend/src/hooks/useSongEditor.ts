@@ -1,5 +1,6 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
-import { useTexts, useDomains, useCreateText, useUpdateText } from '@/hooks/useTexts';
+import { useSearchParams } from 'react-router-dom';
+import { useTexts, useDomains, useCreateText, useUpdateText, useText } from '@/hooks/useTexts';
 import { useSetText, useScreenState } from '@/hooks/usePlayer';
 import { createTextReference } from '@/utils/textReference';
 import type { TextDoc } from '@/types/texts';
@@ -12,6 +13,9 @@ import type {
 } from '@/types/songCatalog';
 
 export function useSongEditor() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const songIdFromUrl = searchParams.get('id');
+
   // State
   const [search, setSearch] = useState('');
   const [selectedDomain, setSelectedDomain] = useState<string | null>(null);
@@ -38,6 +42,7 @@ export function useSongEditor() {
     search: search || undefined,
   });
   const { data: domains } = useDomains();
+  const { data: songFromUrl } = useText(songIdFromUrl);
 
   // Mutations
   const createText = useCreateText();
@@ -92,6 +97,25 @@ export function useSongEditor() {
     }
   }, [selectedSong]);
 
+  // Load song from URL on mount or when URL changes
+  useEffect(() => {
+    if (songIdFromUrl && songFromUrl && selectedSong?.meta.id !== songFromUrl.meta.id) {
+      setSelectedSong(songFromUrl);
+      setEditContent(songFromUrl.contentRaw);
+      setViewMode('edit');
+      setEditorTab('content');
+      setPreviewSlide(null);
+      setNewCategory('');
+    } else if (songIdFromUrl === null && selectedSong) {
+      // URL cleared, go back to list
+      setSelectedSong(null);
+      setViewMode('list');
+      setEditContent('');
+      setEditedMeta(null);
+      setEditorTab('content');
+    }
+  }, [songIdFromUrl, songFromUrl, selectedSong]);
+
   // Handlers
   const handleSelectSong = useCallback((song: TextDoc) => {
     setSelectedSong(song);
@@ -100,7 +124,9 @@ export function useSongEditor() {
     setEditorTab('content');
     setPreviewSlide(null);
     setNewCategory('');
-  }, []);
+    // Update URL
+    setSearchParams({ id: song.meta.id }, { replace: true });
+  }, [setSearchParams]);
 
   const handleBack = useCallback(() => {
     setSelectedSong(null);
@@ -108,7 +134,9 @@ export function useSongEditor() {
     setEditContent('');
     setEditedMeta(null);
     setEditorTab('content');
-  }, []);
+    // Clear URL
+    setSearchParams({}, { replace: true });
+  }, [setSearchParams]);
 
   const handleSave = useCallback(async () => {
     if (!selectedSong || !editedMeta) return;

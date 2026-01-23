@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import {
   FolderPlus,
   Upload,
@@ -60,8 +61,11 @@ function createMediaStep(file: FileNode): ScenarioStep | null {
 }
 
 export function FilesExplorer({ initialPath = '', title = 'Edytor plików' }: FilesExplorerProps) {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const pathFromUrl = searchParams.get('path') || initialPath;
+
   // State - nawigacja
-  const [currentPath, setCurrentPath] = useState(initialPath);
+  const [currentPath, setCurrentPath] = useState(pathFromUrl);
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
   const [selectedFile, setSelectedFile] = useState<FileNode | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -77,12 +81,13 @@ export function FilesExplorer({ initialPath = '', title = 'Edytor plików' }: Fi
   // State - add to scenario
   const [addToScenarioFile, setAddToScenarioFile] = useState<FileNode | null>(null);
 
-  // Initialize with initial path
+  // Initialize with path from URL or initial path
   useEffect(() => {
-    if (initialPath) {
-      setCurrentPath(initialPath);
+    const pathToUse = pathFromUrl || initialPath;
+    if (pathToUse) {
+      setCurrentPath(pathToUse);
       // Auto-expand parent folders
-      const parts = initialPath.split('/');
+      const parts = pathToUse.split('/');
       const newExpanded = new Set<string>();
       let current = '';
       for (const part of parts) {
@@ -91,7 +96,18 @@ export function FilesExplorer({ initialPath = '', title = 'Edytor plików' }: Fi
       }
       setExpandedFolders(newExpanded);
     }
-  }, [initialPath]);
+  }, [pathFromUrl, initialPath]);
+
+  // Update URL when path changes
+  useEffect(() => {
+    if (currentPath !== pathFromUrl) {
+      if (currentPath) {
+        setSearchParams({ path: currentPath }, { replace: true });
+      } else {
+        setSearchParams({}, { replace: true });
+      }
+    }
+  }, [currentPath, pathFromUrl, setSearchParams]);
 
   // Queries
   const { data: fileList, isLoading: isLoadingFiles, refetch } = useFileList(currentPath);
