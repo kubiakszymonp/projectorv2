@@ -178,3 +178,4 @@ function SongCard({ song, onClick }: SongCardProps) {
   );
 }
 
+
