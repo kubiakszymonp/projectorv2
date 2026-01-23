@@ -3,7 +3,7 @@
 /**
  * Typ wyświetlanego elementu
  */
-export type DisplayItemType = 'text' | 'image' | 'video' | 'audio' | 'heading' | 'blank';
+export type DisplayItemType = 'text' | 'image' | 'video' | 'audio' | 'heading' | 'blank' | 'qrcode';
 
 /**
  * Pojedynczy element tekstowy do wyświetlenia
@@ -40,13 +40,23 @@ export type BlankDisplayItem = {
 };
 
 /**
+ * Kod QR do wyświetlenia
+ */
+export type QRCodeDisplayItem = {
+  type: 'qrcode';
+  value: string; // wartość do zakodowania w QR
+  label?: string; // opcjonalna etykieta pod kodem
+};
+
+/**
  * Element do wyświetlenia (union type)
  */
 export type DisplayItem =
   | TextDisplayItem
   | MediaDisplayItem
   | HeadingDisplayItem
-  | BlankDisplayItem;
+  | BlankDisplayItem
+  | QRCodeDisplayItem;
 
 /**
  * Tryb wyświetlania

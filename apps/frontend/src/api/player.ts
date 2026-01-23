@@ -14,6 +14,11 @@ export type SetMediaData = {
   path: string;
 };
 
+export type SetQRCodeData = {
+  value: string;
+  label?: string;
+};
+
 export type SetScenarioData = {
   scenarioId: string;
   stepIndex?: number;
@@ -129,6 +134,29 @@ export async function setVisibility(visible: boolean): Promise<ScreenState> {
     body: JSON.stringify({ visible }),
   });
   if (!res.ok) throw new Error(`Failed to set visibility: ${res.statusText}`);
+  return res.json();
+}
+
+/**
+ * Ustawia kod QR do wyświetlenia (używa bezpośredniej aktualizacji stanu)
+ */
+export async function setQRCode(data: SetQRCodeData): Promise<ScreenState> {
+  const newState: ScreenState = {
+    mode: 'single',
+    visible: true,
+    item: {
+      type: 'qrcode',
+      value: data.value,
+      label: data.label,
+    },
+  };
+  
+  const res = await fetch(`${API_BASE}/state`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(newState),
+  });
+  if (!res.ok) throw new Error(`Failed to set QR code: ${res.statusText}`);
   return res.json();
 }
 

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { QRCodeSVG } from 'qrcode.react';
 import { useScreenState } from '@/hooks/usePlayer';
 import { useSettings } from '@/hooks/useSettings';
 import { getFileUrl } from '@/api/files';
@@ -65,6 +66,8 @@ function DisplayContent({
       return <AudioDisplay path={item.path} displaySettings={displaySettings} />;
     case 'heading':
       return <HeadingDisplay content={item.content} displaySettings={displaySettings} />;
+    case 'qrcode':
+      return <QRCodeDisplay item={item} displaySettings={displaySettings} />;
     case 'blank':
       return <BlackScreen displaySettings={displaySettings} />;
   }
@@ -281,6 +284,56 @@ function HeadingDisplay({
       >
         {content}
       </h1>
+    </div>
+  );
+}
+
+// ========== QR CODE DISPLAY ==========
+
+function QRCodeDisplay({ 
+  item, 
+  displaySettings 
+}: { 
+  item: { type: 'qrcode'; value: string; label?: string };
+  displaySettings: typeof DEFAULT_SETTINGS.display;
+}) {
+  const paddingStyle = {
+    paddingTop: `${displaySettings.padding.top}px`,
+    paddingRight: `${displaySettings.padding.right}px`,
+    paddingBottom: `${displaySettings.padding.bottom}px`,
+    paddingLeft: `${displaySettings.padding.left}px`,
+  };
+
+  const textStyle = {
+    fontSize: `${displaySettings.fontSize}px`,
+    fontFamily: displaySettings.fontFamily,
+    color: displaySettings.textColor,
+    textAlign: 'center' as const,
+  };
+
+  // Calculate QR code size based on screen size
+  const qrSize = Math.min(800, window.innerHeight * 0.6);
+
+  return (
+    <div 
+      className="w-full h-screen flex flex-col items-center justify-center"
+      style={paddingStyle}
+    >
+      <div className="bg-white p-6 rounded-lg shadow-2xl">
+        <QRCodeSVG
+          value={item.value}
+          size={qrSize}
+          level="M"
+          includeMargin={false}
+        />
+      </div>
+      {item.label && (
+        <p 
+          className="mt-6 font-small"
+        >
+          {item.label}
+        </p>
+      )}
     </div>
   );
 }

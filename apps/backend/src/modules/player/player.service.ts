@@ -14,6 +14,10 @@ export class PlayerService {
     return this.screenStateService.getState();
   }
 
+  setState(state: ScreenState): ScreenState {
+    return this.screenStateService.setState(state);
+  }
+
   clearScreen(): ScreenState {
     return this.screenStateService.clearScreen();
   }

@@ -8,12 +8,17 @@ import {
   Loader2,
   Check,
   AlertCircle,
+  QrCode,
 } from 'lucide-react';
+import { QRCodeSVG } from 'qrcode.react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Switch } from '@/components/ui/switch';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { useSettings, useUpdateSettings, useResetSettings } from '@/hooks/useSettings';
+import { useSetQRCode, useClearScreen } from '@/hooks/usePlayer';
 import type { ProjectorSettings, TextAlign } from '@/types/settings';
 import { DEFAULT_SETTINGS } from '@/types/settings';
 import { cn } from '@/lib/utils';
@@ -152,11 +157,15 @@ export function Settings() {
   const [localSettings, setLocalSettings] = useState<ProjectorSettings>(DEFAULT_SETTINGS);
   const [isDirty, setIsDirty] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [showQRCodes, setShowQRCodes] = useState(false);
+  const [qrTab, setQrTab] = useState<'wifi' | 'url'>('wifi');
 
   // Queries & Mutations
   const { data: serverSettings, isLoading, error } = useSettings();
   const updateSettings = useUpdateSettings();
   const resetSettings = useResetSettings();
+  const setQRCode = useSetQRCode();
+  const clearScreen = useClearScreen();
 
   // Sync local state with server data
   useEffect(() => {
@@ -380,38 +389,175 @@ export function Settings() {
     </div>
   );
 
-  const renderWifiTab = () => (
-    <div className="space-y-6">
-      <div className="space-y-4">
-        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-          Sieć WiFi
-        </h3>
-        <p className="text-sm text-muted-foreground">
-          Konfiguracja sieci WiFi dla urządzenia projektora. Umożliwia zdalne połączenie z systemem.
-        </p>
+  const renderWifiTab = () => {
+    // Generate WiFi QR code string
+    const wifiQRValue = localSettings.wifi.ssid && localSettings.wifi.password
+      ? `WIFI:T:WPA;S:${localSettings.wifi.ssid};P:${localSettings.wifi.password};;`
+      : '';
 
-        <div className="grid grid-cols-1 gap-4 max-w-md">
-          <FormField label="SSID" description="Nazwa sieci WiFi">
-            <Input
-              type="text"
-              value={localSettings.wifi.ssid}
-              onChange={(e) => handleWifiChange('ssid', e.target.value)}
-              placeholder="Nazwa sieci"
-            />
-          </FormField>
+    // Generate URL QR code string
+    const urlQRValue = typeof window !== 'undefined' ? window.location.origin : '';
 
-          <FormField label="Hasło" description="Hasło do sieci WiFi">
-            <Input
-              type="password"
-              value={localSettings.wifi.password}
-              onChange={(e) => handleWifiChange('password', e.target.value)}
-              placeholder="••••••••"
-            />
-          </FormField>
+    return (
+      <div className="space-y-6">
+        <div className="space-y-4">
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+            Sieć WiFi
+          </h3>
+          <p className="text-sm text-muted-foreground">
+            Konfiguracja sieci WiFi dla urządzenia projektora. Umożliwia zdalne połączenie z systemem.
+          </p>
+
+          <div className="grid grid-cols-1 gap-4 max-w-md">
+            <FormField label="SSID" description="Nazwa sieci WiFi">
+              <Input
+                type="text"
+                value={localSettings.wifi.ssid}
+                onChange={(e) => handleWifiChange('ssid', e.target.value)}
+                placeholder="Nazwa sieci"
+              />
+            </FormField>
+
+            <FormField label="Hasło" description="Hasło do sieci WiFi">
+              <Input
+                type="password"
+                value={localSettings.wifi.password}
+                onChange={(e) => handleWifiChange('password', e.target.value)}
+                placeholder="••••••••"
+              />
+            </FormField>
+          </div>
+        </div>
+
+        {/* QR Codes Section */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+                Kody QR
+              </h3>
+              <p className="text-sm text-muted-foreground mt-1">
+                Wyświetl kody QR do szybkiego połączenia
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">Pokaż kody QR na ekranie</span>
+              <Switch
+                checked={showQRCodes}
+                onCheckedChange={(checked) => {
+                  setShowQRCodes(checked);
+                  if (checked) {
+                    // Set QR code based on active tab
+                    if (qrTab === 'wifi' && wifiQRValue) {
+                      setQRCode.mutate({
+                        value: wifiQRValue,
+                        label: `Połączenie z WiFi: ${localSettings.wifi.ssid}`,
+                      });
+                    } else if (qrTab === 'url' && urlQRValue) {
+                      setQRCode.mutate({
+                        value: urlQRValue,
+                        label: 'Adres aplikacji',
+                      });
+                    }
+                  } else {
+                    // Clear screen when disabled
+                    clearScreen.mutate();
+                  }
+                }}
+              />
+            </div>
+          </div>
+
+          {showQRCodes && (
+            <Card className="p-6">
+              <Tabs value={qrTab} onValueChange={(v) => {
+                setQrTab(v as 'wifi' | 'url');
+                // Update QR code on screen when tab changes and QR codes are shown
+                if (showQRCodes) {
+                  if (v === 'wifi' && wifiQRValue) {
+                    setQRCode.mutate({
+                      value: wifiQRValue,
+                      label: `Połączenie z WiFi: ${localSettings.wifi.ssid}`,
+                    });
+                  } else if (v === 'url' && urlQRValue) {
+                    setQRCode.mutate({
+                      value: urlQRValue,
+                      label: 'Adres aplikacji',
+                    });
+                  }
+                }
+              }}>
+                <TabsList className="grid w-full grid-cols-2 mb-6">
+                  <TabsTrigger value="wifi">
+                    <Wifi className="h-4 w-4 mr-2" />
+                    WiFi
+                  </TabsTrigger>
+                  <TabsTrigger value="url">
+                    <QrCode className="h-4 w-4 mr-2" />
+                    Adres
+                  </TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="wifi" className="space-y-4">
+                  {wifiQRValue ? (
+                    <>
+                      <div className="flex flex-col items-center gap-4">
+                        <div className="bg-white p-4 rounded-lg">
+                          <QRCodeSVG
+                            value={wifiQRValue}
+                            size={256}
+                            level="M"
+                            includeMargin={false}
+                          />
+                        </div>
+                        <div className="text-center">
+                          <p className="text-sm font-medium">Połączenie z WiFi</p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Zeskanuj kod, aby połączyć się z siecią {localSettings.wifi.ssid}
+                          </p>
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="text-center py-8 text-muted-foreground">
+                      <p className="text-sm">Wprowadź SSID i hasło WiFi, aby wygenerować kod QR</p>
+                    </div>
+                  )}
+                </TabsContent>
+
+                <TabsContent value="url" className="space-y-4">
+                  {urlQRValue ? (
+                    <>
+                      <div className="flex flex-col items-center gap-4">
+                        <div className="bg-white p-4 rounded-lg">
+                          <QRCodeSVG
+                            value={urlQRValue}
+                            size={256}
+                            level="M"
+                            includeMargin={false}
+                          />
+                        </div>
+                        <div className="text-center">
+                          <p className="text-sm font-medium">Adres aplikacji</p>
+                          <p className="text-xs text-muted-foreground mt-1 break-all">
+                            {urlQRValue}
+                          </p>
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="text-center py-8 text-muted-foreground">
+                      <p className="text-sm">Nie można wygenerować kodu QR</p>
+                    </div>
+                  )}
+                </TabsContent>
+              </Tabs>
+            </Card>
+          )}
         </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   // Loading state
   if (isLoading) {

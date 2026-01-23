@@ -143,3 +143,17 @@ export function useSetVisibility() {
   });
 }
 
+/**
+ * Hook do ustawiania kodu QR
+ */
+export function useSetQRCode() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: playerApi.setQRCode,
+    onSuccess: (newState) => {
+      queryClient.setQueryData(playerKeys.state(), newState);
+    },
+  });
+}
+

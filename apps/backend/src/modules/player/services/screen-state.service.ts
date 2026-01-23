@@ -26,6 +26,13 @@ export class ScreenStateService {
   }
 
   /**
+   * Set screen state directly
+   */
+  setState(state: ScreenState): ScreenState {
+    return this.screenStateRepo.set(state);
+  }
+
+  /**
    * Clear screen (set to empty state)
    */
   clearScreen(): ScreenState {

@@ -19,6 +19,16 @@ export class PlayerController {
   }
 
   /**
+   * Ustawia stan ekranu (bezpośrednia aktualizacja)
+   * POST /api/player/state
+   */
+  @Post('state')
+  @HttpCode(HttpStatus.OK)
+  setState(@Body() state: ScreenState): ScreenState {
+    return this.playerService.setState(state);
+  }
+
+  /**
    * Czyści ekran
    * POST /api/player/clear
    */

@@ -36,6 +36,16 @@ export class NavigateDto {
   direction: 'next' | 'prev';
 }
 
+export class SetQRCodeDto {
+  @IsString()
+  @IsNotEmpty()
+  value: string;
+
+  @IsString()
+  @IsOptional()
+  label?: string;
+}
+
 export class SetVisibilityDto {
   @IsBoolean()
   visible: boolean;
