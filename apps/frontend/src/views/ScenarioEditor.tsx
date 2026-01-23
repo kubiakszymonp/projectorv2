@@ -86,6 +86,7 @@ function StepItem({
   onDragOver,
   onDrop,
 }: StepItemProps) {
+  const navigate = useNavigate();
   const stepType = getStepType(step);
   const stepValue = getStepValue(step);
 
@@ -175,8 +176,20 @@ function StepItem({
         {getStepIcon()}
       </div>
 
-      <div className="flex-1 min-w-0">
-        <p className="font-medium truncate">{getStepLabel()}</p>
+      <div 
+        className="flex-1 min-w-0 cursor-pointer"
+        onClick={(e) => {
+          e.stopPropagation();
+          // Handle navigation based on step type
+          if (stepType === 'text' && textId) {
+            navigate(`/songs?id=${textId}`);
+          } else if (stepType === 'image' || stepType === 'video' || stepType === 'audio') {
+            const path = stepValue as string;
+            navigate(`/media?path=${encodeURIComponent(path)}`);
+          }
+        }}
+      >
+        <p className="font-medium truncate hover:underline">{getStepLabel()}</p>
         <p className="text-xs text-muted-foreground capitalize">{stepType}</p>
       </div>
 

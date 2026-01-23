@@ -304,13 +304,6 @@ function QRCodeDisplay({
     paddingLeft: `${displaySettings.padding.left}px`,
   };
 
-  const textStyle = {
-    fontSize: `${displaySettings.fontSize}px`,
-    fontFamily: displaySettings.fontFamily,
-    color: displaySettings.textColor,
-    textAlign: 'center' as const,
-  };
-
   // Calculate QR code size based on screen size
   const qrSize = Math.min(800, window.innerHeight * 0.6);
 
@@ -327,13 +320,6 @@ function QRCodeDisplay({
           includeMargin={false}
         />
       </div>
-      {item.label && (
-        <p 
-          className="mt-6 font-small"
-        >
-          {item.label}
-        </p>
-      )}
     </div>
   );
 }
