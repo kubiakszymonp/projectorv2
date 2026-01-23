@@ -1,6 +1,7 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
-import { FolderOpen } from 'lucide-react';
+import { FolderOpen, Music } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import {
   useScenarios,
   useScenario,
@@ -274,7 +275,15 @@ export function ScenarioEditor() {
             />
           </div>
 
-          <div className="border-t p-3 bg-muted/20">
+          <div className="border-t space-y-2 p-3 bg-muted/20">
+            <Button
+              variant="default"
+              className="w-full"
+              onClick={handleGoToSongs}
+            >
+              <Music className="h-4 w-4 mr-2" />
+              Dodaj teksty
+            </Button>
             <Link
               to={`/files?path=${encodeURIComponent(selectedScenario.filePath)}`}
               className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
@@ -332,7 +341,15 @@ export function ScenarioEditor() {
           />
         </div>
 
-        <div className="border-t p-3 bg-muted/20">
+        <div className="border-t space-y-2 p-3 bg-muted/20">
+          <Button
+            variant="default"
+            className="w-full"
+            onClick={handleGoToSongs}
+          >
+            <Music className="h-4 w-4 mr-2" />
+            Dodaj teksty
+          </Button>
           <Link
             to={`/files?path=${encodeURIComponent(selectedScenario.filePath)}`}
             className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"

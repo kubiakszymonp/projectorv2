@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { useIsMobile } from '@/hooks/useIsMobile';
 import type { ScenarioDoc } from '@/types/scenarios';
 
 type ScenarioListProps = {
@@ -26,6 +27,8 @@ export function ScenarioList({
   onReload,
   isReloading,
 }: ScenarioListProps) {
+  const isMobile = useIsMobile();
+
   return (
     <div className="flex-1 flex flex-col min-h-0">
       {/* Header */}
@@ -83,10 +86,16 @@ export function ScenarioList({
                     <ListOrdered className="h-5 w-5 text-cyan-400" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold truncate">{scenario.meta.title}</h3>
+                    <h3 className="font-semibold truncate" title={scenario.meta.title}>
+                      {isMobile && scenario.meta.title.length > 50
+                        ? `${scenario.meta.title.substring(0, 50)}...`
+                        : scenario.meta.title}
+                    </h3>
                     {scenario.meta.description && (
-                      <p className="text-sm text-muted-foreground truncate">
-                        {scenario.meta.description}
+                      <p className="text-sm text-muted-foreground truncate" title={scenario.meta.description}>
+                        {isMobile && scenario.meta.description.length > 50
+                          ? `${scenario.meta.description.substring(0, 50)}...`
+                          : scenario.meta.description}
                       </p>
                     )}
                   </div>
