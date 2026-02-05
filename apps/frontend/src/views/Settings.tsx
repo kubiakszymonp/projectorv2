@@ -5,8 +5,8 @@ import {
   Wifi,
   Loader2,
   AlertCircle,
-  ChevronLeft,
-  ChevronRight,
+  ChevronUp,
+  ChevronDown,
 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -18,22 +18,10 @@ import { WifiSettingsTab } from '@/components/settings/WifiSettingsTab';
 import type { ProjectorSettings } from '@/types/settings';
 import { DEFAULT_SETTINGS } from '@/types/settings';
 
-type TabId = 'display' | 'wifi';
-
-type TabConfig = {
-  id: TabId;
-  label: string;
-  icon: React.ComponentType<{ className?: string }>;
-};
-
-const TABS: TabConfig[] = [
-  { id: 'display', label: 'Wyświetlanie', icon: Monitor },
-  { id: 'wifi', label: 'WiFi', icon: Wifi },
-];
+type SectionId = 'display' | 'wifi';
 
 export function Settings() {
-  const [activeTab, setActiveTab] = useState<TabId>('display');
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [openSections, setOpenSections] = useState<Set<SectionId>>(new Set(['display', 'wifi']));
   const [localSettings, setLocalSettings] = useState<ProjectorSettings>(DEFAULT_SETTINGS);
   const [isDirty, setIsDirty] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
@@ -148,6 +136,18 @@ export function Settings() {
     }
   }, [resetSettings]);
 
+  const toggleSection = useCallback((sectionId: SectionId) => {
+    setOpenSections((prev) => {
+      const next = new Set(prev);
+      if (next.has(sectionId)) {
+        next.delete(sectionId);
+      } else {
+        next.add(sectionId);
+      }
+      return next;
+    });
+  }, []);
+
   // Loading state
   if (isLoading) {
     return (
@@ -196,76 +196,70 @@ export function Settings() {
       />
 
       {/* Main Content */}
-      <div className="flex-1 flex min-h-0 relative">
-        {/* Sidebar - Tabs */}
-        {sidebarOpen && (
-          <aside className="w-48 border-r bg-muted/20 relative">
-            <button
-              onClick={() => setSidebarOpen(false)}
-              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 z-10 p-1 bg-background border rounded-md hover:bg-muted transition-colors"
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </button>
-            <nav className="p-2 space-y-1">
-              {TABS.map((tab) => {
-                const Icon = tab.icon;
-                const isActive = activeTab === tab.id;
-                return (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
-                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                      isActive
-                        ? 'bg-primary text-primary-foreground'
-                        : 'hover:bg-muted text-muted-foreground hover:text-foreground'
-                    }`}
-                  >
-                    <Icon className="h-4 w-4" />
-                    {tab.label}
-                  </button>
-                );
-              })}
-            </nav>
-          </aside>
-        )}
-        
-        {/* Sidebar Toggle Button - when closed */}
-        {!sidebarOpen && (
-          <button
-            onClick={() => setSidebarOpen(true)}
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 p-1 bg-background border rounded-r-md hover:bg-muted transition-colors"
-          >
-            <ChevronRight className="h-4 w-4" />
-          </button>
-        )}
-
-        {/* Content */}
-        <main className="flex-1 min-w-0">
-          <ScrollArea className="h-full">
-            <div className="p-4 sm:p-6 max-w-3xl">
-              {activeTab === 'display' && (
-                <DisplaySettingsTab
-                  settings={localSettings}
-                  onDisplayChange={handleDisplayChange}
-                  onPaddingChange={handlePaddingChange}
-                />
-              )}
-              {activeTab === 'wifi' && (
-                <WifiSettingsTab
-                  settings={localSettings}
-                  onWifiChange={handleWifiChange}
-                  showQRCodes={showQRCodes}
-                  qrTab={qrTab}
-                  onShowQRCodesChange={setShowQRCodes}
-                  onQrTabChange={setQrTab}
-                  onSetQRCode={(data) => setQRCode.mutate(data)}
-                  onClearScreen={() => clearScreen.mutate()}
-                />
+      <main className="flex-1 min-w-0">
+        <ScrollArea className="h-full">
+          <div className="p-4 sm:p-6 max-w-3xl">
+            {/* Display Settings Accordion */}
+            <div className="border-b">
+              <button
+                onClick={() => toggleSection('display')}
+                className="w-full p-3 flex items-center justify-between bg-muted/30 hover:bg-muted/50 transition-colors"
+              >
+                <div className="flex items-center gap-2">
+                  <Monitor className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm font-medium">Wyświetlanie</span>
+                </div>
+                {openSections.has('display') ? (
+                  <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                ) : (
+                  <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                )}
+              </button>
+              {openSections.has('display') && (
+                <div className="p-4 bg-muted/10">
+                  <DisplaySettingsTab
+                    settings={localSettings}
+                    onDisplayChange={handleDisplayChange}
+                    onPaddingChange={handlePaddingChange}
+                  />
+                </div>
               )}
             </div>
-          </ScrollArea>
-        </main>
-      </div>
+
+            {/* WiFi Settings Accordion */}
+            <div className="border-b">
+              <button
+                onClick={() => toggleSection('wifi')}
+                className="w-full p-3 flex items-center justify-between bg-muted/30 hover:bg-muted/50 transition-colors"
+              >
+                <div className="flex items-center gap-2">
+                  <Wifi className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm font-medium">WiFi</span>
+                </div>
+                {openSections.has('wifi') ? (
+                  <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                ) : (
+                  <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                )}
+              </button>
+              {openSections.has('wifi') && (
+                <div className="p-4 bg-muted/10">
+                  <WifiSettingsTab
+                    settings={localSettings}
+                    onWifiChange={handleWifiChange}
+                    showQRCodes={showQRCodes}
+                    qrTab={qrTab}
+                    onShowQRCodesChange={setShowQRCodes}
+                    onQrTabChange={setQrTab}
+                    onSetQRCode={(data) => setQRCode.mutate(data)}
+                    onClearScreen={() => clearScreen.mutate()}
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+        </ScrollArea>
+      </main>
     </div>
   );
 }
