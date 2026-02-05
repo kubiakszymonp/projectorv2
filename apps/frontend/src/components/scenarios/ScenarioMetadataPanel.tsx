@@ -93,7 +93,7 @@ export function ScenarioMetadataPanel({
         <span className="text-sm font-medium">Metadane</span>
       </div>
       <ScrollArea className="flex-1">
-        <div className="p-4">
+        <div className="p-3 sm:p-4">
           {content}
         </div>
       </ScrollArea>

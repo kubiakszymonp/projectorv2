@@ -242,7 +242,7 @@ export function Settings() {
         {/* Content */}
         <main className="flex-1 min-w-0">
           <ScrollArea className="h-full">
-            <div className="p-6 max-w-3xl">
+            <div className="p-4 sm:p-6 max-w-3xl">
               {activeTab === 'display' && (
                 <DisplaySettingsTab
                   settings={localSettings}

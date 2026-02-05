@@ -20,7 +20,7 @@ export function SettingsHeader({
   onReset,
 }: SettingsHeaderProps) {
   return (
-    <header className="flex items-center justify-between px-4 py-3 border-b">
+    <header className="flex items-center justify-between px-3 py-2.5 sm:px-4 sm:py-3 border-b">
       <div className="flex items-center gap-2">
         <h1 className="text-lg font-semibold">Konfiguracja</h1>
       </div>

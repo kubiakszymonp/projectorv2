@@ -290,7 +290,7 @@ export function FilesExplorer({ initialPath = '', title = 'Edytor plików' }: Fi
     <TooltipProvider>
       <div className="h-screen flex flex-col bg-background">
         {/* Header */}
-        <header className="flex items-center justify-between px-2 sm:px-4 py-3 border-b">
+        <header className="flex items-center justify-between px-3 py-2.5 sm:px-4 sm:py-3 border-b">
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <Button
               variant="ghost"

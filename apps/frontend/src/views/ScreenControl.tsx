@@ -156,7 +156,7 @@ export function ScreenControl() {
   return (
     <div className="h-screen flex flex-col bg-background">
       {/* Header */}
-      <header className="flex items-center justify-between px-4 py-3 border-b">
+      <header className="flex items-center justify-between px-3 py-2.5 sm:px-4 sm:py-3 border-b">
         <div className="flex items-center gap-2">
           <Monitor className="h-5 w-5 text-blue-400" />
           <h1 className="text-lg font-semibold">Sterowanie ekranem</h1>
@@ -197,7 +197,7 @@ export function ScreenControl() {
 
       {/* Main Content */}
       <main className="flex-1 overflow-auto">
-        <div className="w-full space-y-4 p-6">
+        <div className="w-full space-y-4 p-4 sm:p-6">
           {/* Current State */}
           <Card className="overflow-hidden">
             <div className="p-0">
@@ -451,12 +451,12 @@ function ControlsSection({
           <div className="flex items-center justify-center gap-4">
             <Button
               variant="secondary"
-              size="lg"
-              className="h-14 px-6"
+              size="default"
+              className="h-10 px-4"
               onClick={onPrevStep}
               disabled={isNavigating || isFirstStep}
             >
-              <SkipBack className="h-5 w-5 mr-2" />
+              <SkipBack className="h-4 w-4 mr-2" />
               Poprzedni
             </Button>
             <div className="text-center min-w-[100px]">
@@ -466,13 +466,13 @@ function ControlsSection({
             </div>
             <Button
               variant="secondary"
-              size="lg"
-              className="h-14 px-6"
+              size="default"
+              className="h-10 px-4"
               onClick={onNextStep}
               disabled={isNavigating || isLastStep}
             >
               Następny
-              <SkipForward className="h-5 w-5 ml-2" />
+              <SkipForward className="h-4 w-4 ml-2" />
             </Button>
           </div>
         </div>

@@ -144,9 +144,13 @@ export class ScreenStateService {
       this.settingsService,
     );
 
+    // Preserve visibility if we're already in the same scenario
+    const currentState = this.screenStateRepo.get();
+    const preserveVisibility = currentState.mode === 'scenario' && currentState.scenarioId === scenarioId;
+
     return this.screenStateRepo.set({
       mode: 'scenario',
-      visible: false,
+      visible: preserveVisibility ? currentState.visible : false,
       scenarioId,
       scenarioTitle: scenario.meta.title,
       stepIndex: validStepIndex,

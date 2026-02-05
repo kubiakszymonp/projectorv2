@@ -43,7 +43,7 @@ export function SongList({
   return (
     <div className="flex-1 flex flex-col min-h-0">
       {/* Header */}
-      <div className="p-4 space-y-4 border-b">
+      <div className="p-3 sm:p-4 space-y-4 border-b">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold tracking-tight">Katalog pieśni</h1>
           <div className="flex items-center gap-2">
@@ -83,7 +83,7 @@ export function SongList({
 
       {/* Song list */}
       <ScrollArea className="flex-1">
-        <div className="p-4 space-y-2">
+        <div className="p-3 sm:p-4 space-y-2">
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
               <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
@@ -162,7 +162,7 @@ function SongCard({ song, onClick }: SongCardProps) {
       className="group cursor-pointer hover:border-foreground/20 transition-colors"
       onClick={onClick}
     >
-      <div className="p-4 flex items-center gap-4">
+      <div className="p-3 sm:p-4 flex items-center gap-4">
         <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center">
           <Music className="h-5 w-5 text-emerald-400" />
         </div>

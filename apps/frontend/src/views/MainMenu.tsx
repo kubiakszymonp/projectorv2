@@ -78,13 +78,13 @@ export function MainMenu() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-16">
+      <div className="container mx-auto px-4 py-8 sm:px-6 sm:py-12">
         {/* Header */}
-        <div className="mb-8 space-y-3">
-          <h1 className="text-5xl md:text-6xl font-bold tracking-tight">
+        <div className="mb-6 sm:mb-8 space-y-3">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight">
             Projektor
           </h1>
-          <p className="text-xl text-muted-foreground">
+          <p className="text-lg sm:text-xl text-muted-foreground">
             System zarządzania prezentacjami i multimediami
           </p>
         </div>
@@ -92,23 +92,23 @@ export function MainMenu() {
         {/* Screen Display Card */}
         <div className="mb-8 max-w-4xl">
           <Card
-            className="group relative overflow-hidden cursor-pointer transition-all duration-200 hover:border-foreground/20 bg-card"
+            className="group relative overflow-hidden cursor-pointer transition-all duration-200 hover:border-foreground/20 hover:shadow-lg bg-card"
             onClick={() => navigate('/display')}
           >
-            <div className="p-6">
-              <div className="flex items-start gap-4">
+            <div className="p-4 sm:p-6">
+              <div className="flex items-start gap-3 sm:gap-4">
                 {/* Icon */}
-                <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-indigo-500/10 group-hover:bg-indigo-500/20 flex items-center justify-center transition-colors duration-200">
-                  <Tv className="w-6 h-6 text-indigo-400" />
+                <div className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-indigo-500/10 group-hover:bg-indigo-500/20 flex items-center justify-center transition-colors duration-200">
+                  <Tv className="w-5 h-5 sm:w-6 sm:h-6 text-indigo-400" />
                 </div>
 
                 {/* Content */}
                 <div className="flex-1 min-w-0">
-                  <h2 className="text-lg font-semibold mb-1 flex items-center gap-2">
+                  <h2 className="text-base sm:text-lg font-semibold mb-1 flex items-center gap-2">
                     Ekran wyświetlania
                     <ArrowRight className="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200" />
                   </h2>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-xs sm:text-sm text-muted-foreground">
                     Podgląd tego, co jest wyświetlane na ekranie
                   </p>
                 </div>
@@ -118,31 +118,31 @@ export function MainMenu() {
         </div>
 
         {/* Menu Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 max-w-4xl">
           {menuItems.map((item) => {
             const Icon = item.icon;
             return (
               <Card
                 key={item.id}
-                className="group relative overflow-hidden cursor-pointer transition-all duration-200 hover:border-foreground/20 bg-card"
+                className="group relative overflow-hidden cursor-pointer transition-all duration-200 hover:border-foreground/20 hover:shadow-lg bg-card"
                 onClick={() => handleCardClick(item.path)}
               >
-                <div className="p-6">
-                  <div className="flex items-start gap-4">
+                <div className="p-4 sm:p-6">
+                  <div className="flex items-start gap-3 sm:gap-4">
                     {/* Icon */}
                     <div
-                      className={`flex-shrink-0 w-12 h-12 rounded-lg ${item.iconBg} flex items-center justify-center transition-colors duration-200`}
+                      className={`flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-lg ${item.iconBg} flex items-center justify-center transition-colors duration-200`}
                     >
-                      <Icon className={`w-6 h-6 ${item.iconColor}`} />
+                      <Icon className={`w-5 h-5 sm:w-6 sm:h-6 ${item.iconColor}`} />
                     </div>
 
                     {/* Content */}
                     <div className="flex-1 min-w-0">
-                      <h2 className="text-lg font-semibold mb-1 flex items-center gap-2">
+                      <h2 className="text-base sm:text-lg font-semibold mb-1 flex items-center gap-2">
                         {item.title}
                         <ArrowRight className="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200" />
                       </h2>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-xs sm:text-sm text-muted-foreground">
                         {item.description}
                       </p>
                     </div>

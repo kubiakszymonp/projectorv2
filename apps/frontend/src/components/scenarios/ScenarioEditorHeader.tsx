@@ -31,7 +31,7 @@ export function ScenarioEditorHeader({
 }: ScenarioEditorHeaderProps) {
   if (isMobile) {
     return (
-      <div className="p-3 border-b flex items-center justify-between gap-2">
+      <div className="px-3 py-2.5 border-b flex items-center justify-between gap-2">
         <div className="flex items-center gap-2 min-w-0">
           <Button variant="ghost" size="icon" className="shrink-0" onClick={onBack}>
             <X className="h-5 w-5" />
@@ -83,7 +83,7 @@ export function ScenarioEditorHeader({
 
   // Desktop layout
   return (
-    <div className="p-4 border-b flex items-center justify-between gap-4">
+    <div className="px-4 py-3 border-b flex items-center justify-between gap-4">
       <div className="flex items-center gap-3 min-w-0">
         <Button variant="ghost" size="icon" onClick={onBack}>
           <X className="h-5 w-5" />

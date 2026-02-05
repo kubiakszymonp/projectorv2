@@ -33,7 +33,7 @@ export function ScenarioStepsList({
 }: ScenarioStepsListProps) {
   return (
     <>
-      <div className="p-3 border-b bg-muted/30 flex items-center justify-between">
+      <div className="px-3 py-2.5 sm:px-4 sm:py-3 border-b bg-muted/30 flex items-center justify-between">
         <span className="text-sm font-medium">
           Kroki ({steps.length})
         </span>
@@ -42,7 +42,7 @@ export function ScenarioStepsList({
         </Button>
       </div>
       <ScrollArea className="flex-1">
-        <div className="p-3 space-y-2">
+        <div className="p-3 sm:p-4 space-y-2">
           {steps.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
               <ListOrdered className="h-12 w-12 mx-auto mb-4 opacity-30" />

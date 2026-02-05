@@ -123,7 +123,7 @@ export function StepItem({
       onDragOver={(e) => onDragOver(e, index)}
       onDrop={(e) => onDrop(e, index)}
       className={cn(
-        'flex items-center gap-3 p-3 rounded-lg border transition-all cursor-move',
+        'flex items-center gap-3 p-3 sm:p-4 rounded-lg border transition-all cursor-move',
         isSelected && 'ring-2 ring-primary',
         isDragging && 'opacity-50',
         isDragOver && 'border-primary border-dashed bg-primary/5',
