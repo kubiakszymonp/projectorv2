@@ -1,6 +1,8 @@
 import { DisplayItem, TextDisplayItem } from '../../../types/player';
 import { getStepType, getStepValue } from '../../../types/scenarios';
 import { TextsService } from '../../texts/texts.service';
+import { TextFormatterService } from '../../texts/text-formatter.service';
+import { SettingsService } from '../../settings/settings.service';
 
 /**
  * Helper functions for converting scenario steps to display items
@@ -21,6 +23,8 @@ export class DisplayItemHelper {
   static async fromStep(
     step: import('../../../types/scenarios').ScenarioStep,
     textsService: TextsService,
+    textFormatterService: TextFormatterService,
+    settingsService: SettingsService,
   ): Promise<DisplayItem> {
     const stepType = getStepType(step);
     const stepValue = getStepValue(step);
@@ -30,12 +34,32 @@ export class DisplayItemHelper {
         const textRef = stepValue as string;
         const textId = this.extractTextIdFromRef(textRef);
         const text = await textsService.findById(textId);
+        if (!text || text.slides.length === 0) {
+          return {
+            type: 'text',
+            textRef,
+            slideIndex: 0,
+            totalSlides: text?.slides.length ?? 0,
+            pageIndex: 0,
+            totalPages: 0,
+            slideContent: '',
+          };
+        }
+
+        // Format first slide into pages
+        const settings = settingsService.getSettings();
+        const slideContent = text.slides[0] || '';
+        const pages = textFormatterService.formatTextToPages(slideContent, settings.display);
+        const totalPages = pages.length;
+
         return {
           type: 'text',
           textRef,
           slideIndex: 0,
-          totalSlides: text?.slides.length ?? 0,
-          slideContent: text?.slides[0] ?? '',
+          totalSlides: text.slides.length,
+          pageIndex: 0,
+          totalPages,
+          slideContent: pages[0] || '',
         };
       }
       case 'image':

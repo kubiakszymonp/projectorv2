@@ -297,6 +297,7 @@ function CurrentStateDisplay({ state }: { state: ScreenState }) {
       {item.type === 'text' && (
         <span className="text-muted-foreground">
           Slajd {item.slideIndex + 1} z {item.totalSlides}
+          {item.totalPages > 1 && `, Strona ${item.pageIndex + 1} z ${item.totalPages}`}
         </span>
       )}
     </div>
@@ -373,10 +374,14 @@ function ControlsSection({
   const isTextItem = currentItem?.type === 'text';
   const isScenarioMode = state.mode === 'scenario';
 
-  // Info o slajdach dla tekstu
+  // Info o slajdach i stronach dla tekstu
   const textItem = isTextItem ? (currentItem as TextDisplayItem) : null;
   const isFirstSlide = textItem ? textItem.slideIndex === 0 : true;
   const isLastSlide = textItem ? textItem.slideIndex === textItem.totalSlides - 1 : true;
+  const isFirstPage = textItem ? textItem.pageIndex === 0 : true;
+  const isLastPage = textItem ? textItem.pageIndex === textItem.totalPages - 1 : true;
+  const isFirstPageOfFirstSlide = isFirstSlide && isFirstPage;
+  const isLastPageOfLastSlide = isLastSlide && isLastPage;
 
   // Info o krokach dla scenariusza
   const isFirstStep = isScenarioMode ? (state as { stepIndex: number }).stepIndex === 0 : true;
@@ -386,10 +391,10 @@ function ControlsSection({
 
   return (
     <div className="space-y-6">
-      {/* Slide navigation - always visible, disabled for non-text items */}
+      {/* Page/Slide navigation - always visible, disabled for non-text items */}
       <div className="space-y-3">
         <p className="text-sm font-medium text-center text-muted-foreground">
-          Nawigacja slajdów
+          Nawigacja stron
         </p>
         <div className="flex items-center justify-center gap-4">
           <Button
@@ -397,18 +402,30 @@ function ControlsSection({
             size="lg"
             className="h-14 w-14"
             onClick={onPrevSlide}
-            disabled={isNavigating || !isTextItem || isFirstSlide}
+            disabled={isNavigating || !isTextItem || isFirstPageOfFirstSlide}
           >
             <ChevronLeft className="h-6 w-6" />
           </Button>
-          <div className="text-center min-w-[100px]">
+          <div className="text-center min-w-[150px]">
             {isTextItem && textItem ? (
-              <>
-                <span className="text-2xl font-bold">
-                  {textItem.slideIndex + 1}
-                </span>
-                <span className="text-muted-foreground text-lg"> / {textItem.totalSlides}</span>
-              </>
+              <div className="space-y-1">
+                <div>
+                  <span className="text-2xl font-bold">
+                    {textItem.slideIndex + 1}
+                  </span>
+                  <span className="text-muted-foreground text-lg"> / {textItem.totalSlides}</span>
+                  <span className="text-muted-foreground text-sm"> (slajd)</span>
+                </div>
+                {textItem.totalPages > 1 && (
+                  <div>
+                    <span className="text-lg font-medium">
+                      {textItem.pageIndex + 1}
+                    </span>
+                    <span className="text-muted-foreground text-sm"> / {textItem.totalPages}</span>
+                    <span className="text-muted-foreground text-xs"> (strona)</span>
+                  </div>
+                )}
+              </div>
             ) : (
               <span className="text-2xl font-bold text-muted-foreground">-</span>
             )}
@@ -418,7 +435,7 @@ function ControlsSection({
             size="lg"
             className="h-14 w-14"
             onClick={onNextSlide}
-            disabled={isNavigating || !isTextItem || isLastSlide}
+            disabled={isNavigating || !isTextItem || isLastPageOfLastSlide}
           >
             <ChevronRight className="h-6 w-6" />
           </Button>

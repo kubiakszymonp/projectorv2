@@ -6,9 +6,10 @@ import { ScreenStateRepository } from './repositories/screen-state.repository';
 import { ScenariosModule } from '../scenarios/scenarios.module';
 import { TextsModule } from '../texts/texts.module';
 import { NotificationsModule } from '../notifications/notifications.module';
+import { SettingsModule } from '../settings/settings.module';
 
 @Module({
-  imports: [ScenariosModule, TextsModule, NotificationsModule],
+  imports: [ScenariosModule, TextsModule, NotificationsModule, SettingsModule],
   controllers: [PlayerController],
   providers: [
     ScreenStateRepository,

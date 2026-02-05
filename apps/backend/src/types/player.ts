@@ -13,7 +13,9 @@ export type TextDisplayItem = {
   textRef: string; // referencja do tekstu (domain/slug__id)
   slideIndex: number; // aktualny slajd (0-based)
   totalSlides: number; // łączna liczba slajdów
-  slideContent: string; // zawartość aktualnego slajdu
+  pageIndex: number; // aktualna strona w slajdzie (0-based)
+  totalPages: number; // łączna liczba stron w slajdzie
+  slideContent: string; // zawartość aktualnej strony
 };
 
 /**

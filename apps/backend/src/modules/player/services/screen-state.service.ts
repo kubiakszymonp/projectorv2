@@ -3,6 +3,8 @@ import { ScreenState, TextDisplayItem } from '../../../types/player';
 import { ScreenStateRepository } from '../repositories/screen-state.repository';
 import { ScenariosService } from '../../scenarios/scenarios.service';
 import { TextsService } from '../../texts/texts.service';
+import { TextFormatterService } from '../../texts/text-formatter.service';
+import { SettingsService } from '../../settings/settings.service';
 import { DisplayItemHelper } from '../helpers/display-item.helper';
 import { ScreenStateHelper } from '../helpers/screen-state.helper';
 
@@ -16,6 +18,8 @@ export class ScreenStateService {
     private readonly screenStateRepo: ScreenStateRepository,
     private readonly scenariosService: ScenariosService,
     private readonly textsService: TextsService,
+    private readonly textFormatterService: TextFormatterService,
+    private readonly settingsService: SettingsService,
   ) {}
 
   /**
@@ -81,6 +85,12 @@ export class ScreenStateService {
 
     const maxSlide = text.slides.length - 1;
     const validSlideIndex = Math.max(0, Math.min(slideIndex, maxSlide));
+    const slideContent = text.slides[validSlideIndex] || '';
+
+    // Format slide into pages
+    const settings = this.settingsService.getSettings();
+    const pages = this.textFormatterService.formatTextToPages(slideContent, settings.display);
+    const totalPages = pages.length;
 
     return this.screenStateRepo.set({
       mode: 'single',
@@ -90,7 +100,9 @@ export class ScreenStateService {
         textRef,
         slideIndex: validSlideIndex,
         totalSlides: text.slides.length,
-        slideContent: text.slides[validSlideIndex] || '',
+        pageIndex: 0,
+        totalPages,
+        slideContent: pages[0] || '',
       },
     });
   }
@@ -128,6 +140,8 @@ export class ScreenStateService {
     const currentItem = await DisplayItemHelper.fromStep(
       scenario.steps[validStepIndex],
       this.textsService,
+      this.textFormatterService,
+      this.settingsService,
     );
 
     return this.screenStateRepo.set({
@@ -142,7 +156,8 @@ export class ScreenStateService {
   }
 
   /**
-   * Navigate slides in text (prev/next)
+   * Navigate pages/slides in text (prev/next)
+   * Handles page navigation within slides, and slide navigation when on last/first page
    */
   async navigateSlide(direction: 'next' | 'prev'): Promise<ScreenState> {
     const state = this.screenStateRepo.get();
@@ -157,20 +172,67 @@ export class ScreenStateService {
       return state;
     }
 
-    const maxSlide = text.slides.length - 1;
+    const settings = this.settingsService.getSettings();
     let newSlideIndex = textItem.slideIndex;
+    let newPageIndex = textItem.pageIndex;
+    let newSlideContent = textItem.slideContent;
+
     if (direction === 'next') {
-      newSlideIndex = Math.min(textItem.slideIndex + 1, maxSlide);
+      // Try to go to next page in current slide
+      if (textItem.pageIndex < textItem.totalPages - 1) {
+        newPageIndex = textItem.pageIndex + 1;
+        const slideContent = text.slides[textItem.slideIndex] || '';
+        const pages = this.textFormatterService.formatTextToPages(slideContent, settings.display);
+        newSlideContent = pages[newPageIndex] || '';
+      } else {
+        // On last page, go to next slide
+        const maxSlide = text.slides.length - 1;
+        if (textItem.slideIndex < maxSlide) {
+          newSlideIndex = textItem.slideIndex + 1;
+          newPageIndex = 0;
+          const slideContent = text.slides[newSlideIndex] || '';
+          const pages = this.textFormatterService.formatTextToPages(slideContent, settings.display);
+          newSlideContent = pages[0] || '';
+        } else {
+          // Already on last page of last slide, do nothing
+          return state;
+        }
+      }
     } else {
-      newSlideIndex = Math.max(textItem.slideIndex - 1, 0);
+      // Try to go to previous page in current slide
+      if (textItem.pageIndex > 0) {
+        newPageIndex = textItem.pageIndex - 1;
+        const slideContent = text.slides[textItem.slideIndex] || '';
+        const pages = this.textFormatterService.formatTextToPages(slideContent, settings.display);
+        newSlideContent = pages[newPageIndex] || '';
+      } else {
+        // On first page, go to previous slide
+        if (textItem.slideIndex > 0) {
+          newSlideIndex = textItem.slideIndex - 1;
+          const slideContent = text.slides[newSlideIndex] || '';
+          const pages = this.textFormatterService.formatTextToPages(slideContent, settings.display);
+          newPageIndex = pages.length - 1;
+          newSlideContent = pages[newPageIndex] || '';
+        } else {
+          // Already on first page of first slide, do nothing
+          return state;
+        }
+      }
     }
+
+    // Get total pages for the new slide
+    const slideContent = text.slides[newSlideIndex] || '';
+    const pages = this.textFormatterService.formatTextToPages(slideContent, settings.display);
+    const totalPages = pages.length;
 
     const newTextItem: TextDisplayItem = {
       type: 'text',
       textRef: textItem.textRef,
       slideIndex: newSlideIndex,
       totalSlides: text.slides.length,
-      slideContent: text.slides[newSlideIndex] || '',
+      pageIndex: newPageIndex,
+      totalPages,
+      slideContent: newSlideContent,
     };
 
     return this.screenStateRepo.update((currentState) => {
@@ -214,6 +276,8 @@ export class ScreenStateService {
     const currentItem = await DisplayItemHelper.fromStep(
       scenario.steps[newStepIndex],
       this.textsService,
+      this.textFormatterService,
+      this.settingsService,
     );
 
     return this.screenStateRepo.update((currentState) => {

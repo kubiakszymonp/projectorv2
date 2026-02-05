@@ -145,6 +145,8 @@ export class SettingsRepository {
       textAlign: update.textAlign ?? current.textAlign,
       backgroundColor: update.backgroundColor ?? current.backgroundColor,
       textColor: update.textColor ?? current.textColor,
+      maxLinesPerPage: update.maxLinesPerPage ?? current.maxLinesPerPage,
+      maxCharsPerLine: update.maxCharsPerLine ?? current.maxCharsPerLine,
       padding: {
         top: update.padding?.top ?? current.padding.top,
         right: update.padding?.right ?? current.padding.right,

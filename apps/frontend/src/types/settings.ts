@@ -27,6 +27,8 @@ export interface DisplaySettings {
   textAlign: TextAlign;
   backgroundColor: string;
   textColor: string;
+  maxLinesPerPage: number;
+  maxCharsPerLine: number;
 }
 
 /**
@@ -63,6 +65,8 @@ export const DEFAULT_SETTINGS: ProjectorSettings = {
     textAlign: 'center',
     backgroundColor: '#000000',
     textColor: '#ffffff',
+    maxLinesPerPage: 8,
+    maxCharsPerLine: 50,
   },
   wifi: {
     ssid: '',

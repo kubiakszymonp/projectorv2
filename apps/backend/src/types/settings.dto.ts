@@ -75,6 +75,16 @@ export class UpdateDisplaySettingsDto {
   @IsOptional()
   @IsString()
   textColor?: string;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(1)
+  maxLinesPerPage?: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(1)
+  maxCharsPerLine?: number;
 }
 
 /**

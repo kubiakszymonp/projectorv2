@@ -105,11 +105,16 @@ function TextDisplay({
     >
       <div className="w-full">
         <div
-          className="whitespace-pre-wrap drop-shadow-lg"
+          className="whitespace-pre-line drop-shadow-lg"
           style={textStyle}
         >
           {item.slideContent || ''}
         </div>
+        {item.totalPages > 1 && (
+          <div className="text-center mt-4 text-sm opacity-60" style={{ color: displaySettings.textColor }}>
+            Strona {item.pageIndex + 1}/{item.totalPages}
+          </div>
+        )}
       </div>
     </div>
   );

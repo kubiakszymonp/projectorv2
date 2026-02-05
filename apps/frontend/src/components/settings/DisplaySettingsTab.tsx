@@ -89,6 +89,38 @@ export function DisplaySettingsTab({
         </div>
       </div>
 
+      {/* Text Formatting Section */}
+      <div className="space-y-4">
+        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+          Formatowanie tekstu (Prompter)
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormField 
+            label="Maksymalna liczba linii na stronę" 
+            description="Ile linii tekstu mieści się na jednej stronie"
+          >
+            <NumberInput
+              value={settings.display.maxLinesPerPage}
+              onChange={(v) => onDisplayChange('maxLinesPerPage', v)}
+              min={1}
+              max={50}
+            />
+          </FormField>
+
+          <FormField 
+            label="Maksymalna liczba znaków w linii" 
+            description="Maksymalna długość pojedynczej linii tekstu"
+          >
+            <NumberInput
+              value={settings.display.maxCharsPerLine}
+              onChange={(v) => onDisplayChange('maxCharsPerLine', v)}
+              min={10}
+              max={200}
+            />
+          </FormField>
+        </div>
+      </div>
+
       {/* Colors Section */}
       <div className="space-y-4">
         <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
