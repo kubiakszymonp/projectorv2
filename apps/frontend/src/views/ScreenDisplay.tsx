@@ -4,6 +4,7 @@ import { useScreenState } from '@/hooks/usePlayer';
 import { useSettings } from '@/hooks/useSettings';
 import { getFileUrl } from '@/api/files';
 import { navigateSlide, navigateStep } from '@/api/player';
+import { useRegisterSocketRole } from '@/hooks/useSocket';
 import { DEFAULT_SETTINGS } from '@/types/settings';
 import type { ScreenState, TextDisplayItem } from '@/types/player';
 
@@ -13,6 +14,9 @@ export function ScreenDisplay() {
   // Updates via WebSocket; polling fallback keeps the public screen fresh if the socket dies
   const { data: screenState } = useScreenState({ pollingFallback: true });
   const { data: settings } = useSettings();
+
+  // Announce this client as a public display so the panel can show "Ekran połączony"
+  useRegisterSocketRole('display');
 
   const state = screenState ?? { mode: 'empty' as const };
   const displaySettings = settings?.display ?? DEFAULT_SETTINGS.display;

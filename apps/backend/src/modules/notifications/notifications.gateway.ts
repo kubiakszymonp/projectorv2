@@ -4,6 +4,9 @@ import {
   OnGatewayConnection,
   OnGatewayDisconnect,
   OnGatewayInit,
+  SubscribeMessage,
+  MessageBody,
+  ConnectedSocket,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { Logger } from '@nestjs/common';
@@ -28,6 +31,8 @@ export class NotificationsGateway
   server!: Server;
 
   private readonly logger = new Logger(NotificationsGateway.name);
+  // Socket ids of connected public display screens (/display)
+  private readonly displaySockets = new Set<string>();
 
   constructor() {
     // Log when gateway is initialized
@@ -48,6 +53,32 @@ export class NotificationsGateway
 
   handleDisconnect(client: Socket) {
     this.logger.debug(`Client disconnected: ${client.id}`);
+    if (this.displaySockets.delete(client.id)) {
+      this.emitClientsChanged();
+    }
+  }
+
+  /**
+   * Clients identify their role on connect. We only care about display screens.
+   */
+  @SubscribeMessage('register')
+  handleRegister(
+    @MessageBody() data: { role?: string },
+    @ConnectedSocket() client: Socket,
+  ) {
+    if (data?.role === 'display') {
+      this.displaySockets.add(client.id);
+      this.emitClientsChanged();
+    }
+  }
+
+  /** Number of connected public display screens */
+  getDisplayCount(): number {
+    return this.displaySockets.size;
+  }
+
+  private emitClientsChanged() {
+    this.server.emit('clients:changed');
   }
 
   /**

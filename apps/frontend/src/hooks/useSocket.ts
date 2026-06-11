@@ -3,6 +3,9 @@ import { io, Socket } from 'socket.io-client';
 
 let socketInstance: Socket | null = null;
 
+// Optional role this client announces to the server on (re)connect
+let desiredRole: string | null = null;
+
 // Connection status tracking
 let isConnected = false;
 const statusListeners = new Set<(connected: boolean) => void>();
@@ -62,6 +65,10 @@ function getSocket(): Socket {
         transport: socketInstance?.io.engine?.transport?.name,
       });
       setConnected(true);
+      // Re-announce our role after every (re)connect
+      if (desiredRole) {
+        socketInstance?.emit('register', { role: desiredRole });
+      }
       // State may have changed while we were offline (initial connect too) —
       // force a refetch.
       notifyReconnect();
@@ -155,6 +162,23 @@ export function useSocketReconnect(callback: () => void) {
       reconnectListeners.delete(handler);
     };
   }, []);
+}
+
+/**
+ * Announce a role (e.g. 'display') to the server for the lifetime of the page.
+ * Re-emitted automatically on every reconnect.
+ */
+export function useRegisterSocketRole(role: string) {
+  useEffect(() => {
+    desiredRole = role;
+    const socket = getSocket();
+    if (socket.connected) {
+      socket.emit('register', { role });
+    }
+    return () => {
+      desiredRole = null;
+    };
+  }, [role]);
 }
 
 /**

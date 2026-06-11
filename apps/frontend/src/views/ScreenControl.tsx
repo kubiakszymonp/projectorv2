@@ -18,6 +18,8 @@ import {
   Edit,
   QrCode,
   WifiOff,
+  Tv,
+  TvMinimal,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -33,6 +35,7 @@ import {
 import { useScenario } from '@/hooks/useScenarios';
 import { useText } from '@/hooks/useTexts';
 import { useSocketStatus } from '@/hooks/useSocket';
+import { useScreenConnections } from '@/hooks/useScreenConnections';
 import type { ScreenState, DisplayItem, TextDisplayItem } from '@/types/player';
 import { getStepType, getStepValue } from '@/types/scenarios';
 import { cn } from '@/lib/utils';
@@ -104,6 +107,8 @@ function getDisplayItemColor(item: DisplayItem): string {
 export function ScreenControl() {
   const { data: screenState, isLoading } = useScreenState();
   const isConnected = useSocketStatus();
+  const { data: connections } = useScreenConnections();
+  const displayConnected = (connections?.displays ?? 0) > 0;
   const clearScreen = useClearScreen();
   const navigateSlide = useNavigateSlide();
   const navigateStep = useNavigateStep();
@@ -218,6 +223,24 @@ export function ScreenControl() {
             >
               <WifiOff className="h-4 w-4" />
               <span className="hidden sm:inline">Brak połączenia</span>
+            </span>
+          )}
+          {isConnected && (
+            <span
+              className={cn(
+                'flex items-center gap-1 text-xs',
+                displayConnected ? 'text-emerald-400' : 'text-amber-400',
+              )}
+              title={displayConnected ? 'Ekran połączony' : 'Brak połączonego ekranu'}
+            >
+              {displayConnected ? (
+                <Tv className="h-4 w-4" />
+              ) : (
+                <TvMinimal className="h-4 w-4" />
+              )}
+              <span className="hidden sm:inline">
+                {displayConnected ? 'Ekran połączony' : 'Brak ekranu'}
+              </span>
             </span>
           )}
         </div>
