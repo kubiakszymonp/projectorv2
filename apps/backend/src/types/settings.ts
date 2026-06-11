@@ -16,6 +16,11 @@ export interface DisplayPadding {
 export type TextAlign = 'left' | 'center' | 'right';
 
 /**
+ * What to show when the screen is blank/empty
+ */
+export type BlankScreenMode = 'black' | 'clock' | 'logo';
+
+/**
  * Display styling configuration
  */
 export interface DisplaySettings {
@@ -29,6 +34,8 @@ export interface DisplaySettings {
   textColor: string;
   maxLinesPerPage: number;
   maxCharsPerLine: number;
+  blankScreen: BlankScreenMode;
+  blankLogoPath: string;
 }
 
 /**
@@ -67,6 +74,8 @@ export const DEFAULT_SETTINGS: ProjectorSettings = {
     textColor: '#ffffff',
     maxLinesPerPage: 8,
     maxCharsPerLine: 50,
+    blankScreen: 'black',
+    blankLogoPath: '',
   },
   wifi: {
     ssid: '',

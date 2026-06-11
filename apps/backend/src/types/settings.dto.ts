@@ -85,6 +85,14 @@ export class UpdateDisplaySettingsDto {
   @IsNumber()
   @Min(1)
   maxCharsPerLine?: number;
+
+  @IsOptional()
+  @IsIn(['black', 'clock', 'logo'])
+  blankScreen?: 'black' | 'clock' | 'logo';
+
+  @IsOptional()
+  @IsString()
+  blankLogoPath?: string;
 }
 
 /**

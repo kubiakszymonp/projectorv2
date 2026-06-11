@@ -63,11 +63,65 @@ export function ScreenDisplay() {
 // ========== BLACK SCREEN ==========
 
 function BlackScreen({ displaySettings }: { displaySettings: typeof DEFAULT_SETTINGS.display }) {
+  const mode = displaySettings.blankScreen ?? 'black';
+
+  if (mode === 'clock') {
+    return <ClockScreen displaySettings={displaySettings} />;
+  }
+
+  if (mode === 'logo' && displaySettings.blankLogoPath) {
+    return (
+      <div
+        className="w-full h-screen flex items-center justify-center"
+        style={{ backgroundColor: displaySettings.backgroundColor }}
+      >
+        <img
+          src={getFileUrl(displaySettings.blankLogoPath)}
+          alt=""
+          className="max-w-[60%] max-h-[60%] object-contain"
+        />
+      </div>
+    );
+  }
+
   return (
-    <div 
-      className="w-full h-screen" 
+    <div
+      className="w-full h-screen"
       style={{ backgroundColor: displaySettings.backgroundColor }}
     />
+  );
+}
+
+function ClockScreen({ displaySettings }: { displaySettings: typeof DEFAULT_SETTINGS.display }) {
+  const [now, setNow] = useState(() => new Date());
+
+  useEffect(() => {
+    const t = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(t);
+  }, []);
+
+  const time = now.toLocaleTimeString('pl-PL', {
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+  const date = now.toLocaleDateString('pl-PL', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+  });
+
+  return (
+    <div
+      className="w-full h-screen flex flex-col items-center justify-center"
+      style={{ backgroundColor: displaySettings.backgroundColor, color: displaySettings.textColor }}
+    >
+      <div style={{ fontSize: '12vw', fontFamily: displaySettings.fontFamily }} className="font-bold leading-none">
+        {time}
+      </div>
+      <div style={{ fontSize: '3vw', fontFamily: displaySettings.fontFamily }} className="mt-4 capitalize opacity-80">
+        {date}
+      </div>
+    </div>
   );
 }
 

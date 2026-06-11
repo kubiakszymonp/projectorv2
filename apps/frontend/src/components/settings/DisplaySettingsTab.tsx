@@ -7,6 +7,12 @@ const TEXT_ALIGN_OPTIONS: { value: TextAlign; label: string }[] = [
   { value: 'right', label: 'Do prawej' },
 ];
 
+const BLANK_SCREEN_OPTIONS = [
+  { value: 'black', label: 'Czarny ekran' },
+  { value: 'clock', label: 'Zegar' },
+  { value: 'logo', label: 'Logo (z pliku)' },
+];
+
 const FONT_FAMILY_OPTIONS = [
   'Arial, sans-serif',
   'Georgia, serif',
@@ -159,6 +165,34 @@ export function DisplaySettingsTab({
           >
             Przykładowy tekst
           </div>
+        </div>
+      </div>
+
+      {/* Blank Screen Section */}
+      <div className="space-y-4">
+        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+          Pusty ekran
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormField label="Gdy nic nie wyświetlane" description="Co pokazać zamiast czarnego ekranu">
+            <SelectInput
+              value={settings.display.blankScreen}
+              onChange={(v) => onDisplayChange('blankScreen', v as 'black' | 'clock' | 'logo')}
+              options={BLANK_SCREEN_OPTIONS}
+            />
+          </FormField>
+
+          {settings.display.blankScreen === 'logo' && (
+            <FormField label="Ścieżka do logo" description="Plik z folderu media (np. ogloszenia/logo.png)">
+              <input
+                type="text"
+                value={settings.display.blankLogoPath}
+                onChange={(e) => onDisplayChange('blankLogoPath', e.target.value)}
+                placeholder="ogloszenia/logo.png"
+                className="w-full px-3 py-2 rounded-md bg-muted/40 border border-border text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              />
+            </FormField>
+          )}
         </div>
       </div>
 
