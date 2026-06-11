@@ -1,6 +1,9 @@
+import { useEffect, useRef, useState } from 'react';
 import { FormField, ColorInput, NumberInput, SelectInput } from './SettingsFormFields';
 import { Switch } from '@/components/ui/switch';
+import { SlideRenderer } from '@/components/display/SlideRenderer';
 import type { ProjectorSettings, TextAlign } from '@/types/settings';
+import type { ScreenState } from '@/types/player';
 
 const TEXT_ALIGN_OPTIONS: { value: TextAlign; label: string }[] = [
   { value: 'left', label: 'Do lewej' },
@@ -169,23 +172,10 @@ export function DisplaySettingsTab({
           </FormField>
         </div>
 
-        {/* Preview */}
+        {/* Live preview — ten sam SlideRenderer co na ekranie */}
         <div className="mt-4">
-          <p className="text-xs text-muted-foreground mb-2">Podgląd:</p>
-          <div
-            className="rounded-lg p-6 text-center border"
-            style={{
-              backgroundColor: settings.display.backgroundColor,
-              color: settings.display.textColor,
-              fontFamily: settings.display.fontFamily,
-              fontSize: `${Math.min(settings.display.fontSize / 2, 32)}px`,
-              lineHeight: settings.display.lineHeight,
-              letterSpacing: `${settings.display.letterSpacing}px`,
-              textAlign: settings.display.textAlign,
-            }}
-          >
-            Przykładowy tekst
-          </div>
+          <p className="text-xs text-muted-foreground mb-2">Podgląd na żywo:</p>
+          <LivePreview settings={settings.display} />
         </div>
       </div>
 
@@ -269,3 +259,51 @@ export function DisplaySettingsTab({
 }
 
 
+
+const PREVIEW_STATE: ScreenState = {
+  mode: 'single',
+  visible: true,
+  item: {
+    type: 'text',
+    textRef: 'preview',
+    slideIndex: 0,
+    totalSlides: 1,
+    pageIndex: 0,
+    totalPages: 1,
+    slideContent: 'Przykładowy tekst\nz kilku linii\ndo podglądu ustawień',
+  },
+};
+
+function LivePreview({ settings }: { settings: ProjectorSettings['display'] }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(0.2);
+
+  useEffect(() => {
+    const update = () => {
+      if (ref.current) setScale(ref.current.offsetWidth / 1920);
+    };
+    update();
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
+  }, []);
+
+  return (
+    <div
+      ref={ref}
+      className="w-full max-w-xl rounded-lg overflow-hidden border bg-black"
+      style={{ aspectRatio: '1920/1080' }}
+    >
+      <div
+        style={{
+          width: '1920px',
+          height: '1080px',
+          transform: `scale(${scale})`,
+          transformOrigin: 'top left',
+          backgroundColor: settings.backgroundColor,
+        }}
+      >
+        <SlideRenderer state={PREVIEW_STATE} displaySettings={settings} preview />
+      </div>
+    </div>
+  );
+}
