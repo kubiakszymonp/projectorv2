@@ -10,6 +10,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import type { TextDoc } from '@/types/texts';
 import { cn } from '@/lib/utils';
@@ -186,12 +187,11 @@ function SongCard({ song, onClick }: SongCardProps) {
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <span className="capitalize">{song.meta.domain}</span>
             {song.meta.categories && song.meta.categories.length > 0 && (
-              <>
-                <span>•</span>
-                <span className="truncate">
-                  {song.meta.categories.join(', ')}
-                </span>
-              </>
+              <div className="flex items-center gap-1 flex-wrap">
+                {song.meta.categories.slice(0, 4).map((c) => (
+                  <Badge key={c}>{c}</Badge>
+                ))}
+              </div>
             )}
           </div>
         </div>

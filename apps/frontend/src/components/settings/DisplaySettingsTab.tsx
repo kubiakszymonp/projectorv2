@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { FormField, ColorInput, NumberInput, SelectInput } from './SettingsFormFields';
 import { Switch } from '@/components/ui/switch';
+import { Slider } from '@/components/ui/slider';
 import { SlideRenderer } from '@/components/display/SlideRenderer';
 import type { ProjectorSettings, TextAlign } from '@/types/settings';
 import type { ScreenState } from '@/types/player';
@@ -51,13 +52,19 @@ export function DisplaySettingsTab({
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField label="Rozmiar czcionki" description="Wielkość tekstu w pikselach">
-            <NumberInput
-              value={settings.display.fontSize}
-              onChange={(v) => onDisplayChange('fontSize', v)}
-              min={12}
-              max={200}
-              unit="px"
-            />
+            <div className="flex items-center gap-3">
+              <Slider
+                value={[settings.display.fontSize]}
+                min={12}
+                max={200}
+                step={1}
+                onValueChange={([v]) => onDisplayChange('fontSize', v)}
+                className="flex-1"
+              />
+              <span className="text-sm tabular-nums w-12 text-right text-muted-foreground">
+                {settings.display.fontSize}px
+              </span>
+            </div>
           </FormField>
 
           <FormField label="Czcionka" description="Rodzina czcionek">
