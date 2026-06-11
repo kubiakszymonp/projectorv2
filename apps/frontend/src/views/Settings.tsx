@@ -5,12 +5,11 @@ import {
   Wifi,
   Loader2,
   AlertCircle,
-  ChevronUp,
-  ChevronDown,
   Activity,
 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { AccordionSection } from '@/components/settings/AccordionSection';
 import {
   Dialog,
   DialogContent,
@@ -214,90 +213,48 @@ export function Settings() {
       {/* Main Content */}
       <main className="flex-1 min-w-0 overflow-y-auto overflow-x-hidden">
         <div className="p-4 sm:p-6 max-w-3xl w-full overflow-x-hidden">
-            {/* Display Settings Accordion */}
-            <div className="border-b">
-              <button
-                onClick={() => toggleSection('display')}
-                className="w-full p-3 flex items-center justify-between bg-muted/30 hover:bg-muted/50 transition-colors"
-              >
-                <div className="flex items-center gap-2">
-                  <Monitor className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm font-medium">Wyświetlanie</span>
-                </div>
-                {openSections.has('display') ? (
-                  <ChevronUp className="h-4 w-4 text-muted-foreground" />
-                ) : (
-                  <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                )}
-              </button>
-              {openSections.has('display') && (
-                <div className="p-4 bg-muted/10">
-                  <DisplaySettingsTab
-                    settings={localSettings}
-                    onDisplayChange={handleDisplayChange}
-                    onPaddingChange={handlePaddingChange}
-                  />
-                </div>
-              )}
-            </div>
+          <AccordionSection
+            icon={Monitor}
+            title="Wyświetlanie"
+            open={openSections.has('display')}
+            onToggle={() => toggleSection('display')}
+          >
+            <DisplaySettingsTab
+              settings={localSettings}
+              onDisplayChange={handleDisplayChange}
+              onPaddingChange={handlePaddingChange}
+            />
+          </AccordionSection>
 
-            {/* WiFi Settings Accordion */}
-            <div className="border-b">
-              <button
-                onClick={() => toggleSection('wifi')}
-                className="w-full p-3 flex items-center justify-between bg-muted/30 hover:bg-muted/50 transition-colors"
-              >
-                <div className="flex items-center gap-2">
-                  <Wifi className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm font-medium">WiFi</span>
-                </div>
-                {openSections.has('wifi') ? (
-                  <ChevronUp className="h-4 w-4 text-muted-foreground" />
-                ) : (
-                  <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                )}
-              </button>
-              {openSections.has('wifi') && (
-                <div className="p-4 bg-muted/10">
-                  <WifiSettingsTab
-                    settings={localSettings}
-                    onWifiChange={handleWifiChange}
-                    showQRCodes={showQRCodes}
-                    qrTab={qrTab}
-                    onShowQRCodesChange={setShowQRCodes}
-                    onQrTabChange={setQrTab}
-                    onSetQRCode={(data) => setQRCode.mutate(data)}
-                    onClearScreen={() => clearScreen.mutate()}
-                  />
-                </div>
-              )}
-            </div>
+          <AccordionSection
+            icon={Wifi}
+            title="WiFi"
+            open={openSections.has('wifi')}
+            onToggle={() => toggleSection('wifi')}
+          >
+            <WifiSettingsTab
+              settings={localSettings}
+              onWifiChange={handleWifiChange}
+              showQRCodes={showQRCodes}
+              qrTab={qrTab}
+              onShowQRCodesChange={setShowQRCodes}
+              onQrTabChange={setQrTab}
+              onSetQRCode={(data) => setQRCode.mutate(data)}
+              onClearScreen={() => clearScreen.mutate()}
+            />
+          </AccordionSection>
 
-            {/* System Status Accordion */}
-            <div className="border-b">
-              <button
-                onClick={() => toggleSection('system')}
-                className="w-full p-3 flex items-center justify-between bg-muted/30 hover:bg-muted/50 transition-colors"
-              >
-                <div className="flex items-center gap-2">
-                  <Activity className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm font-medium">System</span>
-                </div>
-                {openSections.has('system') ? (
-                  <ChevronUp className="h-4 w-4 text-muted-foreground" />
-                ) : (
-                  <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                )}
-              </button>
-              {openSections.has('system') && (
-                <div className="p-4 bg-muted/10">
-                  <SystemStatusSection />
-                  <BackupSection />
-                  <SecuritySection />
-                </div>
-              )}
-            </div>
-          </div>
+          <AccordionSection
+            icon={Activity}
+            title="System"
+            open={openSections.has('system')}
+            onToggle={() => toggleSection('system')}
+          >
+            <SystemStatusSection />
+            <BackupSection />
+            <SecuritySection />
+          </AccordionSection>
+        </div>
       </main>
 
       <Dialog open={resetConfirmOpen} onOpenChange={setResetConfirmOpen}>
