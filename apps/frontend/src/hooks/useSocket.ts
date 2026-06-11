@@ -36,14 +36,6 @@ function getSocket(): Socket {
       : window.location.origin;
     const namespace = '/notifications';
 
-    console.debug('[Socket] Creating new socket connection:', {
-      backendUrl,
-      namespace,
-      expectedUrl: `${backendUrl}/socket.io${namespace}`,
-      origin: window.location.origin,
-      href: window.location.href,
-    });
-
     // Socket.IO client automatically handles /socket.io/ prefix
     // Just pass the base URL and namespace
     socketInstance = io(`${backendUrl}${namespace}`, {
@@ -60,10 +52,6 @@ function getSocket(): Socket {
 
     // Connection events
     socketInstance.on('connect', () => {
-      console.debug('[Socket] ✅ Connected successfully!', {
-        id: socketInstance?.id,
-        transport: socketInstance?.io.engine?.transport?.name,
-      });
       setConnected(true);
       // Re-announce our role after every (re)connect
       if (desiredRole) {
@@ -74,37 +62,21 @@ function getSocket(): Socket {
       notifyReconnect();
     });
 
-    socketInstance.on('disconnect', (reason) => {
-      console.debug('[Socket] ❌ Disconnected:', reason);
+    socketInstance.on('disconnect', () => {
       setConnected(false);
     });
 
     socketInstance.on('connect_error', (error) => {
-      console.error('[Socket] ❌ Connection error:', {
-        message: error.message,
-        error: error,
-      });
+      console.error('[Socket] Connection error:', error.message);
       setConnected(false);
     });
 
     socketInstance.on('error', (error) => {
-      console.error('[Socket] ❌ Error:', error);
-    });
-
-    socketInstance.on('reconnect', (attemptNumber) => {
-      console.debug('[Socket] 🔄 Reconnected after', attemptNumber, 'attempts');
-    });
-
-    socketInstance.on('reconnect_attempt', (attemptNumber) => {
-      console.debug('[Socket] 🔄 Reconnection attempt', attemptNumber);
-    });
-
-    socketInstance.on('reconnect_error', (error) => {
-      console.error('[Socket] ❌ Reconnection error:', error);
+      console.error('[Socket] Error:', error);
     });
 
     socketInstance.on('reconnect_failed', () => {
-      console.error('[Socket] ❌ Reconnection failed after all attempts');
+      console.error('[Socket] Reconnection failed');
     });
   }
   return socketInstance;
@@ -128,17 +100,9 @@ export function useSocketEvent(
 
   useEffect(() => {
     const socket = getSocket();
-
-    const handler = () => {
-      console.debug(`[Socket] Received event: ${event}`);
-      callbackRef.current();
-    };
-
-    console.debug(`[Socket] Listening to event: ${event}`);
+    const handler = () => callbackRef.current();
     socket.on(event, handler);
-
     return () => {
-      console.debug(`[Socket] Removing listener for event: ${event}`);
       socket.off(event, handler);
     };
   }, [event]);
