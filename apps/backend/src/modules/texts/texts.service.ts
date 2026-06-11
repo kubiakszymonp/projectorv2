@@ -8,15 +8,12 @@ import { TextUpdater, UpdateTextData } from './text-updater';
 export class TextsService implements OnModuleInit {
   private readonly logger = new Logger(TextsService.name);
   private readonly textsMap: Map<string, TextDoc> = new Map();
-  private readonly loader: TextLoader;
-  private readonly creator: TextCreator;
-  private readonly updater: TextUpdater;
 
-  constructor() {
-    this.loader = new TextLoader();
-    this.creator = new TextCreator(this.loader);
-    this.updater = new TextUpdater(this.loader);
-  }
+  constructor(
+    private readonly loader: TextLoader,
+    private readonly creator: TextCreator,
+    private readonly updater: TextUpdater,
+  ) {}
 
   async onModuleInit(): Promise<void> {
     this.logger.log('Loading texts into memory...');

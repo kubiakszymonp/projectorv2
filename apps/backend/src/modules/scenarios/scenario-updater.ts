@@ -1,3 +1,4 @@
+import { Injectable } from '@nestjs/common';
 import { promises as fs } from 'fs';
 import * as path from 'path';
 import { ScenarioDoc, ScenarioMeta, ScenarioStep } from '../../types/scenarios';
@@ -11,6 +12,7 @@ export interface UpdateScenarioData {
   steps?: ScenarioStep[];
 }
 
+@Injectable()
 export class ScenarioUpdater {
   constructor(private readonly loader: ScenarioLoader) {}
 

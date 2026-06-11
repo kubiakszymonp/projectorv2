@@ -8,15 +8,12 @@ import { ScenarioUpdater, UpdateScenarioData } from './scenario-updater';
 export class ScenariosService implements OnModuleInit {
   private readonly logger = new Logger(ScenariosService.name);
   private readonly scenariosMap: Map<string, ScenarioDoc> = new Map();
-  private readonly loader: ScenarioLoader;
-  private readonly creator: ScenarioCreator;
-  private readonly updater: ScenarioUpdater;
 
-  constructor() {
-    this.loader = new ScenarioLoader();
-    this.creator = new ScenarioCreator(this.loader);
-    this.updater = new ScenarioUpdater(this.loader);
-  }
+  constructor(
+    private readonly loader: ScenarioLoader,
+    private readonly creator: ScenarioCreator,
+    private readonly updater: ScenarioUpdater,
+  ) {}
 
   async onModuleInit(): Promise<void> {
     this.logger.log('Loading scenarios into memory...');

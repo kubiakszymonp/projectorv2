@@ -1,3 +1,4 @@
+import { Injectable } from '@nestjs/common';
 import { promises as fs } from 'fs';
 import { ulid } from 'ulid';
 import slugify from 'slugify';
@@ -12,6 +13,7 @@ export interface CreateScenarioData {
   steps?: ScenarioStep[];
 }
 
+@Injectable()
 export class ScenarioCreator {
   constructor(private readonly loader: ScenarioLoader) {}
 

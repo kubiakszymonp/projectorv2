@@ -1,3 +1,4 @@
+import { Injectable } from '@nestjs/common';
 import { promises as fs } from 'fs';
 import { ulid } from 'ulid';
 import slugify from 'slugify';
@@ -26,6 +27,7 @@ function buildTextFile(meta: TextMeta, content: string): string {
   return `---\n${frontMatter}---\n\n${content}`;
 }
 
+@Injectable()
 export class TextCreator {
   constructor(private readonly loader: TextLoader) {}
 
