@@ -182,8 +182,20 @@ export class FilesService {
       // OK, nie ma konfliktu
     }
 
-    // Zapisz plik
-    await fs.writeFile(finalPath, file.buffer);
+    // Przenieś plik z temp (diskStorage) do docelowej lokalizacji.
+    // Temp leży w tym samym wolumenie data/, więc rename jest atomiczny.
+    try {
+      await fs.rename(file.path, finalPath);
+    } catch (err) {
+      // Fallback gdy temp i cel są na różnych systemach plików
+      if ((err as NodeJS.ErrnoException).code === 'EXDEV') {
+        await fs.copyFile(file.path, finalPath);
+        await fs.unlink(file.path).catch(() => {});
+      } else {
+        await fs.unlink(file.path).catch(() => {});
+        throw err;
+      }
+    }
 
     // Wykryj typ
     const kind = FileTypeDetector.detect(file.mimetype, finalName);

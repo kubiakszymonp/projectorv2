@@ -13,6 +13,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
 import {
   ApiTags,
   ApiOperation,
@@ -38,6 +39,26 @@ import {
   FileUploadResponse,
 } from '../../types';
 import { FileTypeDetector } from './file-type-detector';
+
+// Max upload size (4 GB) — guards against runaway uploads filling the SD card
+const MAX_UPLOAD_BYTES = 4 * 1024 * 1024 * 1024;
+
+/**
+ * Multer storage: write uploads straight to a temp file on disk instead of
+ * buffering the whole file in RAM. Critical on Raspberry Pi (1–4 GB RAM) where
+ * a 1–2 GB video in memory would OOM-kill the process. The file is later moved
+ * into place via fs.rename in FilesService.uploadFile.
+ */
+const uploadStorage = diskStorage({
+  destination: (_req, _file, cb) => {
+    const tmpDir = path.resolve(process.cwd(), '..', '..', 'data', 'tmp');
+    fs.mkdirSync(tmpDir, { recursive: true });
+    cb(null, tmpDir);
+  },
+  filename: (_req, _file, cb) => {
+    cb(null, `upload__${Date.now()}__${Math.random().toString(36).slice(2)}`);
+  },
+});
 
 @ApiTags('Files Explorer')
 @Controller('api/files')
@@ -112,7 +133,12 @@ export class FilesController {
     description: 'Plik został uploadowany',
     type: Object, // FileUploadResponse
   })
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: uploadStorage,
+      limits: { fileSize: MAX_UPLOAD_BYTES },
+    }),
+  )
   async upload(
     @Body('path') relativePath: string = '',
     @UploadedFile() file: Express.Multer.File,
