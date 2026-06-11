@@ -84,10 +84,18 @@ export class ScreenStateService implements OnModuleInit {
   }
 
   /**
-   * Set screen state directly
+   * Show a QR code on screen
    */
-  setState(state: ScreenState): ScreenState {
-    return this.screenStateRepo.set(state);
+  setQRCode(value: string, label?: string): ScreenState {
+    return this.screenStateRepo.set({
+      mode: 'single',
+      visible: true,
+      item: {
+        type: 'qrcode',
+        value,
+        label,
+      },
+    });
   }
 
   /**

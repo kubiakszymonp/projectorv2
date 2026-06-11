@@ -14,8 +14,8 @@ export class PlayerService {
     return this.screenStateService.getState();
   }
 
-  setState(state: ScreenState): ScreenState {
-    return this.screenStateService.setState(state);
+  setQRCode(value: string, label?: string): ScreenState {
+    return this.screenStateService.setQRCode(value, label);
   }
 
   clearScreen(): ScreenState {

@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
 import { PlayerService } from './player.service';
 import type { ScreenState } from '../../types/player';
-import { SetTextDto, SetMediaDto, SetScenarioDto, NavigateDto, SetVisibilityDto } from './dto/player.dto';
+import { SetTextDto, SetMediaDto, SetScenarioDto, NavigateDto, SetVisibilityDto, SetQRCodeDto } from './dto/player.dto';
 
 // ========== CONTROLLER ==========
 
@@ -19,13 +19,13 @@ export class PlayerController {
   }
 
   /**
-   * Ustawia stan ekranu (bezpośrednia aktualizacja)
-   * POST /api/player/state
+   * Wyświetla kod QR
+   * POST /api/player/qrcode
    */
-  @Post('state')
+  @Post('qrcode')
   @HttpCode(HttpStatus.OK)
-  setState(@Body() state: ScreenState): ScreenState {
-    return this.playerService.setState(state);
+  setQRCode(@Body() dto: SetQRCodeDto): ScreenState {
+    return this.playerService.setQRCode(dto.value, dto.label);
   }
 
   /**

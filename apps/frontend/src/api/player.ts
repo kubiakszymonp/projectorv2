@@ -138,23 +138,13 @@ export async function setVisibility(visible: boolean): Promise<ScreenState> {
 }
 
 /**
- * Ustawia kod QR do wyświetlenia (używa bezpośredniej aktualizacji stanu)
+ * Ustawia kod QR do wyświetlenia (dedykowany, walidowany endpoint)
  */
 export async function setQRCode(data: SetQRCodeData): Promise<ScreenState> {
-  const newState: ScreenState = {
-    mode: 'single',
-    visible: true,
-    item: {
-      type: 'qrcode',
-      value: data.value,
-      label: data.label,
-    },
-  };
-  
-  const res = await fetch(`${API_BASE}/state`, {
+  const res = await fetch(`${API_BASE}/qrcode`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(newState),
+    body: JSON.stringify(data),
   });
   if (!res.ok) throw new Error(`Failed to set QR code: ${res.statusText}`);
   return res.json();
