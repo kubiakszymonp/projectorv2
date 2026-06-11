@@ -1,7 +1,14 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
-import { FolderOpen, Music } from 'lucide-react';
+import { FolderOpen, Music, Plus, Type, Square, QrCode, Image as ImageIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { createHeadingStep, createBlankStep } from '@/types/scenarios';
 import {
   useScenarios,
   useScenario,
@@ -218,6 +225,28 @@ export function ScenarioEditor() {
     navigate('/songs');
   }, [navigate]);
 
+  const handleAddHeading = useCallback(() => {
+    const heading = window.prompt('Tekst nagłówka:');
+    if (heading?.trim()) {
+      setEditedSteps((prev) => [...prev, createHeadingStep(heading.trim())]);
+    }
+  }, []);
+
+  const handleAddBlank = useCallback(() => {
+    setEditedSteps((prev) => [...prev, createBlankStep()]);
+  }, []);
+
+  const handleAddQR = useCallback(() => {
+    const value = window.prompt('Wartość kodu QR (URL lub tekst):');
+    if (value?.trim()) {
+      setEditedSteps((prev) => [...prev, { qrcode: value.trim() }]);
+    }
+  }, []);
+
+  const handleAddMedia = useCallback(() => {
+    navigate('/media');
+  }, [navigate]);
+
   const handleProjectToScreen = useCallback(() => {
     if (!selectedScenario) return;
     setScenario.mutate({ scenarioId: selectedScenario.meta.id, stepIndex: 0 });
@@ -382,14 +411,42 @@ export function ScenarioEditor() {
         </div>
 
         <div className="border-t space-y-2 p-3 bg-muted/20">
-          <Button
-            variant="default"
-            className="w-full"
-            onClick={handleGoToSongs}
-          >
-            <Music className="h-4 w-4 mr-2" />
-            Dodaj teksty
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="default"
+              className="flex-1"
+              onClick={handleGoToSongs}
+            >
+              <Music className="h-4 w-4 mr-2" />
+              Dodaj teksty
+            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Dodaj krok
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={handleAddHeading}>
+                  <Type className="h-4 w-4 mr-2" />
+                  Nagłówek
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleAddBlank}>
+                  <Square className="h-4 w-4 mr-2" />
+                  Pusty slajd
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleAddMedia}>
+                  <ImageIcon className="h-4 w-4 mr-2" />
+                  Media…
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleAddQR}>
+                  <QrCode className="h-4 w-4 mr-2" />
+                  Kod QR
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
           <Link
             to={`/files?path=${encodeURIComponent(selectedScenario.filePath)}`}
             className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
