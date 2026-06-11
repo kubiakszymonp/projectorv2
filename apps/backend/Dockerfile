@@ -36,9 +36,9 @@ COPY apps/backend/package.json ./apps/backend/
 COPY apps/frontend/package.json ./apps/frontend/
 
 # Install ONLY backend's production dependencies (smaller image, faster on ARM).
-# A minimal .yarnrc.yml pins the node-modules linker; workspace-tools provides `focus`.
+# A minimal .yarnrc.yml pins the node-modules linker. `workspaces focus` is
+# built into Yarn 4, so no plugin import is needed.
 RUN printf 'nodeLinker: node-modules\n' > .yarnrc.yml \
-  && yarn plugin import workspace-tools \
   && yarn workspaces focus backend --production
 
 # Copy built application from builder
