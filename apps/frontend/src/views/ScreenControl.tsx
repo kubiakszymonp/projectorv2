@@ -399,6 +399,18 @@ function CurrentStateDisplay({ state }: { state: ScreenState }) {
   const itemLabel =
     item.type === 'text' && textDoc ? textDoc.meta.title : getDisplayItemLabel(item);
 
+  // Podgląd następnego slajdu (przybliżony — poziom slajdu, nie strony)
+  let nextPreview: string | null = null;
+  if (item.type === 'text' && textDoc) {
+    if (item.pageIndex < item.totalPages - 1) {
+      nextPreview = '(następna strona tego slajdu)';
+    } else if (item.slideIndex + 1 < textDoc.slides.length) {
+      nextPreview = textDoc.slides[item.slideIndex + 1];
+    } else {
+      nextPreview = '(koniec tekstu)';
+    }
+  }
+
   // Info o aktualnym elemencie
   const itemInfo = (
     <div className="flex items-center justify-between text-sm p-4 border-t bg-muted/30">
@@ -463,6 +475,16 @@ function CurrentStateDisplay({ state }: { state: ScreenState }) {
         </div>
       </div>
       {itemInfo}
+      {nextPreview && (
+        <div className="px-4 py-3 border-t bg-muted/10">
+          <p className="text-xs font-medium text-muted-foreground mb-1">
+            Następny slajd:
+          </p>
+          <p className="text-sm whitespace-pre-line line-clamp-3 text-muted-foreground">
+            {nextPreview}
+          </p>
+        </div>
+      )}
     </div>
   );
 }
