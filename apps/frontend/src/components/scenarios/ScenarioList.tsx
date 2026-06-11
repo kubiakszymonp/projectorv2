@@ -1,6 +1,6 @@
-import { Search, Plus, ListOrdered, Loader2, ChevronRight, RefreshCw, Calendar } from 'lucide-react';
+import { Plus, ListOrdered, Loader2, ChevronRight, RefreshCw, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { SearchInput } from '@/components/ui/search-input';
 import { Card } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useIsMobile } from '@/hooks/useIsMobile';
@@ -46,15 +46,7 @@ export function ScenarioList({
         </div>
 
         {/* Search */}
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Szukaj scenariuszy..."
-            value={search}
-            onChange={(e) => onSearchChange(e.target.value)}
-            className="pl-9"
-          />
-        </div>
+        <SearchInput value={search} onChange={onSearchChange} placeholder="Szukaj scenariuszy..." />
       </div>
 
       {/* Scenario list */}

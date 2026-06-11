@@ -10,6 +10,7 @@ import {
   Trash2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { SearchInput } from '@/components/ui/search-input';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { FileTree } from '@/components/files/FileTree';
 import { FileList } from '@/components/files/FileList';
@@ -72,6 +73,7 @@ export function FilesExplorer({ initialPath = '', title = 'Edytor plików' }: Fi
 
   // State - nawigacja
   const [currentPath, setCurrentPath] = useState(pathFromUrl);
+  const [search, setSearch] = useState('');
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
   const [selectedFile, setSelectedFile] = useState<FileNode | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -292,6 +294,12 @@ export function FilesExplorer({ initialPath = '', title = 'Edytor plików' }: Fi
   // Get step for scenario modal
   const scenarioStep = addToScenarioFile ? createMediaStep(addToScenarioFile) : null;
 
+  // Filtruj listę plików po nazwie (bieżący folder)
+  const fileQuery = search.trim().toLowerCase();
+  const visibleFiles = (fileList?.items ?? []).filter(
+    (f) => !fileQuery || f.name.toLowerCase().includes(fileQuery),
+  );
+
   return (
     <TooltipProvider>
       <div className="app-page flex flex-col bg-background">
@@ -377,23 +385,32 @@ export function FilesExplorer({ initialPath = '', title = 'Edytor plików' }: Fi
           {/* Content */}
           <main className="flex-1 flex flex-col min-w-0">
             {/* Toolbar */}
-            <div className="flex items-center gap-2 px-2 sm:px-4 py-2 border-b overflow-hidden">
-              <div className="flex-1 min-w-0">
-                <Breadcrumb path={currentPath} onNavigate={handleSelectFolder} />
+            <div className="border-b">
+              <div className="flex items-center gap-2 px-2 sm:px-4 py-2 overflow-hidden">
+                <div className="flex-1 min-w-0">
+                  <Breadcrumb path={currentPath} onNavigate={handleSelectFolder} />
+                </div>
+                <Button variant="outline" size="sm" onClick={handleUpload} className="gap-1.5 shrink-0">
+                  <Upload className="h-4 w-4" />
+                  <span className="hidden sm:inline">Upload</span>
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCreateFolderOpen(true)}
+                  className="gap-1.5 shrink-0"
+                >
+                  <FolderPlus className="h-4 w-4" />
+                  <span className="hidden sm:inline">Folder</span>
+                </Button>
               </div>
-              <Button variant="outline" size="sm" onClick={handleUpload} className="gap-1.5 shrink-0">
-                <Upload className="h-4 w-4" />
-                <span className="hidden sm:inline">Upload</span>
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setCreateFolderOpen(true)}
-                className="gap-1.5 shrink-0"
-              >
-                <FolderPlus className="h-4 w-4" />
-                <span className="hidden sm:inline">Folder</span>
-              </Button>
+              <div className="px-2 sm:px-4 pb-2">
+                <SearchInput
+                  value={search}
+                  onChange={setSearch}
+                  placeholder="Szukaj w tym folderze..."
+                />
+              </div>
             </div>
 
             {/* File list */}
@@ -404,7 +421,7 @@ export function FilesExplorer({ initialPath = '', title = 'Edytor plików' }: Fi
                 </div>
               ) : (
                 <FileList
-                  files={fileList?.items ?? []}
+                  files={visibleFiles}
                   selectedPath={selectedFile?.path ?? null}
                   onSelectFile={handleSelectFile}
                   onOpenFile={handleOpenFile}

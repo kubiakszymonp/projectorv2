@@ -13,6 +13,7 @@ import {
   Folder,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { SearchInput } from '@/components/ui/search-input';
 import { AddToScenarioModal } from '@/components/scenarios/AddToScenarioModal';
 import { useFileList, useUploadFile } from '@/hooks/useFiles';
 import { useSetMedia } from '@/hooks/usePlayer';
@@ -181,6 +182,7 @@ function MediaBreadcrumb({
 
 export function MediaExplorer() {
   const [currentPath, setCurrentPath] = useState('media');
+  const [search, setSearch] = useState('');
   const [addToScenarioFile, setAddToScenarioFile] = useState<FileNode | null>(null);
 
   const { data: fileList, isLoading, refetch } = useFileList(currentPath);
@@ -213,11 +215,14 @@ export function MediaExplorer() {
 
   const scenarioStep = addToScenarioFile ? createMediaStep(addToScenarioFile) : null;
 
-  // Sortuj: foldery na górze, potem media
-  const items = [...(fileList?.items ?? [])].sort((a, b) => {
-    if (a.isDir !== b.isDir) return a.isDir ? -1 : 1;
-    return a.name.localeCompare(b.name, 'pl');
-  });
+  // Filtruj po nazwie (bieżący folder), potem sortuj: foldery na górze, potem media
+  const query = search.trim().toLowerCase();
+  const items = [...(fileList?.items ?? [])]
+    .filter((f) => !query || f.name.toLowerCase().includes(query))
+    .sort((a, b) => {
+      if (a.isDir !== b.isDir) return a.isDir ? -1 : 1;
+      return a.name.localeCompare(b.name, 'pl');
+    });
 
   return (
     <div className="app-page flex flex-col bg-background">
@@ -252,8 +257,13 @@ export function MediaExplorer() {
       </header>
 
       {/* Breadcrumb */}
-      <div className="px-3 sm:px-4 py-2 border-b shrink-0">
+      <div className="px-3 sm:px-4 py-2 border-b shrink-0 space-y-2">
         <MediaBreadcrumb path={currentPath} onNavigate={setCurrentPath} />
+        <SearchInput
+          value={search}
+          onChange={setSearch}
+          placeholder="Szukaj w tym folderze..."
+        />
       </div>
 
       {/* Grid */}
@@ -265,11 +275,15 @@ export function MediaExplorer() {
         ) : items.length === 0 ? (
           <div className="flex flex-col items-center justify-center p-12 text-muted-foreground gap-3">
             <ImageIcon className="h-12 w-12 opacity-30" />
-            <p className="text-sm">Brak mediów w tym folderze</p>
-            <Button size="sm" onClick={handleUpload} className="gap-1.5">
-              <Upload className="h-4 w-4" />
-              Dodaj media
-            </Button>
+            <p className="text-sm">
+              {query ? 'Brak mediów pasujących do wyszukiwania' : 'Brak mediów w tym folderze'}
+            </p>
+            {!query && (
+              <Button size="sm" onClick={handleUpload} className="gap-1.5">
+                <Upload className="h-4 w-4" />
+                Dodaj media
+              </Button>
+            )}
           </div>
         ) : (
           <div className="p-3 sm:p-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">

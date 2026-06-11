@@ -1,5 +1,4 @@
 import {
-  Search,
   Plus,
   Music,
   Loader2,
@@ -8,7 +7,7 @@ import {
   Upload,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { SearchInput } from '@/components/ui/search-input';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -77,15 +76,7 @@ export function SongList({
         </div>
 
         {/* Search */}
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Szukaj pieśni..."
-            value={search}
-            onChange={(e) => onSearchChange(e.target.value)}
-            className="pl-9"
-          />
-        </div>
+        <SearchInput value={search} onChange={onSearchChange} placeholder="Szukaj pieśni..." />
 
         {/* Domain tabs */}
         {domains && domains.length > 0 && (
