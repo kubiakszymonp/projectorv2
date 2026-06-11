@@ -1,4 +1,4 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { ScreenState, TextDisplayItem } from '../../../types/player';
 import { ScreenStateRepository } from '../repositories/screen-state.repository';
 import { ScenariosService } from '../../scenarios/scenarios.service';
@@ -134,7 +134,7 @@ export class ScreenStateService implements OnModuleInit {
     const textId = DisplayItemHelper.extractTextIdFromRef(textRef);
     const text = await this.textsService.findById(textId);
     if (!text) {
-      throw new Error(`Text not found: ${textId}`);
+      throw new NotFoundException(`Text not found: ${textId}`);
     }
 
     const maxSlide = text.slides.length - 1;
@@ -181,7 +181,7 @@ export class ScreenStateService implements OnModuleInit {
   async setScenario(scenarioId: string, stepIndex = 0): Promise<ScreenState> {
     const scenario = await this.scenariosService.findById(scenarioId);
     if (!scenario) {
-      throw new Error(`Scenario not found: ${scenarioId}`);
+      throw new NotFoundException(`Scenario not found: ${scenarioId}`);
     }
 
     if (scenario.steps.length === 0) {
