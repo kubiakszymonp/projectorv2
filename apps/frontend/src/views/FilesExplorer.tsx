@@ -7,6 +7,7 @@ import {
   Loader2,
   PanelLeftClose,
   PanelLeft,
+  Trash2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { TooltipProvider, Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
@@ -17,6 +18,7 @@ import { TextEditorModal, FilePreviewModal } from '@/components/files/TextEditor
 import { RenameDialog } from '@/components/files/dialogs/RenameDialog';
 import { CreateFolderDialog } from '@/components/files/dialogs/CreateFolderDialog';
 import { DeleteDialog } from '@/components/files/dialogs/DeleteDialog';
+import { TrashDialog } from '@/components/files/dialogs/TrashDialog';
 import { AddToScenarioModal } from '@/components/scenarios/AddToScenarioModal';
 import {
   useFileList,
@@ -77,6 +79,7 @@ export function FilesExplorer({ initialPath = '', title = 'Edytor plików' }: Fi
   const [renameTarget, setRenameTarget] = useState<FileNode | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<FileNode | null>(null);
   const [createFolderOpen, setCreateFolderOpen] = useState(false);
+  const [trashOpen, setTrashOpen] = useState(false);
 
   // State - add to scenario
   const [addToScenarioFile, setAddToScenarioFile] = useState<FileNode | null>(null);
@@ -307,6 +310,20 @@ export function FilesExplorer({ initialPath = '', title = 'Edytor plików' }: Fi
             <h1 className="text-base sm:text-lg font-semibold truncate">{title}</h1>
           </div>
           <div className="flex items-center gap-2">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setTrashOpen(true)}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Kosz</p>
+              </TooltipContent>
+            </Tooltip>
             <Button
               variant="outline"
               size="sm"
@@ -449,6 +466,13 @@ export function FilesExplorer({ initialPath = '', title = 'Edytor plików' }: Fi
           onClose={() => setDeleteTarget(null)}
           onConfirm={handleDelete}
           isLoading={deleteFile.isPending}
+        />
+
+        {/* Trash */}
+        <TrashDialog
+          open={trashOpen}
+          onClose={() => setTrashOpen(false)}
+          onRestored={() => refetch()}
         />
 
         {/* Add to scenario modal */}

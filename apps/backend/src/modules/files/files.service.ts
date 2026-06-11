@@ -1,4 +1,10 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+  OnModuleInit,
+  Logger,
+} from '@nestjs/common';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { ulid } from 'ulid';
@@ -12,8 +18,23 @@ import {
 import { PathValidator } from './path-validator';
 import { FileTypeDetector } from './file-type-detector';
 
+export interface TrashEntry {
+  /** Nazwa pliku w koszu (identyfikator do restore/delete) */
+  name: string;
+  /** Oryginalna ścieżka względna (do przywrócenia) */
+  originalPath: string;
+  /** Wyświetlana nazwa pliku */
+  displayName: string;
+  deletedAt: string;
+  size: number;
+}
+
+// Pliki w koszu starsze niż tyle dni są automatycznie usuwane
+const TRASH_RETENTION_DAYS = 30;
+
 @Injectable()
-export class FilesService {
+export class FilesService implements OnModuleInit {
+  private readonly logger = new Logger(FilesService.name);
   private readonly pathValidator: PathValidator;
   private readonly trashRoot: string;
 
@@ -24,6 +45,14 @@ export class FilesService {
     const dataRoot = path.resolve(projectRoot, 'data');
     this.pathValidator = new PathValidator(dataRoot);
     this.trashRoot = path.resolve(projectRoot, 'data', 'trash');
+  }
+
+  async onModuleInit(): Promise<void> {
+    // Sprzątanie kosza przy starcie i raz na dobę
+    await this.cleanupOldTrash();
+    setInterval(() => {
+      void this.cleanupOldTrash();
+    }, 24 * 60 * 60 * 1000).unref();
   }
 
   /**
@@ -255,16 +284,133 @@ export class FilesService {
       throw new NotFoundException('File or folder not found');
     }
 
-    // Przygotuj ścieżkę w trash - zachowaj strukturę folderów
+    // Zakoduj oryginalną ścieżkę w nazwie, by można było przywrócić plik.
+    // Format: <timestamp>__<encodeURIComponent(relPath)>
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const fileName = path.basename(fullPath);
-    const trashPath = path.join(this.trashRoot, `${timestamp}__${fileName}`);
+    const relPath = this.pathValidator.getRelativePath(fullPath).replace(/\\/g, '/');
+    const trashName = `${timestamp}__${encodeURIComponent(relPath)}`;
+    const trashPath = path.join(this.trashRoot, trashName);
 
     // Upewnij się że trash folder istnieje
     await fs.mkdir(this.trashRoot, { recursive: true });
 
     // Przenieś do trash
     await fs.rename(fullPath, trashPath);
+  }
+
+  /**
+   * Listuje zawartość kosza (najnowsze pierwsze)
+   */
+  async listTrash(): Promise<TrashEntry[]> {
+    let entries: string[];
+    try {
+      entries = await fs.readdir(this.trashRoot);
+    } catch (err) {
+      if ((err as NodeJS.ErrnoException).code === 'ENOENT') return [];
+      throw err;
+    }
+
+    const result: TrashEntry[] = [];
+    for (const name of entries) {
+      const parsed = this.parseTrashName(name);
+      if (!parsed) continue;
+      let size = 0;
+      try {
+        size = (await fs.stat(path.join(this.trashRoot, name))).size;
+      } catch {
+        continue;
+      }
+      result.push({
+        name,
+        originalPath: parsed.originalPath,
+        displayName: path.basename(parsed.originalPath),
+        deletedAt: parsed.deletedAt,
+        size,
+      });
+    }
+
+    return result.sort((a, b) => b.deletedAt.localeCompare(a.deletedAt));
+  }
+
+  /**
+   * Przywraca plik z kosza do oryginalnej lokalizacji
+   */
+  async restoreFromTrash(trashName: string): Promise<void> {
+    const parsed = this.parseTrashName(trashName);
+    if (!parsed) {
+      throw new NotFoundException('Invalid trash entry');
+    }
+    const trashPath = path.join(this.trashRoot, trashName);
+    try {
+      await fs.access(trashPath);
+    } catch {
+      throw new NotFoundException('Trash entry not found');
+    }
+
+    let target = this.pathValidator.safeJoin(parsed.originalPath);
+    // Konflikt nazw — dodaj sufiks
+    try {
+      await fs.access(target);
+      const ext = path.extname(target);
+      target = `${target.slice(0, target.length - ext.length)}__restored-${Date.now()}${ext}`;
+    } catch {
+      // brak konfliktu
+    }
+
+    await fs.mkdir(path.dirname(target), { recursive: true });
+    await fs.rename(trashPath, target);
+  }
+
+  /**
+   * Usuwa wpisy z kosza starsze niż TRASH_RETENTION_DAYS
+   */
+  async cleanupOldTrash(): Promise<number> {
+    let entries: string[];
+    try {
+      entries = await fs.readdir(this.trashRoot);
+    } catch (err) {
+      if ((err as NodeJS.ErrnoException).code === 'ENOENT') return 0;
+      throw err;
+    }
+
+    const cutoff = Date.now() - TRASH_RETENTION_DAYS * 24 * 60 * 60 * 1000;
+    let removed = 0;
+    for (const name of entries) {
+      const entryPath = path.join(this.trashRoot, name);
+      try {
+        const stat = await fs.stat(entryPath);
+        if (stat.mtime.getTime() < cutoff) {
+          await fs.rm(entryPath, { recursive: true, force: true });
+          removed++;
+        }
+      } catch {
+        // pomiń błędne wpisy
+      }
+    }
+    if (removed > 0) {
+      this.logger.log(`Trash cleanup: removed ${removed} old item(s)`);
+    }
+    return removed;
+  }
+
+  /**
+   * Parsuje nazwę pliku w koszu na timestamp + oryginalną ścieżkę
+   */
+  private parseTrashName(
+    name: string,
+  ): { deletedAt: string; originalPath: string } | null {
+    const idx = name.indexOf('__');
+    if (idx === -1) return null;
+    const timestamp = name.slice(0, idx);
+    const encoded = name.slice(idx + 2);
+    if (!encoded) return null;
+    try {
+      const originalPath = decodeURIComponent(encoded);
+      return { deletedAt: timestamp, originalPath };
+    } catch {
+      // Stary format (sprzed kodowania ścieżek) — pokaż surową nazwę
+      return { deletedAt: timestamp, originalPath: encoded };
+    }
   }
 
   /**

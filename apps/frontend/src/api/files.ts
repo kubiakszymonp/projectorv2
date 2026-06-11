@@ -115,3 +115,32 @@ export async function saveFile(path: string, content: string): Promise<void> {
   if (!res.ok) throw new Error(`Failed to save file: ${res.statusText}`);
 }
 
+export interface TrashEntry {
+  name: string;
+  originalPath: string;
+  displayName: string;
+  deletedAt: string;
+  size: number;
+}
+
+/**
+ * Listuje zawartość kosza
+ */
+export async function listTrash(): Promise<TrashEntry[]> {
+  const res = await fetch(`${API_BASE}/trash`);
+  if (!res.ok) throw new Error(`Failed to list trash: ${res.statusText}`);
+  return res.json();
+}
+
+/**
+ * Przywraca plik z kosza
+ */
+export async function restoreTrash(name: string): Promise<void> {
+  const res = await fetch(`${API_BASE}/trash/restore`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name }),
+  });
+  if (!res.ok) throw new Error(`Failed to restore: ${res.statusText}`);
+}
+

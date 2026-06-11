@@ -226,6 +226,35 @@ export class FilesController {
   }
 
   /**
+   * GET /api/files/trash
+   * Listuje zawartość kosza
+   */
+  @Get('trash')
+  @ApiOperation({ summary: 'Listuje zawartość kosza' })
+  async listTrash() {
+    return this.filesService.listTrash();
+  }
+
+  /**
+   * POST /api/files/trash/restore
+   * Przywraca plik z kosza
+   */
+  @Post('trash/restore')
+  @ApiOperation({ summary: 'Przywraca plik z kosza do oryginalnej lokalizacji' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: { name: { type: 'string' } },
+      required: ['name'],
+    },
+  })
+  async restoreTrash(@Body('name') name: string): Promise<{ success: boolean }> {
+    if (!name) throw new BadRequestException('Missing trash entry name');
+    await this.filesService.restoreFromTrash(name);
+    return { success: true };
+  }
+
+  /**
    * GET /api/files/check?path=<path>
    * Sprawdza czy ścieżka to folder czy plik
    */
