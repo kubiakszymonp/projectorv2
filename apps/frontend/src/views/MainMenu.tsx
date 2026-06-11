@@ -1,5 +1,6 @@
-import { Monitor, Music, ListOrdered, Image, FolderOpen, Settings, ArrowRight, Tv } from 'lucide-react';
+import { Monitor, Music, ListOrdered, Image, FolderOpen, Settings, ArrowRight, Tv, Smartphone } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { QRCodeSVG } from 'qrcode.react';
 import { Card } from '@/components/ui/card';
 
 type MenuItem = {
@@ -71,6 +72,7 @@ const menuItems: MenuItem[] = [
 
 export function MainMenu() {
   const navigate = useNavigate();
+  const panelUrl = typeof window !== 'undefined' ? window.location.origin : '';
 
   const handleCardClick = (path: string) => {
     navigate(path);
@@ -112,6 +114,32 @@ export function MainMenu() {
                     Podgląd tego, co jest wyświetlane na ekranie
                   </p>
                 </div>
+              </div>
+            </div>
+          </Card>
+        </div>
+
+        {/* Connect by phone */}
+        <div className="mb-8 max-w-4xl">
+          <Card className="bg-card">
+            <div className="p-4 sm:p-6 flex items-center gap-4">
+              <div className="flex-shrink-0 bg-white p-2 rounded-md">
+                <QRCodeSVG value={panelUrl} size={96} level="M" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h2 className="text-base sm:text-lg font-semibold mb-1 flex items-center gap-2">
+                  <Smartphone className="w-4 h-4 text-teal-400" />
+                  Połącz telefonem
+                </h2>
+                <p className="text-xs sm:text-sm text-muted-foreground mb-1">
+                  Zeskanuj kod, aby otworzyć panel sterowania na telefonie.
+                </p>
+                <a
+                  href={panelUrl}
+                  className="text-sm font-mono text-teal-400 break-all hover:underline"
+                >
+                  {panelUrl}
+                </a>
               </div>
             </div>
           </Card>
