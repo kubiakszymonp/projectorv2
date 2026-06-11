@@ -37,7 +37,10 @@ import { useScenario } from '@/hooks/useScenarios';
 import { useText } from '@/hooks/useTexts';
 import { useSocketStatus } from '@/hooks/useSocket';
 import { useScreenConnections } from '@/hooks/useScreenConnections';
+import { useSettings } from '@/hooks/useSettings';
 import { QuickSearchDialog } from '@/components/control/QuickSearchDialog';
+import { SlideRenderer } from '@/components/display/SlideRenderer';
+import { DEFAULT_SETTINGS } from '@/types/settings';
 import type { ScreenState, DisplayItem, TextDisplayItem } from '@/types/player';
 import { getStepType, getStepValue } from '@/types/scenarios';
 import { cn } from '@/lib/utils';
@@ -405,6 +408,8 @@ function CurrentStateDisplay({ state }: { state: ScreenState }) {
   const textRef = currentItem?.type === 'text' ? currentItem.textRef : null;
   const textId = textRef ? textRef.split('__').pop() || null : null;
   const { data: textDoc } = useText(textId);
+  const { data: settings } = useSettings();
+  const previewDisplaySettings = settings?.display ?? DEFAULT_SETTINGS.display;
 
   if (state.mode === 'empty') {
     return (
@@ -452,16 +457,14 @@ function CurrentStateDisplay({ state }: { state: ScreenState }) {
     </div>
   );
 
-  // Iframe z rzeczywistym widokiem ekranu - proporcje 1920x1080, skalowany jako mini podgląd
+  // Podgląd przez współdzielony SlideRenderer (1920x1080 skalowany), bez iframe.
   const containerRef = React.useRef<HTMLDivElement>(null);
   const [scale, setScale] = React.useState(1);
 
   React.useEffect(() => {
     const updateScale = () => {
       if (containerRef.current) {
-        const containerWidth = containerRef.current.offsetWidth;
-        const scaleValue = containerWidth / 1920;
-        setScale(scaleValue);
+        setScale(containerRef.current.offsetWidth / 1920);
       }
     };
 
@@ -473,7 +476,7 @@ function CurrentStateDisplay({ state }: { state: ScreenState }) {
   return (
     <div className="w-full">
       <div className="w-full flex items-center justify-center bg-black py-4">
-        <div 
+        <div
           ref={containerRef}
           className="bg-black relative overflow-hidden"
           style={{
@@ -482,19 +485,18 @@ function CurrentStateDisplay({ state }: { state: ScreenState }) {
             aspectRatio: '1920/1080', // Dokładne proporcje 1920x1080
           }}
         >
-          <iframe
-            src="/display"
-            className="border-0"
-            title="Podgląd ekranu"
-            allow="fullscreen"
+          <div
             style={{
               pointerEvents: 'none',
               width: '1920px',
               height: '1080px',
               transform: `scale(${scale})`,
               transformOrigin: 'top left',
+              backgroundColor: previewDisplaySettings.backgroundColor,
             }}
-          />
+          >
+            <SlideRenderer state={state} displaySettings={previewDisplaySettings} preview />
+          </div>
         </div>
       </div>
       {itemInfo}
