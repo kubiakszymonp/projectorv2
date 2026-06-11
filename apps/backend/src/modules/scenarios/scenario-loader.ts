@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Optional } from '@nestjs/common';
 import { promises as fs } from 'fs';
 import * as path from 'path';
 import { ScenarioDoc } from '../../types/scenarios';
@@ -11,7 +11,7 @@ const SCENARIOS_DIR = getDataPath('scenarios');
 export class ScenarioLoader {
   private readonly scenariosDirectory: string;
 
-  constructor(scenariosDirectory?: string) {
+  constructor(@Optional() scenariosDirectory?: string) {
     this.scenariosDirectory = scenariosDirectory || SCENARIOS_DIR;
   }
 

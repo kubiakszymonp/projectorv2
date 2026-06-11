@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Optional } from '@nestjs/common';
 import { promises as fs } from 'fs';
 import * as path from 'path';
 import { TextDoc } from '../../types';
@@ -11,7 +11,7 @@ const TEXTS_DIR = getDataPath('texts');
 export class TextLoader {
   private readonly textsDirectory: string;
 
-  constructor(textsDirectory?: string) {
+  constructor(@Optional() textsDirectory?: string) {
     this.textsDirectory = textsDirectory || TEXTS_DIR;
   }
 
