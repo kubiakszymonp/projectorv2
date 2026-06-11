@@ -46,10 +46,49 @@ export function ScreenDisplay() {
     return () => window.removeEventListener('keydown', handler);
   }, []);
 
+  // Wake Lock — nie pozwól przeglądarce wygasić ekranu podczas mszy
+  useEffect(() => {
+    let lock: WakeLockSentinel | null = null;
+    const request = async () => {
+      try {
+        const wl = (navigator as Navigator & {
+          wakeLock?: { request: (t: 'screen') => Promise<WakeLockSentinel> };
+        }).wakeLock;
+        if (wl) lock = await wl.request('screen');
+      } catch {
+        /* brak wsparcia / odmowa — ignoruj */
+      }
+    };
+    void request();
+    // Po powrocie karty do widoczności odzyskaj blokadę
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') void request();
+    };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => {
+      document.removeEventListener('visibilitychange', onVisible);
+      void lock?.release().catch(() => {});
+    };
+  }, []);
+
+  // Opcjonalny fullscreen: ?fullscreen w URL lub kliknięcie ekranu
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).has('fullscreen')) {
+      void document.documentElement.requestFullscreen?.().catch(() => {});
+    }
+  }, []);
+
+  const handleClick = () => {
+    if (!document.fullscreenElement) {
+      void document.documentElement.requestFullscreen?.().catch(() => {});
+    }
+  };
+
   return (
     <div
-      className="h-screen w-screen overflow-hidden"
+      className="h-screen w-screen overflow-hidden cursor-none"
       style={{ backgroundColor: displaySettings.backgroundColor }}
+      onClick={handleClick}
     >
       <SlideRenderer state={state} displaySettings={displaySettings} />
     </div>
