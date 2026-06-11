@@ -8,6 +8,7 @@ import {
   Param,
   Query,
   NotFoundException,
+  BadRequestException,
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
@@ -166,6 +167,41 @@ export class TextsController {
   })
   async create(@Body() createTextDto: CreateTextDto): Promise<TextDoc> {
     return this.textsService.create(createTextDto);
+  }
+
+  @Post('import')
+  @ApiOperation({
+    summary: 'Bulk import texts',
+    description: 'Create multiple texts at once. Title is taken from each item or the first non-empty line.',
+  })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        domain: { type: 'string', example: 'songs' },
+        items: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              title: { type: 'string' },
+              content: { type: 'string' },
+            },
+          },
+        },
+      },
+      required: ['domain', 'items'],
+    },
+  })
+  async importBulk(
+    @Body() body: { domain?: string; items?: { title?: string; content: string }[] },
+  ): Promise<{ created: number }> {
+    const domain = body.domain?.trim();
+    if (!domain) {
+      throw new BadRequestException('Missing domain');
+    }
+    const items = Array.isArray(body.items) ? body.items : [];
+    return this.textsService.importBulk(domain, items);
   }
 
   @Post(':id/duplicate')

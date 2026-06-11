@@ -68,6 +68,32 @@ export class TextsService implements OnModuleInit {
     return text;
   }
 
+  /**
+   * Hurtowy import tekstów. Dla każdego elementu tytuł brany jest z pola title,
+   * a w razie braku — z pierwszej niepustej linii treści.
+   */
+  async importBulk(
+    domain: string,
+    items: { title?: string; content: string }[],
+  ): Promise<{ created: number }> {
+    let created = 0;
+    for (const item of items) {
+      const content = (item.content ?? '').trim();
+      if (!content) continue;
+
+      let title = item.title?.trim();
+      if (!title) {
+        const firstLine = content.split('\n').find((l) => l.trim().length > 0);
+        title = (firstLine ?? 'Bez tytułu').trim().slice(0, 120);
+      }
+
+      await this.create({ domain, title, content });
+      created += 1;
+    }
+    this.logger.log(`Bulk import: created ${created} text(s) in ${domain}`);
+    return { created };
+  }
+
   async duplicate(id: string): Promise<TextDoc | null> {
     const source = await this.findById(id);
     if (!source) return null;

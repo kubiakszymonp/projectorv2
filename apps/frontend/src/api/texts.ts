@@ -107,6 +107,22 @@ export async function deleteText(id: string): Promise<void> {
 }
 
 /**
+ * Hurtowy import tekstów
+ */
+export async function importTexts(
+  domain: string,
+  items: { title?: string; content: string }[],
+): Promise<{ created: number }> {
+  const res = await fetch(`${API_BASE}/import`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ domain, items }),
+  });
+  if (!res.ok) throw new Error(`Failed to import texts: ${res.statusText}`);
+  return res.json();
+}
+
+/**
  * Duplikuje tekst (pieśń)
  */
 export async function duplicateText(id: string): Promise<TextDoc> {

@@ -5,6 +5,7 @@ import {
   Loader2,
   ChevronRight,
   RefreshCw,
+  Upload,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -23,6 +24,8 @@ interface SongListProps {
   isLoading: boolean;
   onSelectSong: (song: TextDoc) => void;
   onCreateNew: () => void;
+  onImport?: () => void;
+  isImporting?: boolean;
   onReload?: () => void;
   isReloading?: boolean;
 }
@@ -37,6 +40,8 @@ export function SongList({
   isLoading,
   onSelectSong,
   onCreateNew,
+  onImport,
+  isImporting,
   onReload,
   isReloading,
 }: SongListProps) {
@@ -51,6 +56,16 @@ export function SongList({
               <Button variant="outline" onClick={onReload} disabled={isReloading}>
                 <RefreshCw className={`h-4 w-4 mr-2 ${isReloading ? 'animate-spin' : ''}`} />
                 Odśwież
+              </Button>
+            )}
+            {onImport && (
+              <Button variant="outline" onClick={onImport} disabled={isImporting}>
+                {isImporting ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <Upload className="h-4 w-4 mr-2" />
+                )}
+                Importuj
               </Button>
             )}
             <Button onClick={onCreateNew}>

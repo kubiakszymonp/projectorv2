@@ -120,6 +120,21 @@ export function useDeleteText() {
 }
 
 /**
+ * Hook do hurtowego importu tekstów
+ */
+export function useImportTexts() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ domain, items }: { domain: string; items: { title?: string; content: string }[] }) =>
+      textsApi.importTexts(domain, items),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: textKeys.all });
+    },
+  });
+}
+
+/**
  * Hook do duplikowania tekstu (pieśni)
  */
 export function useDuplicateText() {

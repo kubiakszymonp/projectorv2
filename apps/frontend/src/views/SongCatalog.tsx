@@ -1,6 +1,6 @@
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useSongEditor } from '@/hooks/useSongEditor';
-import { useReloadTexts } from '@/hooks/useTexts';
+import { useReloadTexts, useImportTexts } from '@/hooks/useTexts';
 import { SongList, SongEditor, CreateSongDialog } from '@/components/songs';
 import { AddToScenarioModal } from '@/components/scenarios/AddToScenarioModal';
 import { createTextReference } from '@/utils/textReference';
@@ -9,6 +9,30 @@ export function SongCatalog() {
   const isMobile = useIsMobile();
   const editor = useSongEditor();
   const reloadTexts = useReloadTexts();
+  const importTexts = useImportTexts();
+
+  const handleImport = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.txt,text/plain';
+    input.multiple = true;
+    input.onchange = async () => {
+      const files = Array.from(input.files ?? []);
+      if (files.length === 0) return;
+      const items = await Promise.all(
+        files.map(async (file) => ({
+          // tytuł z nazwy pliku (bez rozszerzenia) jako podpowiedź; backend
+          // i tak weźmie pierwszą linię, jeśli zostawimy pusty
+          title: file.name.replace(/\.[^.]+$/, ''),
+          content: await file.text(),
+        })),
+      );
+      const domain = editor.selectedDomain ?? 'songs';
+      const { created } = await importTexts.mutateAsync({ domain, items });
+      window.alert(`Zaimportowano ${created} pieśni do „${domain}".`);
+    };
+    input.click();
+  };
 
   return (
     <div className="h-screen flex flex-col bg-background">
@@ -23,6 +47,8 @@ export function SongCatalog() {
           isLoading={editor.isLoadingSongs}
           onSelectSong={editor.handleSelectSong}
           onCreateNew={() => editor.setIsCreateDialogOpen(true)}
+          onImport={handleImport}
+          isImporting={importTexts.isPending}
           onReload={() => reloadTexts.mutate()}
           isReloading={reloadTexts.isPending}
         />
