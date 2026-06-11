@@ -8,15 +8,16 @@ import {
 import { Server, Socket } from 'socket.io';
 import { Logger } from '@nestjs/common';
 
+// Prod serves the socket same-origin via nginx → no CORS needed.
+// Dev (Vite on a different port) needs permissive CORS.
+const isProd = process.env.NODE_ENV === 'production';
+
 /**
  * WebSocket Gateway for real-time notifications
  * Emits events when settings or screen state changes
  */
 @WebSocketGateway({
-  cors: {
-    origin: '*', // W produkcji ustaw na konkretne domeny
-    methods: ['GET', 'POST'],
-  },
+  cors: isProd ? false : { origin: true, methods: ['GET', 'POST'] },
   namespace: '/notifications',
   transports: ['websocket', 'polling'],
 })

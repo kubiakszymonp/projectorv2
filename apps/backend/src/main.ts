@@ -5,11 +5,11 @@ import { IoAdapter } from '@nestjs/platform-socket.io';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
+  // In production everything is served same-origin through nginx, so CORS is
+  // unnecessary. Only enable it in development (Vite on a different port).
+  const isProd = process.env.NODE_ENV === 'production';
   const app = await NestFactory.create(AppModule, {
-    cors: {
-      origin: true, // Allow all origins in development
-      credentials: true,
-    },
+    cors: isProd ? false : { origin: true, credentials: true },
   });
   
   // Enable WebSocket support with Socket.IO
