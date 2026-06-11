@@ -3,8 +3,6 @@ import { PageHeader } from '@/components/ui/page-header';
 import type { Action } from '@/components/ui/action-bar';
 import { SearchInput } from '@/components/ui/search-input';
 import { Card } from '@/components/ui/card';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { useIsMobile } from '@/hooks/useIsMobile';
 import type { ScenarioDoc } from '@/types/scenarios';
 
 type ScenarioListProps = {
@@ -28,8 +26,6 @@ export function ScenarioList({
   onReload,
   isReloading,
 }: ScenarioListProps) {
-  const isMobile = useIsMobile();
-
   const actions: Action[] = [
     {
       key: 'refresh',
@@ -63,7 +59,7 @@ export function ScenarioList({
       </div>
 
       {/* Scenario list */}
-      <ScrollArea className="flex-1">
+      <div className="flex-1 overflow-y-auto">
         <div className="p-3 sm:p-4 space-y-2">
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
@@ -92,15 +88,11 @@ export function ScenarioList({
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3 className="font-semibold truncate" title={scenario.meta.title}>
-                      {isMobile && scenario.meta.title.length > 50
-                        ? `${scenario.meta.title.substring(0, 50)}...`
-                        : scenario.meta.title}
+                      {scenario.meta.title}
                     </h3>
                     {scenario.meta.description && (
                       <p className="text-sm text-muted-foreground truncate" title={scenario.meta.description}>
-                        {isMobile && scenario.meta.description.length > 50
-                          ? `${scenario.meta.description.substring(0, 50)}...`
-                          : scenario.meta.description}
+                        {scenario.meta.description}
                       </p>
                     )}
                   </div>
@@ -121,7 +113,7 @@ export function ScenarioList({
             ))
           )}
         </div>
-      </ScrollArea>
+      </div>
     </div>
   );
 }

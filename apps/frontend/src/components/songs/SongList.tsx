@@ -11,7 +11,6 @@ import type { Action } from '@/components/ui/action-bar';
 import { SearchInput } from '@/components/ui/search-input';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import type { TextDoc } from '@/types/texts';
 import { cn } from '@/lib/utils';
 
@@ -99,7 +98,7 @@ export function SongList({
       </div>
 
       {/* Song list */}
-      <ScrollArea className="flex-1">
+      <div className="flex-1 overflow-y-auto">
         <div className="p-3 sm:p-4 space-y-2">
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
@@ -125,7 +124,7 @@ export function SongList({
             ))
           )}
         </div>
-      </ScrollArea>
+      </div>
     </div>
   );
 }
