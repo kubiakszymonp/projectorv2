@@ -33,25 +33,27 @@ export class NotificationsGateway
     this.logger.log('NotificationsGateway initialized');
   }
 
-  afterInit(server: Server) {
+  afterInit() {
     this.logger.log('Socket.IO server initialized on namespace /notifications');
-    this.logger.log(`Server ready: ${server ? 'yes' : 'no'}`);
   }
 
+  // Per-connection/emit logs are debug-only to spare the SD card from
+  // constant writes (each connect + every emit otherwise hits the log).
   handleConnection(client: Socket) {
-    this.logger.log(`Client connected: ${client.id}`);
-    this.logger.log(`Transport: ${client.conn.transport.name}`);
+    this.logger.debug(
+      `Client connected: ${client.id} (${client.conn.transport.name})`,
+    );
   }
 
   handleDisconnect(client: Socket) {
-    this.logger.log(`Client disconnected: ${client.id}`);
+    this.logger.debug(`Client disconnected: ${client.id}`);
   }
 
   /**
    * Emit event when settings are updated
    */
   notifySettingsChanged() {
-    this.logger.log('Emitting settings:changed event');
+    this.logger.debug('Emitting settings:changed event');
     this.server.emit('settings:changed');
   }
 
@@ -59,7 +61,7 @@ export class NotificationsGateway
    * Emit event when screen state is updated
    */
   notifyScreenStateChanged() {
-    this.logger.log('Emitting screen:changed event');
+    this.logger.debug('Emitting screen:changed event');
     this.server.emit('screen:changed');
   }
 }
