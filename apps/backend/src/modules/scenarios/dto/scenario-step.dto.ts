@@ -59,5 +59,14 @@ export class ScenarioStepDto {
   @IsBoolean()
   @ValidateIf((o) => o.blank !== undefined)
   blank?: true;
+
+  @ApiProperty({
+    description: 'QR code value (URL or text)',
+    example: 'https://parafia.example/intencje',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  qrcode?: string;
 }
 

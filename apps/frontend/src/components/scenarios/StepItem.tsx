@@ -7,6 +7,7 @@ import {
   Music2,
   Type,
   Square,
+  QrCode,
   MoreVertical,
   Trash2,
 } from 'lucide-react';
@@ -72,6 +73,8 @@ export function StepItem({
         return <Type className="h-4 w-4" />;
       case 'blank':
         return <Square className="h-4 w-4" />;
+      case 'qrcode':
+        return <QrCode className="h-4 w-4" />;
     }
   };
 
@@ -95,6 +98,8 @@ export function StepItem({
         return stepValue as string;
       case 'blank':
         return 'Pusty slajd';
+      case 'qrcode':
+        return stepValue as string;
     }
   };
 
@@ -112,6 +117,8 @@ export function StepItem({
         return 'text-blue-400 bg-blue-500/10';
       case 'blank':
         return 'text-gray-400 bg-gray-500/10';
+      case 'qrcode':
+        return 'text-cyan-400 bg-cyan-500/10';
     }
   };
 

@@ -5,7 +5,7 @@ export type ScenarioId = string;
 /**
  * Typ kroku w scenariuszu
  */
-export type ScenarioStepType = 'text' | 'image' | 'video' | 'audio' | 'heading' | 'blank';
+export type ScenarioStepType = 'text' | 'image' | 'video' | 'audio' | 'heading' | 'blank' | 'qrcode';
 
 /**
  * Krok scenariusza - union type dla różnych typów kroków
@@ -16,7 +16,8 @@ export type ScenarioStep =
   | { video: string }
   | { audio: string }
   | { heading: string }
-  | { blank: true };
+  | { blank: true }
+  | { qrcode: string };
 
 /**
  * Metadane scenariusza
@@ -47,6 +48,7 @@ export function getStepType(step: ScenarioStep): ScenarioStepType {
   if ('video' in step) return 'video';
   if ('audio' in step) return 'audio';
   if ('heading' in step) return 'heading';
+  if ('qrcode' in step) return 'qrcode';
   return 'blank';
 }
 
@@ -59,6 +61,7 @@ export function getStepValue(step: ScenarioStep): string | true {
   if ('video' in step) return step.video;
   if ('audio' in step) return step.audio;
   if ('heading' in step) return step.heading;
+  if ('qrcode' in step) return step.qrcode;
   return true;
 }
 

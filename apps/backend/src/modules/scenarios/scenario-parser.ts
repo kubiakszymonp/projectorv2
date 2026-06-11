@@ -8,7 +8,7 @@ export class ScenarioParseError extends Error {
   }
 }
 
-const VALID_STEP_KEYS = ['text', 'image', 'video', 'audio', 'heading', 'blank'] as const;
+const VALID_STEP_KEYS = ['text', 'image', 'video', 'audio', 'heading', 'blank', 'qrcode'] as const;
 
 function isValidStepKey(key: string): key is typeof VALID_STEP_KEYS[number] {
   return VALID_STEP_KEYS.includes(key as typeof VALID_STEP_KEYS[number]);

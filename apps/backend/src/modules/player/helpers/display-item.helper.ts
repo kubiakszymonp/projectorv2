@@ -82,6 +82,11 @@ export class DisplayItemHelper {
           type: 'heading',
           content: stepValue as string,
         };
+      case 'qrcode':
+        return {
+          type: 'qrcode',
+          value: stepValue as string,
+        };
       case 'blank':
       default:
         return {
