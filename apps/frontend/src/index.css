@@ -63,3 +63,9 @@ body {
 .slide-fade {
   animation: slideFade 180ms ease-in;
 }
+
+/* Accessibility: clearer keyboard focus across interactive elements */
+:where(button, a, [role='button'], input, select, textarea):focus-visible {
+  outline: 2px solid var(--color-ring);
+  outline-offset: 2px;
+}

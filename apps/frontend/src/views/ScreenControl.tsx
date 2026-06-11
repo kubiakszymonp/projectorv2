@@ -248,6 +248,7 @@ export function ScreenControl() {
             size="icon"
             onClick={() => setQuickSearchOpen(true)}
             title="Szybkie wyszukiwanie pieśni (Ctrl+K)"
+            aria-label="Szybkie wyszukiwanie pieśni"
           >
             <Search className="h-4 w-4" />
           </Button>
@@ -259,6 +260,7 @@ export function ScreenControl() {
             disabled={!hasContent || clearScreen.isPending}
             className="text-muted-foreground hover:text-destructive"
             title="Wyczyść ekran"
+            aria-label="Wyczyść ekran"
           >
             <Trash2 className="h-4 w-4" />
           </Button>
@@ -530,6 +532,7 @@ function ControlsSection({
             className="h-14 w-14"
             onClick={onPrevSlide}
             disabled={isNavigating || !isTextItem || isFirstPageOfFirstSlide}
+            aria-label="Poprzednia strona/slajd"
           >
             <ChevronLeft className="h-6 w-6" />
           </Button>
@@ -563,6 +566,7 @@ function ControlsSection({
             className="h-14 w-14"
             onClick={onNextSlide}
             disabled={isNavigating || !isTextItem || isLastPageOfLastSlide}
+            aria-label="Następna strona/slajd"
           >
             <ChevronRight className="h-6 w-6" />
           </Button>
