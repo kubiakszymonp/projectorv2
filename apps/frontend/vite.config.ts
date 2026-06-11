@@ -37,24 +37,20 @@ export default defineConfig({
         ]
       },
       workbox: {
-        // No caching - all requests go to network
         skipWaiting: true,
         clientsClaim: true,
-        // Don't precache anything
-        globPatterns: [],
-        // Minimal runtime caching config to satisfy workbox requirements
-        // But we use network-first strategy so nothing is cached
+        // Precache the built app shell so the UI boots even if the LAN/server
+        // hiccups. API and socket traffic always go to the network (live data).
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        navigateFallback: '/index.html',
+        navigateFallbackDenylist: [/^\/api/, /^\/notifications/, /^\/socket\.io/],
         runtimeCaching: [
           {
-            urlPattern: /^https?:\/\/.*/,
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'network-cache',
-              networkTimeoutSeconds: 0,
-              cacheableResponse: {
-                statuses: [],
-              },
-            },
+            urlPattern: ({ url }) =>
+              url.pathname.startsWith('/api') ||
+              url.pathname.startsWith('/notifications') ||
+              url.pathname.startsWith('/socket.io'),
+            handler: 'NetworkOnly',
           },
         ],
       },
