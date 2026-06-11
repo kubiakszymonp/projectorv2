@@ -75,11 +75,24 @@ function validateScenarioMeta(data: unknown): ScenarioMeta {
     throw new ScenarioParseError('Invalid description (must be string)');
   }
 
+  let date: string | undefined;
+  if (doc.date !== undefined && doc.date !== null && doc.date !== '') {
+    // js-yaml może sparsować datę jako Date — znormalizuj do YYYY-MM-DD
+    if (doc.date instanceof Date) {
+      date = doc.date.toISOString().slice(0, 10);
+    } else if (typeof doc.date === 'string') {
+      date = doc.date.slice(0, 10);
+    } else {
+      throw new ScenarioParseError('Invalid date (must be string YYYY-MM-DD)');
+    }
+  }
+
   return {
     schemaVersion: 'scenario-1',
     id: doc.id,
     title: doc.title,
     description,
+    ...(date ? { date } : {}),
   };
 }
 
@@ -123,6 +136,7 @@ export function buildScenarioFile(meta: ScenarioMeta, steps: ScenarioStep[]): st
     id: meta.id,
     title: meta.title,
     description: meta.description,
+    ...(meta.date ? { date: meta.date } : {}),
     steps,
   };
 

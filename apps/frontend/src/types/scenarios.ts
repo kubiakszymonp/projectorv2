@@ -26,6 +26,7 @@ export type ScenarioMeta = {
   id: string;
   title: string;
   description: string;
+  date?: string; // data liturgii (YYYY-MM-DD), opcjonalna
 };
 
 /**

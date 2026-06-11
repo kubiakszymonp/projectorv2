@@ -7,12 +7,14 @@ const API_BASE = '/api/scenarios';
 export type CreateScenarioData = {
   title: string;
   description?: string;
+  date?: string;
   steps?: ScenarioStep[];
 };
 
 export type UpdateScenarioData = {
   title?: string;
   description?: string;
+  date?: string;
   steps?: ScenarioStep[];
 };
 

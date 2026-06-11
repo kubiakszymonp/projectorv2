@@ -22,6 +22,15 @@ export class CreateScenarioDto {
   description?: string;
 
   @ApiProperty({
+    description: 'Data liturgii (YYYY-MM-DD)',
+    example: '2026-06-14',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  date?: string;
+
+  @ApiProperty({
     description: 'Scenario steps (playlist items)',
     type: [ScenarioStepDto],
     required: false,

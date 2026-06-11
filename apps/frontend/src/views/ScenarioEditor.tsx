@@ -34,6 +34,7 @@ export function ScenarioEditor() {
   const [editedSteps, setEditedSteps] = useState<ScenarioStep[]>([]);
   const [editedTitle, setEditedTitle] = useState('');
   const [editedDescription, setEditedDescription] = useState('');
+  const [editedDate, setEditedDate] = useState('');
   const [selectedStepIndex, setSelectedStepIndex] = useState<number | null>(null);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -63,8 +64,21 @@ export function ScenarioEditor() {
   // Computed
   const filteredScenarios = useMemo(() => {
     if (!scenarios) return [];
-    // Kopia — .sort() mutuje, a `scenarios` to tablica z cache React Query
-    return [...scenarios].sort((a, b) => b.meta.id.localeCompare(a.meta.id)); // Newest first
+    // Upcoming/today (date >= dziś) rosnąco na górze, potem bez daty (najnowsze),
+    // a stare (archiwalne) spadają na dół malejąco.
+    const today = new Date().toISOString().slice(0, 10);
+    const rank = (s: ScenarioDoc) => {
+      if (!s.meta.date) return 1; // bez daty — środek
+      return s.meta.date >= today ? 0 : 2; // nadchodzące / archiwalne
+    };
+    return [...scenarios].sort((a, b) => {
+      const ra = rank(a);
+      const rb = rank(b);
+      if (ra !== rb) return ra - rb;
+      if (ra === 0) return (a.meta.date ?? '').localeCompare(b.meta.date ?? ''); // nadchodzące rosnąco
+      if (ra === 2) return (b.meta.date ?? '').localeCompare(a.meta.date ?? ''); // archiwalne malejąco
+      return b.meta.id.localeCompare(a.meta.id); // bez daty: najnowsze
+    });
   }, [scenarios]);
 
   const hasChanges = useMemo(() => {
@@ -72,17 +86,19 @@ export function ScenarioEditor() {
     return (
       editedTitle !== selectedScenario.meta.title ||
       editedDescription !== (selectedScenario.meta.description || '') ||
+      editedDate !== (selectedScenario.meta.date || '') ||
       JSON.stringify(editedSteps) !== JSON.stringify(selectedScenario.steps)
     );
-  }, [selectedScenario, editedTitle, editedDescription, editedSteps]);
+  }, [selectedScenario, editedTitle, editedDescription, editedDate, editedSteps]);
 
   const hasMetaChanges = useMemo(() => {
     if (!selectedScenario) return false;
     return (
       editedTitle !== selectedScenario.meta.title ||
-      editedDescription !== (selectedScenario.meta.description || '')
+      editedDescription !== (selectedScenario.meta.description || '') ||
+      editedDate !== (selectedScenario.meta.date || '')
     );
-  }, [selectedScenario, editedTitle, editedDescription]);
+  }, [selectedScenario, editedTitle, editedDescription, editedDate]);
 
   // Check if current scenario is being projected
   const isCurrentlyProjecting = useMemo(() => {
@@ -100,6 +116,7 @@ export function ScenarioEditor() {
       setEditedSteps([...scenarioFromUrl.steps]);
       setEditedTitle(scenarioFromUrl.meta.title);
       setEditedDescription(scenarioFromUrl.meta.description || '');
+      setEditedDate(scenarioFromUrl.meta.date || '');
       setViewMode('edit');
       setSelectedStepIndex(null);
     } else if (scenarioIdFromUrl === null && selectedScenario) {
@@ -109,6 +126,7 @@ export function ScenarioEditor() {
       setEditedSteps([]);
       setEditedTitle('');
       setEditedDescription('');
+      setEditedDate('');
       setSelectedStepIndex(null);
     }
   }, [scenarioIdFromUrl, scenarioFromUrl, selectedScenario]);
@@ -119,6 +137,7 @@ export function ScenarioEditor() {
     setEditedSteps([...scenario.steps]);
     setEditedTitle(scenario.meta.title);
     setEditedDescription(scenario.meta.description || '');
+    setEditedDate(scenario.meta.date || '');
     setViewMode('edit');
     setSelectedStepIndex(null);
     // Update URL
@@ -131,6 +150,7 @@ export function ScenarioEditor() {
     setEditedSteps([]);
     setEditedTitle('');
     setEditedDescription('');
+    setEditedDate('');
     setSelectedStepIndex(null);
     // Clear URL
     setSearchParams({}, { replace: true });
@@ -144,12 +164,13 @@ export function ScenarioEditor() {
       data: {
         title: editedTitle,
         description: editedDescription || undefined,
+        date: editedDate || '',
         steps: editedSteps,
       },
     });
 
     setSelectedScenario(updated);
-  }, [selectedScenario, editedTitle, editedDescription, editedSteps, updateScenario]);
+  }, [selectedScenario, editedTitle, editedDescription, editedDate, editedSteps, updateScenario]);
 
   const handleCreateScenario = useCallback(async () => {
     if (!newScenarioTitle.trim()) return;
@@ -252,8 +273,10 @@ export function ScenarioEditor() {
             scenario={selectedScenario}
             title={editedTitle}
             description={editedDescription}
+            date={editedDate}
             onTitleChange={setEditedTitle}
             onDescriptionChange={setEditedDescription}
+            onDateChange={setEditedDate}
             hasChanges={hasMetaChanges}
             isMobile={true}
             isOpen={isMetadataOpen}
@@ -335,8 +358,10 @@ export function ScenarioEditor() {
             scenario={selectedScenario}
             title={editedTitle}
             description={editedDescription}
+            date={editedDate}
             onTitleChange={setEditedTitle}
             onDescriptionChange={setEditedDescription}
+            onDateChange={setEditedDate}
             hasChanges={hasMetaChanges}
             isMobile={false}
           />

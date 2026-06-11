@@ -8,6 +8,7 @@ import { buildScenarioFile } from './scenario-parser';
 export interface CreateScenarioData {
   title: string;
   description?: string;
+  date?: string;
   steps?: ScenarioStep[];
 }
 
@@ -27,6 +28,7 @@ export class ScenarioCreator {
       id,
       title: data.title,
       description: data.description || '',
+      ...(data.date ? { date: data.date } : {}),
     };
 
     const steps = data.steps || [];

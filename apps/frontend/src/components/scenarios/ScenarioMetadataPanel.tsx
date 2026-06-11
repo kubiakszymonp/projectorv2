@@ -9,8 +9,10 @@ type ScenarioMetadataPanelProps = {
   scenario: ScenarioDoc;
   title: string;
   description: string;
+  date: string;
   onTitleChange: (value: string) => void;
   onDescriptionChange: (value: string) => void;
+  onDateChange: (value: string) => void;
   hasChanges: boolean;
   isMobile?: boolean;
   isOpen?: boolean;
@@ -21,8 +23,10 @@ export function ScenarioMetadataPanel({
   scenario,
   title,
   description,
+  date,
   onTitleChange,
   onDescriptionChange,
+  onDateChange,
   hasChanges,
   isMobile = false,
   isOpen = true,
@@ -36,6 +40,14 @@ export function ScenarioMetadataPanel({
           value={title}
           onChange={(e) => onTitleChange(e.target.value)}
           placeholder="Tytuł scenariusza"
+        />
+      </div>
+      <div className="space-y-2">
+        <label className="text-sm font-medium">Data liturgii</label>
+        <Input
+          type="date"
+          value={date}
+          onChange={(e) => onDateChange(e.target.value)}
         />
       </div>
       <div className="space-y-2">

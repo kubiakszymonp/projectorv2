@@ -1,4 +1,4 @@
-import { Search, Plus, ListOrdered, Loader2, ChevronRight, RefreshCw } from 'lucide-react';
+import { Search, Plus, ListOrdered, Loader2, ChevronRight, RefreshCw, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
@@ -99,7 +99,13 @@ export function ScenarioList({
                       </p>
                     )}
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-3">
+                    {scenario.meta.date && (
+                      <span className="hidden sm:flex items-center gap-1 text-sm text-muted-foreground">
+                        <Calendar className="h-3.5 w-3.5" />
+                        {scenario.meta.date}
+                      </span>
+                    )}
                     <span className="text-sm text-muted-foreground">
                       {scenario.steps.length} kroków
                     </span>

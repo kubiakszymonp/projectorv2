@@ -7,6 +7,7 @@ import { parseScenarioFile, buildScenarioFile } from './scenario-parser';
 export interface UpdateScenarioData {
   title?: string;
   description?: string;
+  date?: string;
   steps?: ScenarioStep[];
 }
 
@@ -24,6 +25,13 @@ export class ScenarioUpdater {
       title: data.title ?? existingScenario.meta.title,
       description: data.description ?? existingScenario.meta.description,
     };
+    if (data.date !== undefined) {
+      if (data.date) {
+        updatedMeta.date = data.date;
+      } else {
+        delete updatedMeta.date;
+      }
+    }
 
     const updatedSteps = data.steps ?? existingScenario.steps;
     const fileContent = buildScenarioFile(updatedMeta, updatedSteps);
