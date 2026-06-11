@@ -3,6 +3,7 @@ import { PlayerController } from './player.controller';
 import { PlayerService } from './player.service';
 import { ScreenStateService } from './services/screen-state.service';
 import { ScreenStateRepository } from './repositories/screen-state.repository';
+import { DisplayItemHelper } from './helpers/display-item.helper';
 import { ScenariosModule } from '../scenarios/scenarios.module';
 import { TextsModule } from '../texts/texts.module';
 import { NotificationsModule } from '../notifications/notifications.module';
@@ -14,6 +15,7 @@ import { SettingsModule } from '../settings/settings.module';
   providers: [
     ScreenStateRepository,
     ScreenStateService,
+    DisplayItemHelper,
     PlayerService,
   ],
   exports: [PlayerService],

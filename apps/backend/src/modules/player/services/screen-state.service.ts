@@ -20,6 +20,7 @@ export class ScreenStateService implements OnModuleInit {
     private readonly textsService: TextsService,
     private readonly textFormatterService: TextFormatterService,
     private readonly settingsService: SettingsService,
+    private readonly displayItemHelper: DisplayItemHelper,
   ) {}
 
   /**
@@ -199,11 +200,8 @@ export class ScreenStateService implements OnModuleInit {
     const maxStep = scenario.steps.length - 1;
     const validStepIndex = Math.max(0, Math.min(stepIndex, maxStep));
 
-    const currentItem = await DisplayItemHelper.fromStep(
+    const currentItem = await this.displayItemHelper.fromStep(
       scenario.steps[validStepIndex],
-      this.textsService,
-      this.textFormatterService,
-      this.settingsService,
     );
 
     // Preserve visibility if we're already in the same scenario
@@ -339,11 +337,8 @@ export class ScreenStateService implements OnModuleInit {
       newStepIndex = Math.max(state.stepIndex - 1, 0);
     }
 
-    const currentItem = await DisplayItemHelper.fromStep(
+    const currentItem = await this.displayItemHelper.fromStep(
       scenario.steps[newStepIndex],
-      this.textsService,
-      this.textFormatterService,
-      this.settingsService,
     );
 
     return this.screenStateRepo.update((currentState) => {
