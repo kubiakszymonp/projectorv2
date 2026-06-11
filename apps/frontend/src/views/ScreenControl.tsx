@@ -283,6 +283,18 @@ export function ScreenControl() {
 // ========== SUB-COMPONENTS ==========
 
 function CurrentStateDisplay({ state }: { state: ScreenState }) {
+  // Pobierz prawdziwy tytuł aktualnego tekstu (z metadanych, nie ze sluga).
+  // Hook musi być wywołany bezwarunkowo — przed early-return dla 'empty'.
+  const currentItem =
+    state.mode === 'single'
+      ? state.item
+      : state.mode === 'scenario'
+        ? state.currentItem
+        : null;
+  const textRef = currentItem?.type === 'text' ? currentItem.textRef : null;
+  const textId = textRef ? textRef.split('__').pop() || null : null;
+  const { data: textDoc } = useText(textId);
+
   if (state.mode === 'empty') {
     return (
       <div className="w-full aspect-video bg-muted/50 flex items-center justify-center border border-dashed">
@@ -296,6 +308,8 @@ function CurrentStateDisplay({ state }: { state: ScreenState }) {
   }
 
   const item = state.mode === 'single' ? state.item : state.currentItem;
+  const itemLabel =
+    item.type === 'text' && textDoc ? textDoc.meta.title : getDisplayItemLabel(item);
 
   // Info o aktualnym elemencie
   const itemInfo = (
@@ -304,7 +318,7 @@ function CurrentStateDisplay({ state }: { state: ScreenState }) {
         <div className={cn('w-8 h-8 rounded-md flex items-center justify-center', getDisplayItemColor(item))}>
           {getDisplayItemIcon(item)}
         </div>
-        <span className="font-medium">{getDisplayItemLabel(item)}</span>
+        <span className="font-medium">{itemLabel}</span>
       </div>
       {item.type === 'text' && (
         <span className="text-muted-foreground">
