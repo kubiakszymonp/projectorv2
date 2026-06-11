@@ -3,6 +3,7 @@ import { QRCodeSVG } from 'qrcode.react';
 import { useScreenState } from '@/hooks/usePlayer';
 import { useSettings } from '@/hooks/useSettings';
 import { getFileUrl } from '@/api/files';
+import { navigateSlide, navigateStep } from '@/api/player';
 import { DEFAULT_SETTINGS } from '@/types/settings';
 import type { ScreenState, TextDisplayItem } from '@/types/player';
 
@@ -15,6 +16,36 @@ export function ScreenDisplay() {
 
   const state = screenState ?? { mode: 'empty' as const };
   const displaySettings = settings?.display ?? DEFAULT_SETTINGS.display;
+
+  // Pilot do prezentacji (USB klikер = PageUp/PageDown/strzałki).
+  // Pozwala prowadzić bezpośrednio z RPi bez telefonu.
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      switch (e.key) {
+        case 'ArrowRight':
+        case 'PageDown':
+        case ' ':
+          e.preventDefault();
+          void navigateSlide('next');
+          break;
+        case 'ArrowLeft':
+        case 'PageUp':
+          e.preventDefault();
+          void navigateSlide('prev');
+          break;
+        case 'ArrowDown':
+          e.preventDefault();
+          void navigateStep('next');
+          break;
+        case 'ArrowUp':
+          e.preventDefault();
+          void navigateStep('prev');
+          break;
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, []);
 
   // Jeśli stan jest pusty lub zawartość jest ukryta, pokaż czarny ekran
   const isHidden = state.mode === 'empty' || !state.visible;
