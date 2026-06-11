@@ -20,6 +20,7 @@ import {
   WifiOff,
   Tv,
   TvMinimal,
+  Search,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -36,6 +37,7 @@ import { useScenario } from '@/hooks/useScenarios';
 import { useText } from '@/hooks/useTexts';
 import { useSocketStatus } from '@/hooks/useSocket';
 import { useScreenConnections } from '@/hooks/useScreenConnections';
+import { QuickSearchDialog } from '@/components/control/QuickSearchDialog';
 import type { ScreenState, DisplayItem, TextDisplayItem } from '@/types/player';
 import { getStepType, getStepValue } from '@/types/scenarios';
 import { cn } from '@/lib/utils';
@@ -109,6 +111,7 @@ export function ScreenControl() {
   const isConnected = useSocketStatus();
   const { data: connections } = useScreenConnections();
   const displayConnected = (connections?.displays ?? 0) > 0;
+  const [quickSearchOpen, setQuickSearchOpen] = React.useState(false);
   const clearScreen = useClearScreen();
   const navigateSlide = useNavigateSlide();
   const navigateStep = useNavigateStep();
@@ -146,6 +149,12 @@ export function ScreenControl() {
   // Skróty klawiaturowe dla operatora (laptop). Ignoruj, gdy fokus w polu tekstowym.
   React.useEffect(() => {
     const handler = (e: KeyboardEvent) => {
+      // Ctrl/Cmd+K — szybkie wyszukiwanie (działa też w polach tekstowych)
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'K')) {
+        e.preventDefault();
+        setQuickSearchOpen(true);
+        return;
+      }
       const target = e.target as HTMLElement | null;
       if (
         target &&
@@ -264,6 +273,15 @@ export function ScreenControl() {
               />
             </div>
           )}
+          {/* Quick search */}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setQuickSearchOpen(true)}
+            title="Szybkie wyszukiwanie pieśni (Ctrl+K)"
+          >
+            <Search className="h-4 w-4" />
+          </Button>
           {/* Clear Button */}
           <Button
             variant="ghost"
@@ -364,6 +382,11 @@ export function ScreenControl() {
           )}
         </div>
       </main>
+
+      <QuickSearchDialog
+        open={quickSearchOpen}
+        onClose={() => setQuickSearchOpen(false)}
+      />
     </div>
   );
 }
