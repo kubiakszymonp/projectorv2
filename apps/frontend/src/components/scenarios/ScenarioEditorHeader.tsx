@@ -1,4 +1,4 @@
-import { X, Save, Trash2, Monitor, Loader2 } from 'lucide-react';
+import { X, Save, Trash2, Monitor, Loader2, Copy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import type { ScenarioDoc } from '@/types/scenarios';
 
@@ -11,6 +11,7 @@ type ScenarioEditorHeaderProps = {
   onBack: () => void;
   onSave: () => void;
   onDelete: () => void;
+  onDuplicate: () => void;
   onProjectToScreen: () => void;
   canProject: boolean;
   isMobile?: boolean;
@@ -25,6 +26,7 @@ export function ScenarioEditorHeader({
   onBack,
   onSave,
   onDelete,
+  onDuplicate,
   onProjectToScreen,
   canProject,
   isMobile = false,
@@ -53,6 +55,15 @@ export function ScenarioEditorHeader({
             title="Rzutuj na ekran"
           >
             <Monitor className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            className="h-8 w-8"
+            onClick={onDuplicate}
+            title="Duplikuj"
+          >
+            <Copy className="h-4 w-4" />
           </Button>
           <Button
             variant="outline"
@@ -104,6 +115,14 @@ export function ScenarioEditorHeader({
           title="Rzutuj na ekran"
         >
           <Monitor className="h-4 w-4" />
+        </Button>
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={onDuplicate}
+          title="Duplikuj"
+        >
+          <Copy className="h-4 w-4" />
         </Button>
         <Button
           variant="outline"

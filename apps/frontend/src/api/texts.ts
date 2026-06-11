@@ -107,6 +107,15 @@ export async function deleteText(id: string): Promise<void> {
 }
 
 /**
+ * Duplikuje tekst (pieśń)
+ */
+export async function duplicateText(id: string): Promise<TextDoc> {
+  const res = await fetch(`${API_BASE}/${id}/duplicate`, { method: 'POST' });
+  if (!res.ok) throw new Error(`Failed to duplicate text: ${res.statusText}`);
+  return res.json();
+}
+
+/**
  * Przeładowuje teksty z dysku
  */
 export async function reloadTexts(): Promise<{ count: number }> {

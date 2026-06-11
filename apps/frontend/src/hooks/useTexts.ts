@@ -120,6 +120,20 @@ export function useDeleteText() {
 }
 
 /**
+ * Hook do duplikowania tekstu (pieśni)
+ */
+export function useDuplicateText() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: textsApi.duplicateText,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: textKeys.lists() });
+    },
+  });
+}
+
+/**
  * Hook do tworzenia domeny
  */
 export function useCreateDomain() {

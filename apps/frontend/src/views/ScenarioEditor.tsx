@@ -8,6 +8,7 @@ import {
   useCreateScenario,
   useUpdateScenario,
   useDeleteScenario,
+  useDuplicateScenario,
   useReloadScenarios,
 } from '@/hooks/useScenarios';
 import { useSetScenario, useScreenState } from '@/hooks/usePlayer';
@@ -55,6 +56,7 @@ export function ScenarioEditor() {
   const createScenario = useCreateScenario();
   const updateScenario = useUpdateScenario();
   const deleteScenario = useDeleteScenario();
+  const duplicateScenario = useDuplicateScenario();
   const reloadScenarios = useReloadScenarios();
   const setScenario = useSetScenario();
 
@@ -193,6 +195,12 @@ export function ScenarioEditor() {
     handleBack();
   }, [selectedScenario, deleteScenario, handleBack]);
 
+  const handleDuplicateScenario = useCallback(async () => {
+    if (!selectedScenario) return;
+    const copy = await duplicateScenario.mutateAsync(selectedScenario.meta.id);
+    handleSelectScenario(copy);
+  }, [selectedScenario, duplicateScenario, handleSelectScenario]);
+
   const handleDeleteStep = useCallback((index: number) => {
     setEditedSteps((prev) => prev.filter((_, i) => i !== index));
     if (selectedStepIndex === index) {
@@ -264,6 +272,7 @@ export function ScenarioEditor() {
             onBack={handleBack}
             onSave={handleSave}
             onDelete={() => setDeleteDialogOpen(true)}
+            onDuplicate={handleDuplicateScenario}
             onProjectToScreen={handleProjectToScreen}
             canProject={editedSteps.length > 0}
             isMobile={true}
@@ -332,6 +341,7 @@ export function ScenarioEditor() {
           onBack={handleBack}
           onSave={handleSave}
           onDelete={() => setDeleteDialogOpen(true)}
+          onDuplicate={handleDuplicateScenario}
           onProjectToScreen={handleProjectToScreen}
           canProject={editedSteps.length > 0}
           isMobile={false}

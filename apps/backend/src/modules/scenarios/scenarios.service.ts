@@ -46,6 +46,17 @@ export class ScenariosService implements OnModuleInit {
     return scenario;
   }
 
+  async duplicate(id: string): Promise<ScenarioDoc | null> {
+    const source = await this.findById(id);
+    if (!source) return null;
+    return this.create({
+      title: `${source.meta.title} (kopia)`,
+      description: source.meta.description,
+      date: source.meta.date,
+      steps: source.steps,
+    });
+  }
+
   async update(id: string, data: UpdateScenarioData): Promise<ScenarioDoc | null> {
     const scenario = await this.updater.updateScenario(id, data);
     if (scenario) {

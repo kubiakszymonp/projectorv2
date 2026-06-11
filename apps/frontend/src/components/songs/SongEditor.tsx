@@ -1,4 +1,4 @@
-import { Save, X, ListPlus, Loader2, FileText, Tags, Monitor, FolderOpen } from 'lucide-react';
+import { Save, X, ListPlus, Loader2, FileText, Tags, Monitor, FolderOpen, Copy } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { SongContentEditor } from './SongContentEditor';
@@ -30,6 +30,7 @@ interface SongEditorProps {
   onSave: () => void;
   onBack: () => void;
   onAddToScenario: () => void;
+  onDuplicate: () => void;
   onProjectToScreen: () => void;
   isProjecting?: boolean;
   isMobile: boolean;
@@ -62,6 +63,7 @@ export function SongEditor({
   onSave,
   onBack,
   onAddToScenario,
+  onDuplicate,
   onProjectToScreen,
   isProjecting,
   isMobile,
@@ -82,6 +84,7 @@ export function SongEditor({
           onSave={onSave}
           onBack={onBack}
           onAddToScenario={onAddToScenario}
+          onDuplicate={onDuplicate}
           onProjectToScreen={onProjectToScreen}
           isProjecting={isProjecting}
         />
@@ -143,6 +146,7 @@ export function SongEditor({
         onSave={onSave}
         onBack={onBack}
         onAddToScenario={onAddToScenario}
+        onDuplicate={onDuplicate}
         onProjectToScreen={onProjectToScreen}
         isProjecting={isProjecting}
       />
@@ -196,6 +200,7 @@ interface MobileEditorHeaderProps {
   onSave: () => void;
   onBack: () => void;
   onAddToScenario: () => void;
+  onDuplicate: () => void;
   onProjectToScreen: () => void;
   isProjecting?: boolean;
 }
@@ -208,6 +213,7 @@ function MobileEditorHeader({
   onSave,
   onBack,
   onAddToScenario,
+  onDuplicate,
   onProjectToScreen,
   isProjecting,
 }: MobileEditorHeaderProps) {
@@ -241,6 +247,15 @@ function MobileEditorHeader({
           <ListPlus className="h-4 w-4" />
         </Button>
         <Button
+          variant="outline"
+          size="icon"
+          className="h-8 w-8"
+          onClick={onDuplicate}
+          title="Duplikuj"
+        >
+          <Copy className="h-4 w-4" />
+        </Button>
+        <Button
           size="sm"
           className="h-8"
           onClick={onSave}
@@ -267,6 +282,7 @@ interface DesktopEditorHeaderProps {
   onSave: () => void;
   onBack: () => void;
   onAddToScenario: () => void;
+  onDuplicate: () => void;
   onProjectToScreen: () => void;
   isProjecting?: boolean;
 }
@@ -281,6 +297,7 @@ function DesktopEditorHeader({
   onSave,
   onBack,
   onAddToScenario,
+  onDuplicate,
   onProjectToScreen,
   isProjecting,
 }: DesktopEditorHeaderProps) {
@@ -309,6 +326,10 @@ function DesktopEditorHeader({
         <Button variant="outline" size="sm" onClick={onAddToScenario}>
           <ListPlus className="h-4 w-4 mr-2" />
           Do scenariusza
+        </Button>
+        <Button variant="outline" size="sm" onClick={onDuplicate} title="Duplikuj">
+          <Copy className="h-4 w-4 mr-2" />
+          Duplikuj
         </Button>
         <Button
           size="sm"

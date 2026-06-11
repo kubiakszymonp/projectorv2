@@ -1,6 +1,6 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { useTexts, useDomains, useCreateText, useUpdateText, useText } from '@/hooks/useTexts';
+import { useTexts, useDomains, useCreateText, useUpdateText, useDuplicateText, useText } from '@/hooks/useTexts';
 import { useSetText, useScreenState } from '@/hooks/usePlayer';
 import { createTextReference } from '@/utils/textReference';
 import type { TextDoc } from '@/types/texts';
@@ -47,6 +47,7 @@ export function useSongEditor() {
   // Mutations
   const createText = useCreateText();
   const updateText = useUpdateText();
+  const duplicateText = useDuplicateText();
   const setText = useSetText();
 
   // Screen state for projection indicator
@@ -138,6 +139,12 @@ export function useSongEditor() {
     // Clear URL
     setSearchParams({}, { replace: true });
   }, [setSearchParams]);
+
+  const handleDuplicate = useCallback(async () => {
+    if (!selectedSong) return;
+    const copy = await duplicateText.mutateAsync(selectedSong.meta.id);
+    handleSelectSong(copy);
+  }, [selectedSong, duplicateText, handleSelectSong]);
 
   const handleSave = useCallback(async () => {
     if (!selectedSong || !editedMeta) return;
@@ -253,6 +260,7 @@ export function useSongEditor() {
     // Mutations
     createText,
     updateText,
+    duplicateText,
 
     // Computed
     hasContentChanges,
@@ -262,6 +270,7 @@ export function useSongEditor() {
     // Handlers
     handleSelectSong,
     handleBack,
+    handleDuplicate,
     handleSave,
     handleCreateSong,
     handleAddCategory,

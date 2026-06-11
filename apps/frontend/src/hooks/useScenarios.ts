@@ -101,6 +101,20 @@ export function useUpdateScenario() {
 }
 
 /**
+ * Hook do duplikowania scenariusza
+ */
+export function useDuplicateScenario() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: scenariosApi.duplicateScenario,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: scenarioKeys.lists() });
+    },
+  });
+}
+
+/**
  * Hook do usuwania scenariusza
  */
 export function useDeleteScenario() {

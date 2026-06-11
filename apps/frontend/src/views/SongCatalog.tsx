@@ -50,6 +50,7 @@ export function SongCatalog() {
           onSave={editor.handleSave}
           onBack={editor.handleBack}
           onAddToScenario={() => editor.setIsAddToScenarioOpen(true)}
+          onDuplicate={editor.handleDuplicate}
           onProjectToScreen={editor.handleProjectToScreen}
           isProjecting={editor.isCurrentlyProjecting}
           isMobile={isMobile}

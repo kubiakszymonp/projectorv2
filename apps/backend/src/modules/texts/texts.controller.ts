@@ -168,6 +168,22 @@ export class TextsController {
     return this.textsService.create(createTextDto);
   }
 
+  @Post(':id/duplicate')
+  @ApiOperation({
+    summary: 'Duplicate text',
+    description: 'Create a copy of an existing text in the same domain (new ULID, title + " (kopia)").',
+  })
+  @ApiParam({ name: 'id', description: 'Text ULID identifier' })
+  @ApiResponse({ status: 201, description: 'Text duplicated', type: TextDocDto })
+  @ApiResponse({ status: 404, description: 'Text not found' })
+  async duplicate(@Param('id') id: string): Promise<TextDoc> {
+    const text = await this.textsService.duplicate(id);
+    if (!text) {
+      throw new NotFoundException(`Text with id ${id} not found`);
+    }
+    return text;
+  }
+
   @Put(':id')
   @ApiOperation({
     summary: 'Update text',

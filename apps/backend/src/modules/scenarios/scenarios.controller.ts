@@ -91,6 +91,22 @@ export class ScenariosController {
     return this.scenariosService.create(createScenarioDto);
   }
 
+  @Post(':id/duplicate')
+  @ApiOperation({
+    summary: 'Duplicate scenario',
+    description: 'Create a copy of an existing scenario (new ULID, title + " (kopia)").',
+  })
+  @ApiParam({ name: 'id', description: 'Scenario ULID identifier' })
+  @ApiResponse({ status: 201, description: 'Scenario duplicated', type: ScenarioDocDto })
+  @ApiResponse({ status: 404, description: 'Scenario not found' })
+  async duplicate(@Param('id') id: string): Promise<ScenarioDoc> {
+    const scenario = await this.scenariosService.duplicate(id);
+    if (!scenario) {
+      throw new NotFoundException(`Scenario with id ${id} not found`);
+    }
+    return scenario;
+  }
+
   @Put(':id')
   @ApiOperation({
     summary: 'Update scenario',

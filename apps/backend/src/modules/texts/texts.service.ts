@@ -68,6 +68,18 @@ export class TextsService implements OnModuleInit {
     return text;
   }
 
+  async duplicate(id: string): Promise<TextDoc | null> {
+    const source = await this.findById(id);
+    if (!source) return null;
+    return this.create({
+      domain: source.meta.domain,
+      title: `${source.meta.title} (kopia)`,
+      description: source.meta.description,
+      categories: source.meta.categories,
+      content: source.contentRaw,
+    });
+  }
+
   async update(id: string, data: UpdateTextData): Promise<TextDoc | null> {
     const text = await this.updater.updateText(id, data);
     if (text) {

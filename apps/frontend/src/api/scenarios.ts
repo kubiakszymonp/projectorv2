@@ -65,6 +65,15 @@ export async function updateScenario(id: string, data: UpdateScenarioData): Prom
 }
 
 /**
+ * Duplikuje scenariusz
+ */
+export async function duplicateScenario(id: string): Promise<ScenarioDoc> {
+  const res = await fetch(`${API_BASE}/${id}/duplicate`, { method: 'POST' });
+  if (!res.ok) throw new Error(`Failed to duplicate scenario: ${res.statusText}`);
+  return res.json();
+}
+
+/**
  * Usuwa scenariusz
  */
 export async function deleteScenario(id: string): Promise<void> {
