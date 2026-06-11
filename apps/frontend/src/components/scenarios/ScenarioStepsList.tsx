@@ -11,6 +11,7 @@ type ScenarioStepsListProps = {
   dragOverIndex: number | null;
   onSelectStep: (index: number) => void;
   onDeleteStep: (index: number) => void;
+  onMoveStep: (index: number, direction: 'up' | 'down') => void;
   onDragStart: (e: React.DragEvent, index: number) => void;
   onDragEnd: () => void;
   onDragOver: (e: React.DragEvent, index: number) => void;
@@ -25,6 +26,7 @@ export function ScenarioStepsList({
   dragOverIndex,
   onSelectStep,
   onDeleteStep,
+  onMoveStep,
   onDragStart,
   onDragEnd,
   onDragOver,
@@ -69,8 +71,11 @@ export function ScenarioStepsList({
                 isSelected={selectedStepIndex === index}
                 isDragging={dragIndex === index}
                 isDragOver={dragOverIndex === index}
+                isFirst={index === 0}
+                isLast={index === steps.length - 1}
                 onSelect={() => onSelectStep(index)}
                 onDelete={() => onDeleteStep(index)}
+                onMove={(dir) => onMoveStep(index, dir)}
                 onDragStart={onDragStart}
                 onDragEnd={onDragEnd}
                 onDragOver={onDragOver}

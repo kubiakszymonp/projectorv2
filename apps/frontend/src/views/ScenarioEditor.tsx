@@ -212,6 +212,16 @@ export function ScenarioEditor() {
     handleSelectScenario(copy);
   }, [selectedScenario, duplicateScenario, handleSelectScenario]);
 
+  const handleMoveStep = useCallback((index: number, direction: 'up' | 'down') => {
+    setEditedSteps((prev) => {
+      const target = direction === 'up' ? index - 1 : index + 1;
+      if (target < 0 || target >= prev.length) return prev;
+      const arr = [...prev];
+      [arr[index], arr[target]] = [arr[target], arr[index]];
+      return arr;
+    });
+  }, []);
+
   const handleDeleteStep = useCallback((index: number) => {
     setEditedSteps((prev) => prev.filter((_, i) => i !== index));
     if (selectedStepIndex === index) {
@@ -333,6 +343,7 @@ export function ScenarioEditor() {
               dragOverIndex={dragOverIndex}
               onSelectStep={setSelectedStepIndex}
               onDeleteStep={handleDeleteStep}
+              onMoveStep={handleMoveStep}
               onDragStart={handleDragStart}
               onDragEnd={handleDragEnd}
               onDragOver={handleDragOver}
@@ -389,6 +400,7 @@ export function ScenarioEditor() {
               dragOverIndex={dragOverIndex}
               onSelectStep={setSelectedStepIndex}
               onDeleteStep={handleDeleteStep}
+              onMoveStep={handleMoveStep}
               onDragStart={handleDragStart}
               onDragEnd={handleDragEnd}
               onDragOver={handleDragOver}

@@ -10,6 +10,8 @@ import {
   QrCode,
   MoreVertical,
   Trash2,
+  ChevronUp,
+  ChevronDown,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -29,8 +31,11 @@ type StepItemProps = {
   isSelected: boolean;
   isDragging: boolean;
   isDragOver: boolean;
+  isFirst?: boolean;
+  isLast?: boolean;
   onSelect: () => void;
   onDelete: () => void;
+  onMove?: (direction: 'up' | 'down') => void;
   onDragStart: (e: React.DragEvent, index: number) => void;
   onDragEnd: () => void;
   onDragOver: (e: React.DragEvent, index: number) => void;
@@ -43,8 +48,11 @@ export function StepItem({
   isSelected,
   isDragging,
   isDragOver,
+  isFirst,
+  isLast,
   onSelect,
   onDelete,
+  onMove,
   onDragStart,
   onDragEnd,
   onDragOver,
@@ -162,6 +170,38 @@ export function StepItem({
         <p className="font-medium truncate hover:underline">{getStepLabel()}</p>
         <p className="text-xs text-muted-foreground capitalize">{stepType}</p>
       </div>
+
+      {/* Up/Down reorder — for touch where HTML5 drag&drop doesn't work */}
+      {onMove && (
+        <div className="flex flex-col sm:hidden">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-6 w-6"
+            disabled={isFirst}
+            onClick={(e) => {
+              e.stopPropagation();
+              onMove('up');
+            }}
+            aria-label="Przesuń w górę"
+          >
+            <ChevronUp className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-6 w-6"
+            disabled={isLast}
+            onClick={(e) => {
+              e.stopPropagation();
+              onMove('down');
+            }}
+            aria-label="Przesuń w dół"
+          >
+            <ChevronDown className="h-4 w-4" />
+          </Button>
+        </div>
+      )}
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
