@@ -56,7 +56,7 @@ function MediaTile({
     return (
       <button
         onClick={() => onOpenFolder(file)}
-        className="flex flex-col items-center justify-center gap-2 p-4 rounded-xl border bg-muted/30 hover:bg-muted/60 transition-colors aspect-square text-center"
+        className="flex flex-col items-center justify-center gap-2 p-4 rounded-lg border bg-muted/30 hover:bg-muted/60 transition-colors aspect-square text-center"
       >
         <Folder className="h-10 w-10 text-blue-400" />
         <span className="text-xs font-medium truncate w-full">{file.name}</span>
@@ -72,34 +72,34 @@ function MediaTile({
         <img
           src={url}
           alt={file.name}
-          className="w-full h-full object-cover rounded-t-xl"
+          className="w-full h-full object-cover rounded-t-lg"
           onError={() => setImgError(true)}
         />
       );
     }
     if (file.kind === 'video') {
       return (
-        <div className="w-full h-full flex items-center justify-center bg-muted/50 rounded-t-xl">
+        <div className="w-full h-full flex items-center justify-center bg-muted/50 rounded-t-lg">
           <Video className="h-12 w-12 text-purple-400" />
         </div>
       );
     }
     if (file.kind === 'audio') {
       return (
-        <div className="w-full h-full flex items-center justify-center bg-muted/50 rounded-t-xl">
+        <div className="w-full h-full flex items-center justify-center bg-muted/50 rounded-t-lg">
           <Music className="h-12 w-12 text-pink-400" />
         </div>
       );
     }
     return (
-      <div className="w-full h-full flex items-center justify-center bg-muted/50 rounded-t-xl">
+      <div className="w-full h-full flex items-center justify-center bg-muted/50 rounded-t-lg">
         <ImageIcon className="h-12 w-12 text-muted-foreground" />
       </div>
     );
   };
 
   return (
-    <div className="flex flex-col rounded-xl border bg-card overflow-hidden">
+    <div className="flex flex-col rounded-lg border bg-card overflow-hidden">
       {/* Thumbnail */}
       <div className="aspect-video bg-black overflow-hidden">{thumbnail()}</div>
 

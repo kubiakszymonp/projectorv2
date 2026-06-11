@@ -20,6 +20,14 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import {
   useScreenState,
   useClearScreen,
   useNavigateSlide,
@@ -81,6 +89,7 @@ export function ScreenControl() {
   const { data: connections } = useScreenConnections();
   const displayConnected = (connections?.displays ?? 0) > 0;
   const [quickSearchOpen, setQuickSearchOpen] = React.useState(false);
+  const [clearConfirmOpen, setClearConfirmOpen] = React.useState(false);
   const clearScreen = useClearScreen();
   const navigateSlide = useNavigateSlide();
   const navigateStep = useNavigateStep();
@@ -158,9 +167,7 @@ export function ScreenControl() {
           break;
         case 'Escape':
           e.preventDefault();
-          if (window.confirm('Wyczyścić ekran?')) {
-            clearScreen.mutate();
-          }
+          setClearConfirmOpen(true);
           break;
       }
     };
@@ -313,7 +320,7 @@ export function ScreenControl() {
 
           {/* Scenario Info and Steps */}
           {state.mode === 'scenario' && scenario && (
-            <Card className="flex flex-col" style={{ minHeight: 'calc(100vh - 400px)' }}>
+            <Card className="flex flex-col">
               <div className="p-4 border-b shrink-0">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -359,6 +366,32 @@ export function ScreenControl() {
         open={quickSearchOpen}
         onClose={() => setQuickSearchOpen(false)}
       />
+
+      <Dialog open={clearConfirmOpen} onOpenChange={setClearConfirmOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Wyczyścić ekran?</DialogTitle>
+            <DialogDescription>
+              Ekran publiczny zostanie wyczyszczony. Możesz ponownie rzutować
+              treść w dowolnej chwili.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setClearConfirmOpen(false)}>
+              Anuluj
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                clearScreen.mutate();
+                setClearConfirmOpen(false);
+              }}
+            >
+              Wyczyść
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
