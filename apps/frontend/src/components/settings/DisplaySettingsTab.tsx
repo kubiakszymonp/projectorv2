@@ -297,11 +297,14 @@ function LivePreview({ settings }: { settings: ProjectorSettings['display'] }) {
   return (
     <div
       ref={ref}
-      className="w-full max-w-xl rounded-lg overflow-hidden border bg-black"
+      className="relative w-full max-w-xl rounded-lg overflow-hidden border bg-black"
       style={{ aspectRatio: '1920/1080' }}
     >
       <div
         style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
           width: '1920px',
           height: '1080px',
           transform: `scale(${scale})`,

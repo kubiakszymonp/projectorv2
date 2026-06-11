@@ -11,7 +11,6 @@ import {
 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Dialog,
   DialogContent,
@@ -213,9 +212,8 @@ export function Settings() {
       />
 
       {/* Main Content */}
-      <main className="flex-1 min-w-0 overflow-x-hidden">
-        <ScrollArea className="h-full">
-          <div className="p-4 sm:p-6 max-w-3xl w-full overflow-x-hidden">
+      <main className="flex-1 min-w-0 overflow-y-auto overflow-x-hidden">
+        <div className="p-4 sm:p-6 max-w-3xl w-full overflow-x-hidden">
             {/* Display Settings Accordion */}
             <div className="border-b">
               <button
@@ -300,7 +298,6 @@ export function Settings() {
               )}
             </div>
           </div>
-        </ScrollArea>
       </main>
 
       <Dialog open={resetConfirmOpen} onOpenChange={setResetConfirmOpen}>

@@ -456,6 +456,9 @@ function CurrentStateDisplay({ state }: { state: ScreenState }) {
         >
           <div
             style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
               pointerEvents: 'none',
               width: '1920px',
               height: '1080px',
