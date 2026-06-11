@@ -2,9 +2,9 @@ import { promises as fs } from 'fs';
 import * as path from 'path';
 import { TextDoc } from '../../types';
 import { parseTextFile } from './text-parser';
+import { getDataPath } from '../../common/paths';
 
-// Backend runs from apps/backend, so we need to go up to workspace root
-const TEXTS_DIR = path.resolve(process.cwd(), '..', '..', 'data', 'texts');
+const TEXTS_DIR = getDataPath('texts');
 
 export class TextLoader {
   private readonly textsDirectory: string;

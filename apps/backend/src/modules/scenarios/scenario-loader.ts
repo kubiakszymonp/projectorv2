@@ -2,9 +2,9 @@ import { promises as fs } from 'fs';
 import * as path from 'path';
 import { ScenarioDoc } from '../../types/scenarios';
 import { parseScenarioFile } from './scenario-parser';
+import { getDataPath } from '../../common/paths';
 
-// Backend runs from apps/backend, so we need to go up to workspace root
-const SCENARIOS_DIR = path.resolve(process.cwd(), '..', '..', 'data', 'scenarios');
+const SCENARIOS_DIR = getDataPath('scenarios');
 
 export class ScenarioLoader {
   private readonly scenariosDirectory: string;

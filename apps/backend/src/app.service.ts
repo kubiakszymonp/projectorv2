@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import * as fs from 'fs/promises';
-import * as path from 'path';
 import { TextsService } from './modules/texts/texts.service';
+import { getDataDir } from './common/paths';
 
 export interface HealthStatus {
   status: 'ok';
@@ -38,7 +38,7 @@ export class AppService {
 
   private async getDiskInfo(): Promise<{ free: number | null; total: number | null }> {
     try {
-      const dataDir = path.resolve(process.cwd(), '..', '..', 'data');
+      const dataDir = getDataDir();
       // fs.statfs available since Node 18.15
       const stat = await (fs as unknown as {
         statfs: (p: string) => Promise<{ bsize: number; blocks: number; bavail: number }>;

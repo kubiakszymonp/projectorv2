@@ -3,6 +3,7 @@ import * as fs from 'fs/promises';
 import * as path from 'path';
 import { ScreenState, DEFAULT_SCREEN_STATE } from '../../../types/player';
 import { NotificationsGateway } from '../../notifications/notifications.gateway';
+import { getDataPath } from '../../../common/paths';
 
 /**
  * Repository for managing screen state.
@@ -20,8 +21,7 @@ export class ScreenStateRepository implements OnModuleInit {
   private readonly saveDebounceMs = 1000;
 
   constructor(private readonly notificationsGateway: NotificationsGateway) {
-    const projectRoot = path.resolve(process.cwd(), '..', '..');
-    this.stateDir = path.resolve(projectRoot, 'data', 'settings');
+    this.stateDir = getDataPath('settings');
     this.statePath = path.resolve(this.stateDir, 'screen-state.json');
   }
 

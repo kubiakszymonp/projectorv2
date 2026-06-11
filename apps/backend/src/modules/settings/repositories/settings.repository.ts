@@ -14,6 +14,7 @@ import {
   UpdateWifiSettingsDto,
 } from '../../../types/settings.dto';
 import { NotificationsGateway } from '../../notifications/notifications.gateway';
+import { getDataPath } from '../../../common/paths';
 
 /**
  * Repository for managing settings persistence.
@@ -27,8 +28,7 @@ export class SettingsRepository {
   private readonly changeListeners = new Set<() => void>();
 
   constructor(private readonly notificationsGateway: NotificationsGateway) {
-    const projectRoot = path.resolve(process.cwd(), '..', '..');
-    this.settingsDir = path.resolve(projectRoot, 'data', 'settings');
+    this.settingsDir = getDataPath('settings');
     this.settingsPath = path.resolve(this.settingsDir, 'config.yaml');
     this.settings = structuredClone(DEFAULT_SETTINGS);
   }

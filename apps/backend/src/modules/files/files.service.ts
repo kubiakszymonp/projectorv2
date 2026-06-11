@@ -17,6 +17,7 @@ import {
 } from '../../types';
 import { PathValidator } from './path-validator';
 import { FileTypeDetector } from './file-type-detector';
+import { getDataDir } from '../../common/paths';
 
 export interface TrashEntry {
   /** Nazwa pliku w koszu (identyfikator do restore/delete) */
@@ -39,12 +40,10 @@ export class FilesService implements OnModuleInit {
   private readonly trashRoot: string;
 
   constructor() {
-    // W monorepo, cwd() zwraca apps/backend, więc idziemy 2 poziomy wyżej
-    const projectRoot = path.resolve(process.cwd(), '..', '..');
     // Root dla całego folderu data/ - nie tylko media
-    const dataRoot = path.resolve(projectRoot, 'data');
+    const dataRoot = getDataDir();
     this.pathValidator = new PathValidator(dataRoot);
-    this.trashRoot = path.resolve(projectRoot, 'data', 'trash');
+    this.trashRoot = path.resolve(dataRoot, 'trash');
   }
 
   async onModuleInit(): Promise<void> {

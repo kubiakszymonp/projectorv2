@@ -3,6 +3,7 @@ import * as path from 'path';
 import * as fs from 'fs/promises';
 import archiver from 'archiver';
 import AdmZip from 'adm-zip';
+import { getDataDir } from '../../common/paths';
 
 /**
  * Backup/restore of the whole data/ directory (songs, scenarios, settings, media).
@@ -13,7 +14,7 @@ export class BackupService {
   private readonly dataDir: string;
 
   constructor() {
-    this.dataDir = path.resolve(process.cwd(), '..', '..', 'data');
+    this.dataDir = getDataDir();
   }
 
   /**

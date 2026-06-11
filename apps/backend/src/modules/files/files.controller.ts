@@ -41,6 +41,7 @@ import {
   FileUploadResponse,
 } from '../../types';
 import { FileTypeDetector } from './file-type-detector';
+import { getDataPath } from '../../common/paths';
 
 // Max upload size (4 GB) — guards against runaway uploads filling the SD card
 const MAX_UPLOAD_BYTES = 4 * 1024 * 1024 * 1024;
@@ -53,7 +54,7 @@ const MAX_UPLOAD_BYTES = 4 * 1024 * 1024 * 1024;
  */
 const uploadStorage = diskStorage({
   destination: (_req, _file, cb) => {
-    const tmpDir = path.resolve(process.cwd(), '..', '..', 'data', 'tmp');
+    const tmpDir = getDataPath('tmp');
     fs.mkdirSync(tmpDir, { recursive: true });
     cb(null, tmpDir);
   },

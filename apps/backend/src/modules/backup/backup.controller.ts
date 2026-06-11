@@ -12,12 +12,12 @@ import { diskStorage } from 'multer';
 import { ApiTags, ApiOperation, ApiConsumes, ApiBody } from '@nestjs/swagger';
 import type { Response } from 'express';
 import * as fs from 'fs';
-import * as path from 'path';
 import { BackupService } from './backup.service';
+import { getDataPath } from '../../common/paths';
 
 const backupUploadStorage = diskStorage({
   destination: (_req, _file, cb) => {
-    const tmpDir = path.resolve(process.cwd(), '..', '..', 'data', 'tmp');
+    const tmpDir = getDataPath('tmp');
     fs.mkdirSync(tmpDir, { recursive: true });
     cb(null, tmpDir);
   },

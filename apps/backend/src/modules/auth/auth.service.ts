@@ -2,6 +2,7 @@ import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import * as crypto from 'crypto';
+import { getDataPath } from '../../common/paths';
 
 interface AuthConfig {
   salt: string;
@@ -24,8 +25,7 @@ export class AuthService implements OnModuleInit {
   private readonly validTokens = new Set<string>();
 
   constructor() {
-    const projectRoot = path.resolve(process.cwd(), '..', '..');
-    this.configDir = path.resolve(projectRoot, 'data', 'settings');
+    this.configDir = getDataPath('settings');
     this.configPath = path.resolve(this.configDir, 'auth.json');
   }
 
