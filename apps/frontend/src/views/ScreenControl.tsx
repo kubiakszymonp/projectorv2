@@ -258,6 +258,23 @@ export function ScreenControl() {
       {/* Main Content */}
       <main className="flex-1 overflow-auto">
         <div className="w-full space-y-4 p-4 sm:p-6">
+          {/* Prepared-but-hidden banner */}
+          {hasContent && !isVisible && (
+            <div className="flex items-center justify-between gap-3 rounded-lg border border-amber-500/40 bg-amber-500/10 px-4 py-3">
+              <span className="text-sm text-amber-300">
+                Treść przygotowana — ekran jest wygaszony.
+              </span>
+              <Button
+                size="sm"
+                onClick={handleToggleVisibility}
+                disabled={toggleVisibility.isPending}
+                className="bg-emerald-600 hover:bg-emerald-700"
+              >
+                Pokaż na ekranie
+              </Button>
+            </div>
+          )}
+
           {/* Current State */}
           <Card className="overflow-hidden">
             <div className="p-0">
