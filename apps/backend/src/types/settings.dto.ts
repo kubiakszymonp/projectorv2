@@ -1,10 +1,11 @@
 // ========== SETTINGS DOMAIN - DTOs ==========
 
-import { 
-  IsString, 
-  IsOptional, 
-  IsNumber, 
-  IsIn, 
+import {
+  IsString,
+  IsOptional,
+  IsNumber,
+  IsIn,
+  IsBoolean,
   ValidateNested,
   Min,
   IsNotEmpty,
@@ -93,6 +94,10 @@ export class UpdateDisplaySettingsDto {
   @IsOptional()
   @IsString()
   blankLogoPath?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  showPageNumber?: boolean;
 }
 
 /**

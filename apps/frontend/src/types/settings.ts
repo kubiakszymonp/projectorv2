@@ -33,6 +33,7 @@ export interface DisplaySettings {
   maxCharsPerLine: number;
   blankScreen: BlankScreenMode;
   blankLogoPath: string;
+  showPageNumber: boolean;
 }
 
 /**
@@ -73,6 +74,7 @@ export const DEFAULT_SETTINGS: ProjectorSettings = {
     maxCharsPerLine: 50,
     blankScreen: 'black',
     blankLogoPath: '',
+    showPageNumber: false,
   },
   wifi: {
     ssid: '',

@@ -143,7 +143,7 @@ function TextDisplay({ item, displaySettings }: { item: TextDisplayItem; display
         <div className="whitespace-pre-line drop-shadow-lg" style={textStyle}>
           {item.slideContent || ''}
         </div>
-        {item.totalPages > 1 && (
+        {displaySettings.showPageNumber && item.totalPages > 1 && (
           <div className="text-center mt-4 text-sm opacity-60" style={{ color: displaySettings.textColor }}>
             Strona {item.pageIndex + 1}/{item.totalPages}
           </div>

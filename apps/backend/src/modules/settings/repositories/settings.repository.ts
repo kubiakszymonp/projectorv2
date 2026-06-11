@@ -166,6 +166,7 @@ export class SettingsRepository {
       maxCharsPerLine: update.maxCharsPerLine ?? current.maxCharsPerLine,
       blankScreen: update.blankScreen ?? current.blankScreen,
       blankLogoPath: update.blankLogoPath ?? current.blankLogoPath,
+      showPageNumber: update.showPageNumber ?? current.showPageNumber,
       padding: {
         top: update.padding?.top ?? current.padding.top,
         right: update.padding?.right ?? current.padding.right,

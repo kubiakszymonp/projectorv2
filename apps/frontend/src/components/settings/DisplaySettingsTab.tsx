@@ -1,4 +1,5 @@
 import { FormField, ColorInput, NumberInput, SelectInput } from './SettingsFormFields';
+import { Switch } from '@/components/ui/switch';
 import type { ProjectorSettings, TextAlign } from '@/types/settings';
 
 const TEXT_ALIGN_OPTIONS: { value: TextAlign; label: string }[] = [
@@ -113,8 +114,8 @@ export function DisplaySettingsTab({
             />
           </FormField>
 
-          <FormField 
-            label="Maksymalna liczba znaków w linii" 
+          <FormField
+            label="Maksymalna liczba znaków w linii"
             description="Maksymalna długość pojedynczej linii tekstu"
           >
             <NumberInput
@@ -122,6 +123,16 @@ export function DisplaySettingsTab({
               onChange={(v) => onDisplayChange('maxCharsPerLine', v)}
               min={10}
               max={200}
+            />
+          </FormField>
+
+          <FormField
+            label="Numer strony na ekranie"
+            description="Pokaż numer strony na ekranie publicznym (zwykle zbędne)"
+          >
+            <Switch
+              checked={settings.display.showPageNumber}
+              onCheckedChange={(v) => onDisplayChange('showPageNumber', v)}
             />
           </FormField>
         </div>
