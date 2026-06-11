@@ -7,6 +7,7 @@ import {
   AlertCircle,
   ChevronUp,
   ChevronDown,
+  Activity,
 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -15,10 +16,11 @@ import { useSetQRCode, useClearScreen, useScreenState } from '@/hooks/usePlayer'
 import { SettingsHeader } from '@/components/settings/SettingsHeader';
 import { DisplaySettingsTab } from '@/components/settings/DisplaySettingsTab';
 import { WifiSettingsTab } from '@/components/settings/WifiSettingsTab';
+import { SystemStatusSection } from '@/components/settings/SystemStatusSection';
 import type { ProjectorSettings } from '@/types/settings';
 import { DEFAULT_SETTINGS } from '@/types/settings';
 
-type SectionId = 'display' | 'wifi';
+type SectionId = 'display' | 'wifi' | 'system';
 
 export function Settings() {
   const [openSections, setOpenSections] = useState<Set<SectionId>>(new Set(['display', 'wifi']));
@@ -254,6 +256,29 @@ export function Settings() {
                     onSetQRCode={(data) => setQRCode.mutate(data)}
                     onClearScreen={() => clearScreen.mutate()}
                   />
+                </div>
+              )}
+            </div>
+
+            {/* System Status Accordion */}
+            <div className="border-b">
+              <button
+                onClick={() => toggleSection('system')}
+                className="w-full p-3 flex items-center justify-between bg-muted/30 hover:bg-muted/50 transition-colors"
+              >
+                <div className="flex items-center gap-2">
+                  <Activity className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm font-medium">System</span>
+                </div>
+                {openSections.has('system') ? (
+                  <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                ) : (
+                  <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                )}
+              </button>
+              {openSections.has('system') && (
+                <div className="p-4 bg-muted/10">
+                  <SystemStatusSection />
                 </div>
               )}
             </div>
