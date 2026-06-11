@@ -1,6 +1,7 @@
-import { Save, X, ListPlus, Loader2, FileText, Tags, Monitor, FolderOpen, Copy } from 'lucide-react';
+import { Save, X, ListPlus, FileText, Tags, Monitor, FolderOpen, Copy } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { ActionBar, type Action } from '@/components/ui/action-bar';
 import { SongContentEditor } from './SongContentEditor';
 import { SongMetadataEditor, MobileMetadataAccordion } from './SongMetadataEditor';
 import type { TextDoc } from '@/types/texts';
@@ -205,6 +206,51 @@ interface MobileEditorHeaderProps {
   isProjecting?: boolean;
 }
 
+function editorActions({
+  hasChanges,
+  isSaving,
+  onSave,
+  onAddToScenario,
+  onDuplicate,
+  onProjectToScreen,
+  isProjecting,
+}: Omit<MobileEditorHeaderProps, 'title' | 'domain' | 'onBack'>): Action[] {
+  // Z2: widoczne Zapisz + Rzutuj; Do scenariusza i Duplikuj → menu ⋯
+  return [
+    {
+      key: 'save',
+      label: 'Zapisz',
+      icon: Save,
+      onClick: onSave,
+      variant: 'default',
+      disabled: isSaving || !hasChanges,
+      loading: isSaving,
+      alwaysLabel: true,
+    },
+    {
+      key: 'project',
+      label: 'Rzutuj',
+      icon: Monitor,
+      onClick: onProjectToScreen,
+      variant: isProjecting ? 'default' : 'outline',
+    },
+    {
+      key: 'scenario',
+      label: 'Do scenariusza',
+      icon: ListPlus,
+      onClick: onAddToScenario,
+      variant: 'outline',
+    },
+    {
+      key: 'duplicate',
+      label: 'Duplikuj',
+      icon: Copy,
+      onClick: onDuplicate,
+      variant: 'outline',
+    },
+  ];
+}
+
 function MobileEditorHeader({
   title,
   domain,
@@ -220,54 +266,32 @@ function MobileEditorHeader({
   return (
     <div className="p-3 border-b flex items-center justify-between gap-2">
       <div className="flex items-center gap-2 min-w-0">
-        <Button variant="ghost" size="icon" className="shrink-0" onClick={onBack}>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="shrink-0"
+          onClick={onBack}
+          title="Zamknij"
+          aria-label="Zamknij"
+        >
           <X className="h-5 w-5" />
         </Button>
         <div className="min-w-0">
-          <h1 className="text-base font-bold truncate">{title}</h1>
+          <h1 className="text-base font-semibold truncate">{title}</h1>
           <p className="text-xs text-muted-foreground capitalize">{domain}</p>
         </div>
       </div>
-      <div className="flex items-center gap-1.5">
-        <Button
-          variant={isProjecting ? 'default' : 'outline'}
-          size="icon"
-          className="h-8 w-8"
-          onClick={onProjectToScreen}
-          title="Rzutuj na ekran"
-        >
-          <Monitor className="h-4 w-4" />
-        </Button>
-        <Button
-          variant="outline"
-          size="icon"
-          className="h-8 w-8"
-          onClick={onAddToScenario}
-        >
-          <ListPlus className="h-4 w-4" />
-        </Button>
-        <Button
-          variant="outline"
-          size="icon"
-          className="h-8 w-8"
-          onClick={onDuplicate}
-          title="Duplikuj"
-        >
-          <Copy className="h-4 w-4" />
-        </Button>
-        <Button
-          size="sm"
-          className="h-8"
-          onClick={onSave}
-          disabled={isSaving || !hasChanges}
-        >
-          {isSaving ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <Save className="h-4 w-4" />
-          )}
-        </Button>
-      </div>
+      <ActionBar
+        actions={editorActions({
+          hasChanges,
+          isSaving,
+          onSave,
+          onAddToScenario,
+          onDuplicate,
+          onProjectToScreen,
+          isProjecting,
+        })}
+      />
     </div>
   );
 }
@@ -304,45 +328,34 @@ function DesktopEditorHeader({
   return (
     <div className="p-4 border-b flex items-center justify-between gap-4">
       <div className="flex items-center gap-3 min-w-0">
-        <Button variant="ghost" size="icon" onClick={onBack}>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onBack}
+          title="Zamknij"
+          aria-label="Zamknij"
+        >
           <X className="h-5 w-5" />
         </Button>
         <div className="min-w-0">
-          <h1 className="text-xl font-bold truncate">{title}</h1>
+          <h1 className="text-lg font-semibold truncate">{title}</h1>
           <p className="text-sm text-muted-foreground capitalize">{domain}</p>
         </div>
       </div>
       <div className="flex items-center gap-2">
         <EditorTabs activeTab={editorTab} onTabChange={onEditorTabChange} />
         <div className="w-px h-6 bg-border mx-2" />
-        <Button
-          variant={isProjecting ? 'default' : 'outline'}
-          size="sm"
-          onClick={onProjectToScreen}
-        >
-          <Monitor className="h-4 w-4 mr-2" />
-          Rzutuj
-        </Button>
-        <Button variant="outline" size="sm" onClick={onAddToScenario}>
-          <ListPlus className="h-4 w-4 mr-2" />
-          Do scenariusza
-        </Button>
-        <Button variant="outline" size="sm" onClick={onDuplicate} title="Duplikuj">
-          <Copy className="h-4 w-4 mr-2" />
-          Duplikuj
-        </Button>
-        <Button
-          size="sm"
-          onClick={onSave}
-          disabled={isSaving || !hasChanges}
-        >
-          {isSaving ? (
-            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-          ) : (
-            <Save className="h-4 w-4 mr-2" />
-          )}
-          Zapisz
-        </Button>
+        <ActionBar
+          actions={editorActions({
+            hasChanges,
+            isSaving,
+            onSave,
+            onAddToScenario,
+            onDuplicate,
+            onProjectToScreen,
+            isProjecting,
+          })}
+        />
       </div>
     </div>
   );

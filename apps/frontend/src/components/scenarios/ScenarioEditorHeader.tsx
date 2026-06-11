@@ -1,5 +1,6 @@
-import { X, Save, Trash2, Monitor, Loader2, Copy } from 'lucide-react';
+import { X, Save, Trash2, Monitor, Copy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { ActionBar, type Action } from '@/components/ui/action-bar';
 import type { ScenarioDoc } from '@/types/scenarios';
 
 type ScenarioEditorHeaderProps = {
@@ -14,6 +15,7 @@ type ScenarioEditorHeaderProps = {
   onDuplicate: () => void;
   onProjectToScreen: () => void;
   canProject: boolean;
+  /** Zachowane dla zgodności wywołań — układ jest teraz wspólny dla mobile/desktop. */
   isMobile?: boolean;
 };
 
@@ -29,125 +31,62 @@ export function ScenarioEditorHeader({
   onDuplicate,
   onProjectToScreen,
   canProject,
-  isMobile = false,
 }: ScenarioEditorHeaderProps) {
-  if (isMobile) {
-    return (
-      <div className="px-3 py-2.5 border-b flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2 min-w-0">
-          <Button variant="ghost" size="icon" className="shrink-0" onClick={onBack}>
-            <X className="h-5 w-5" />
-          </Button>
-          <div className="min-w-0">
-            <h1 className="text-base font-bold truncate">{scenario.meta.title}</h1>
-            <p className="text-xs text-muted-foreground">
-              {stepsCount} kroków
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <Button
-            variant={isCurrentlyProjecting ? 'default' : 'outline'}
-            size="icon"
-            className="h-8 w-8"
-            onClick={onProjectToScreen}
-            disabled={!canProject}
-            title="Rzutuj na ekran"
-          >
-            <Monitor className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            className="h-8 w-8"
-            onClick={onDuplicate}
-            title="Duplikuj"
-          >
-            <Copy className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            className="h-8 w-8 text-destructive hover:text-destructive"
-            onClick={onDelete}
-            title="Usuń"
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
-          <Button
-            size="icon"
-            className="h-8 w-8"
-            onClick={onSave}
-            disabled={!hasChanges || isSaving}
-            title="Zapisz"
-          >
-            {isSaving ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Save className="h-4 w-4" />
-            )}
-          </Button>
-        </div>
-      </div>
-    );
-  }
+  // Z2: widoczne Zapisz + Rzutuj; Duplikuj i Usuń → menu ⋯ (Usuń destrukcyjny, Z3)
+  const actions: Action[] = [
+    {
+      key: 'save',
+      label: 'Zapisz',
+      icon: Save,
+      onClick: onSave,
+      variant: 'default',
+      disabled: !hasChanges || isSaving,
+      loading: isSaving,
+      alwaysLabel: true,
+    },
+    {
+      key: 'project',
+      label: 'Rzutuj',
+      icon: Monitor,
+      onClick: onProjectToScreen,
+      variant: isCurrentlyProjecting ? 'default' : 'outline',
+      disabled: !canProject,
+    },
+    {
+      key: 'duplicate',
+      label: 'Duplikuj',
+      icon: Copy,
+      onClick: onDuplicate,
+      variant: 'outline',
+    },
+    {
+      key: 'delete',
+      label: 'Usuń',
+      icon: Trash2,
+      onClick: onDelete,
+      destructive: true,
+    },
+  ];
 
-  // Desktop layout
   return (
-    <div className="px-4 py-3 border-b flex items-center justify-between gap-4">
-      <div className="flex items-center gap-3 min-w-0">
-        <Button variant="ghost" size="icon" onClick={onBack}>
+    <div className="px-3 py-2.5 sm:px-4 sm:py-3 border-b flex items-center justify-between gap-2">
+      <div className="flex items-center gap-2 min-w-0">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="shrink-0"
+          onClick={onBack}
+          title="Zamknij"
+          aria-label="Zamknij"
+        >
           <X className="h-5 w-5" />
         </Button>
         <div className="min-w-0">
-          <h1 className="text-xl font-bold truncate">{scenario.meta.title}</h1>
-          <p className="text-sm text-muted-foreground">
-            {stepsCount} kroków
-          </p>
+          <h1 className="text-lg font-semibold truncate">{scenario.meta.title}</h1>
+          <p className="text-xs text-muted-foreground">{stepsCount} kroków</p>
         </div>
       </div>
-      <div className="flex items-center gap-2">
-        <Button
-          variant={isCurrentlyProjecting ? 'default' : 'outline'}
-          size="icon"
-          onClick={onProjectToScreen}
-          disabled={!canProject}
-          title="Rzutuj na ekran"
-        >
-          <Monitor className="h-4 w-4" />
-        </Button>
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={onDuplicate}
-          title="Duplikuj"
-        >
-          <Copy className="h-4 w-4" />
-        </Button>
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={onDelete}
-          className="text-destructive hover:text-destructive"
-          title="Usuń"
-        >
-          <Trash2 className="h-4 w-4" />
-        </Button>
-        <Button
-          size="icon"
-          onClick={onSave}
-          disabled={!hasChanges || isSaving}
-          title="Zapisz"
-        >
-          {isSaving ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <Save className="h-4 w-4" />
-          )}
-        </Button>
-      </div>
+      <ActionBar actions={actions} />
     </div>
   );
 }
-
-
