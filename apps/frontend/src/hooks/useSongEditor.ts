@@ -65,7 +65,8 @@ export function useSongEditor() {
   // Computed
   const filteredSongs = useMemo(() => {
     if (!songs) return [];
-    return songs.sort((a, b) => a.meta.title.localeCompare(b.meta.title, 'pl'));
+    // Kopia — .sort() mutuje, a `songs` to tablica z cache React Query
+    return [...songs].sort((a, b) => a.meta.title.localeCompare(b.meta.title, 'pl'));
   }, [songs]);
 
   // Check for changes

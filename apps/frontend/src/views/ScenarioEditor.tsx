@@ -63,7 +63,8 @@ export function ScenarioEditor() {
   // Computed
   const filteredScenarios = useMemo(() => {
     if (!scenarios) return [];
-    return scenarios.sort((a, b) => b.meta.id.localeCompare(a.meta.id)); // Newest first
+    // Kopia — .sort() mutuje, a `scenarios` to tablica z cache React Query
+    return [...scenarios].sort((a, b) => b.meta.id.localeCompare(a.meta.id)); // Newest first
   }, [scenarios]);
 
   const hasChanges = useMemo(() => {
