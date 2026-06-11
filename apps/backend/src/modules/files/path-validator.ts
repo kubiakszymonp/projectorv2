@@ -22,8 +22,9 @@ export class PathValidator {
     // Zbuduj pełną ścieżkę
     const fullPath = path.resolve(this.root, normalized);
     
-    // KRYTYCZNE: sprawdź czy wynik jest w root
-    if (!fullPath.startsWith(this.root)) {
+    // KRYTYCZNE: sprawdź czy wynik jest w root.
+    // Wymagamy separatora, by /app/data nie przepuściło /app/data-x.
+    if (fullPath !== this.root && !fullPath.startsWith(this.root + path.sep)) {
       throw new BadRequestException('Invalid path: path traversal detected');
     }
     
