@@ -13,6 +13,7 @@ import {
 } from '@/hooks/useScenarios';
 import { useSetScenario, useScreenState } from '@/hooks/usePlayer';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import { useUnsavedChangesWarning, confirmIfUnsaved } from '@/hooks/useUnsavedChangesWarning';
 import { ScenarioList } from '@/components/scenarios/ScenarioList';
 import { ScenarioEditorHeader } from '@/components/scenarios/ScenarioEditorHeader';
 import { ScenarioMetadataPanel } from '@/components/scenarios/ScenarioMetadataPanel';
@@ -102,6 +103,8 @@ export function ScenarioEditor() {
     );
   }, [selectedScenario, editedTitle, editedDescription, editedDate]);
 
+  useUnsavedChangesWarning(hasChanges && viewMode === 'edit');
+
   // Check if current scenario is being projected
   const isCurrentlyProjecting = useMemo(() => {
     if (!selectedScenario || !screenState) return false;
@@ -147,6 +150,7 @@ export function ScenarioEditor() {
   }, [setSearchParams]);
 
   const handleBack = useCallback(() => {
+    if (!confirmIfUnsaved(hasChanges)) return;
     setSelectedScenario(null);
     setViewMode('list');
     setEditedSteps([]);
@@ -156,7 +160,7 @@ export function ScenarioEditor() {
     setSelectedStepIndex(null);
     // Clear URL
     setSearchParams({}, { replace: true });
-  }, [setSearchParams]);
+  }, [setSearchParams, hasChanges]);
 
   const handleSave = useCallback(async () => {
     if (!selectedScenario) return;

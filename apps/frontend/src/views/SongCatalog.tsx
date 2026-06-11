@@ -2,6 +2,7 @@ import { toast } from 'sonner';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useSongEditor } from '@/hooks/useSongEditor';
 import { useReloadTexts, useImportTexts } from '@/hooks/useTexts';
+import { useUnsavedChangesWarning } from '@/hooks/useUnsavedChangesWarning';
 import { SongList, SongEditor, CreateSongDialog } from '@/components/songs';
 import { AddToScenarioModal } from '@/components/scenarios/AddToScenarioModal';
 import { createTextReference } from '@/utils/textReference';
@@ -11,6 +12,8 @@ export function SongCatalog() {
   const editor = useSongEditor();
   const reloadTexts = useReloadTexts();
   const importTexts = useImportTexts();
+
+  useUnsavedChangesWarning(editor.hasChanges && editor.viewMode === 'edit');
 
   const handleImport = () => {
     const input = document.createElement('input');

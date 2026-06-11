@@ -2,6 +2,7 @@ import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTexts, useDomains, useCreateText, useUpdateText, useDuplicateText, useText } from '@/hooks/useTexts';
 import { useSetText, useScreenState } from '@/hooks/usePlayer';
+import { confirmIfUnsaved } from '@/hooks/useUnsavedChangesWarning';
 import { createTextReference } from '@/utils/textReference';
 import type { TextDoc } from '@/types/texts';
 import type {
@@ -131,6 +132,7 @@ export function useSongEditor() {
   }, [setSearchParams]);
 
   const handleBack = useCallback(() => {
+    if (!confirmIfUnsaved(hasChanges)) return;
     setSelectedSong(null);
     setViewMode('list');
     setEditContent('');
@@ -138,7 +140,7 @@ export function useSongEditor() {
     setEditorTab('content');
     // Clear URL
     setSearchParams({}, { replace: true });
-  }, [setSearchParams]);
+  }, [setSearchParams, hasChanges]);
 
   const handleDuplicate = useCallback(async () => {
     if (!selectedSong) return;
