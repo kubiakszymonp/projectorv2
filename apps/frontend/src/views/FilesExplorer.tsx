@@ -30,6 +30,7 @@ import {
   useSaveFile,
 } from '@/hooks/useFiles';
 import { useSetMedia } from '@/hooks/usePlayer';
+import { checkPathType } from '@/api/files';
 import type { FileNode } from '@/types/files';
 import type { ScenarioStep } from '@/types/scenarios';
 
@@ -89,52 +90,50 @@ export function FilesExplorer({ initialPath = '', title = 'Edytor plików' }: Fi
     const pathToUse = pathFromUrl || initialPath;
     if (pathToUse) {
       // Check with backend if path is a file or folder
-      import('@/api/files').then((filesApi) => {
-        filesApi.checkPathType(pathToUse)
-          .then(({ isDir }: { isDir: boolean }) => {
-            if (isDir) {
-              // It's a folder
-              setCurrentPath(pathToUse);
-              // Auto-expand parent folders
-              const parts = pathToUse.split('/').filter(Boolean);
-              const newExpanded = new Set<string>();
-              let current = '';
-              for (const part of parts) {
-                current = current ? `${current}/${part}` : part;
-                newExpanded.add(current);
-              }
-              setExpandedFolders(newExpanded);
-            } else {
-              // It's a file - extract parent folder and open file
-              const parentFolder = pathToUse.substring(0, pathToUse.lastIndexOf('/'));
-              setCurrentPath(parentFolder);
-              
-              // Determine file kind from extension
-              const fileName = pathToUse.split('/').pop() || '';
-              const extension = fileName.split('.').pop()?.toLowerCase() || '';
-              const isEditable = ['md', 'txt', 'yaml', 'yml', 'json', 'html', 'css', 'js', 'ts'].includes(extension);
-              setOpenFile({
-                path: pathToUse,
-                kind: extension === 'md' || extension === 'txt' ? 'text' : 'other',
-                isEditable,
-              });
-              
-              // Auto-expand parent folders
-              const parts = parentFolder.split('/').filter(Boolean);
-              const newExpanded = new Set<string>();
-              let current = '';
-              for (const part of parts) {
-                current = current ? `${current}/${part}` : part;
-                newExpanded.add(current);
-              }
-              setExpandedFolders(newExpanded);
-            }
-          })
-          .catch(() => {
-            // If check fails, assume it's a folder (fallback)
+      checkPathType(pathToUse)
+        .then(({ isDir }: { isDir: boolean }) => {
+          if (isDir) {
+            // It's a folder
             setCurrentPath(pathToUse);
-          });
-      });
+            // Auto-expand parent folders
+            const parts = pathToUse.split('/').filter(Boolean);
+            const newExpanded = new Set<string>();
+            let current = '';
+            for (const part of parts) {
+              current = current ? `${current}/${part}` : part;
+              newExpanded.add(current);
+            }
+            setExpandedFolders(newExpanded);
+          } else {
+            // It's a file - extract parent folder and open file
+            const parentFolder = pathToUse.substring(0, pathToUse.lastIndexOf('/'));
+            setCurrentPath(parentFolder);
+
+            // Determine file kind from extension
+            const fileName = pathToUse.split('/').pop() || '';
+            const extension = fileName.split('.').pop()?.toLowerCase() || '';
+            const isEditable = ['md', 'txt', 'yaml', 'yml', 'json', 'html', 'css', 'js', 'ts'].includes(extension);
+            setOpenFile({
+              path: pathToUse,
+              kind: extension === 'md' || extension === 'txt' ? 'text' : 'other',
+              isEditable,
+            });
+
+            // Auto-expand parent folders
+            const parts = parentFolder.split('/').filter(Boolean);
+            const newExpanded = new Set<string>();
+            let current = '';
+            for (const part of parts) {
+              current = current ? `${current}/${part}` : part;
+              newExpanded.add(current);
+            }
+            setExpandedFolders(newExpanded);
+          }
+        })
+        .catch(() => {
+          // If check fails, assume it's a folder (fallback)
+          setCurrentPath(pathToUse);
+        });
     }
   }, [pathFromUrl, initialPath]);
 

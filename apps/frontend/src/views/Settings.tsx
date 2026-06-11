@@ -10,7 +10,16 @@ import {
   Activity,
 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogDescription,
+} from '@/components/ui/dialog';
 import { useSettings, useUpdateSettings, useResetSettings } from '@/hooks/useSettings';
 import { useSetQRCode, useClearScreen, useScreenState } from '@/hooks/usePlayer';
 import { SettingsHeader } from '@/components/settings/SettingsHeader';
@@ -31,6 +40,7 @@ export function Settings() {
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [showQRCodes, setShowQRCodes] = useState(false);
   const [qrTab, setQrTab] = useState<'wifi' | 'url'>('wifi');
+  const [resetConfirmOpen, setResetConfirmOpen] = useState(false);
 
   // Queries & Mutations
   const { data: serverSettings, isLoading, error } = useSettings();
@@ -127,16 +137,19 @@ export function Settings() {
     }
   }, [localSettings, updateSettings]);
 
-  const handleReset = useCallback(async () => {
-    if (!window.confirm('Czy na pewno chcesz przywrócić domyślne ustawienia?')) {
-      return;
-    }
+  const handleReset = useCallback(() => {
+    setResetConfirmOpen(true);
+  }, []);
+
+  const doReset = useCallback(async () => {
     try {
       await resetSettings.mutateAsync();
       setIsDirty(false);
       setSaveSuccess(true);
     } catch (err) {
       console.error('Failed to reset settings:', err);
+    } finally {
+      setResetConfirmOpen(false);
     }
   }, [resetSettings]);
 
@@ -289,6 +302,30 @@ export function Settings() {
           </div>
         </ScrollArea>
       </main>
+
+      <Dialog open={resetConfirmOpen} onOpenChange={setResetConfirmOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Przywrócić domyślne ustawienia?</DialogTitle>
+            <DialogDescription>
+              Wszystkie ustawienia wyświetlania i WiFi zostaną przywrócone do
+              wartości domyślnych. Tej operacji nie można cofnąć.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setResetConfirmOpen(false)}>
+              Anuluj
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={doReset}
+              disabled={resetSettings.isPending}
+            >
+              {resetSettings.isPending ? 'Przywracanie…' : 'Przywróć'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
