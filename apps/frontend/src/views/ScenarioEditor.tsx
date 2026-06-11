@@ -25,7 +25,7 @@ import { ScenarioList } from '@/components/scenarios/ScenarioList';
 import { ScenarioEditorHeader } from '@/components/scenarios/ScenarioEditorHeader';
 import { ScenarioMetadataPanel } from '@/components/scenarios/ScenarioMetadataPanel';
 import { ScenarioStepsList } from '@/components/scenarios/ScenarioStepsList';
-import { CreateScenarioDialog, DeleteScenarioDialog } from '@/components/scenarios/ScenarioDialogs';
+import { CreateScenarioDialog, DeleteScenarioDialog, TextPromptDialog } from '@/components/scenarios/ScenarioDialogs';
 import type { ScenarioDoc, ScenarioStep } from '@/types/scenarios';
 
 type ViewMode = 'list' | 'edit';
@@ -49,6 +49,10 @@ export function ScenarioEditor() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [newScenarioTitle, setNewScenarioTitle] = useState('');
   const [isMetadataOpen, setIsMetadataOpen] = useState(false);
+  const [headingDialogOpen, setHeadingDialogOpen] = useState(false);
+  const [headingValue, setHeadingValue] = useState('');
+  const [qrDialogOpen, setQrDialogOpen] = useState(false);
+  const [qrValue, setQrValue] = useState('');
 
   // Drag state
   const [dragIndex, setDragIndex] = useState<number | null>(null);
@@ -236,22 +240,32 @@ export function ScenarioEditor() {
   }, [navigate]);
 
   const handleAddHeading = useCallback(() => {
-    const heading = window.prompt('Tekst nagłówka:');
-    if (heading?.trim()) {
-      setEditedSteps((prev) => [...prev, createHeadingStep(heading.trim())]);
-    }
+    setHeadingValue('');
+    setHeadingDialogOpen(true);
   }, []);
+
+  const confirmAddHeading = useCallback(() => {
+    if (headingValue.trim()) {
+      setEditedSteps((prev) => [...prev, createHeadingStep(headingValue.trim())]);
+    }
+    setHeadingDialogOpen(false);
+  }, [headingValue]);
 
   const handleAddBlank = useCallback(() => {
     setEditedSteps((prev) => [...prev, createBlankStep()]);
   }, []);
 
   const handleAddQR = useCallback(() => {
-    const value = window.prompt('Wartość kodu QR (URL lub tekst):');
-    if (value?.trim()) {
-      setEditedSteps((prev) => [...prev, { qrcode: value.trim() }]);
-    }
+    setQrValue('');
+    setQrDialogOpen(true);
   }, []);
+
+  const confirmAddQR = useCallback(() => {
+    if (qrValue.trim()) {
+      setEditedSteps((prev) => [...prev, { qrcode: qrValue.trim() }]);
+    }
+    setQrDialogOpen(false);
+  }, [qrValue]);
 
   const handleAddMedia = useCallback(() => {
     navigate('/media');
@@ -303,6 +317,51 @@ export function ScenarioEditor() {
   const renderEditor = () => {
     if (!selectedScenario) return null;
 
+    // Wspólny pasek dolny (mobile = desktop): Dodaj teksty + Dodaj krok + link do plików
+    const bottomBar = (
+      <div className="border-t space-y-2 p-3 bg-muted/20">
+        <div className="flex gap-2">
+          <Button variant="default" className="flex-1" onClick={handleGoToSongs}>
+            <Music className="h-4 w-4 mr-2" />
+            Dodaj teksty
+          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline">
+                <Plus className="h-4 w-4 mr-2" />
+                Dodaj krok
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={handleAddHeading}>
+                <Type className="h-4 w-4 mr-2" />
+                Nagłówek
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleAddBlank}>
+                <Square className="h-4 w-4 mr-2" />
+                Pusty slajd
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleAddMedia}>
+                <ImageIcon className="h-4 w-4 mr-2" />
+                Media…
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleAddQR}>
+                <QrCode className="h-4 w-4 mr-2" />
+                Kod QR
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+        <Link
+          to={`/files?path=${encodeURIComponent(selectedScenario.filePath)}`}
+          className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <FolderOpen className="h-4 w-4" />
+          <span>Otwórz w edytorze plików</span>
+        </Link>
+      </div>
+    );
+
     if (isMobile) {
       return (
         <div className="flex-1 flex flex-col min-h-0">
@@ -352,23 +411,7 @@ export function ScenarioEditor() {
             />
           </div>
 
-          <div className="border-t space-y-2 p-3 bg-muted/20">
-            <Button
-              variant="default"
-              className="w-full"
-              onClick={handleGoToSongs}
-            >
-              <Music className="h-4 w-4 mr-2" />
-              Dodaj teksty
-            </Button>
-            <Link
-              to={`/files?path=${encodeURIComponent(selectedScenario.filePath)}`}
-              className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
-              <FolderOpen className="h-4 w-4" />
-              <span>Otwórz w edytorze plików</span>
-            </Link>
-          </div>
+          {bottomBar}
         </div>
       );
     }
@@ -422,51 +465,7 @@ export function ScenarioEditor() {
           />
         </div>
 
-        <div className="border-t space-y-2 p-3 bg-muted/20">
-          <div className="flex gap-2">
-            <Button
-              variant="default"
-              className="flex-1"
-              onClick={handleGoToSongs}
-            >
-              <Music className="h-4 w-4 mr-2" />
-              Dodaj teksty
-            </Button>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Dodaj krok
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={handleAddHeading}>
-                  <Type className="h-4 w-4 mr-2" />
-                  Nagłówek
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleAddBlank}>
-                  <Square className="h-4 w-4 mr-2" />
-                  Pusty slajd
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleAddMedia}>
-                  <ImageIcon className="h-4 w-4 mr-2" />
-                  Media…
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleAddQR}>
-                  <QrCode className="h-4 w-4 mr-2" />
-                  Kod QR
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-          <Link
-            to={`/files?path=${encodeURIComponent(selectedScenario.filePath)}`}
-            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <FolderOpen className="h-4 w-4" />
-            <span>Otwórz w edytorze plików</span>
-          </Link>
-        </div>
+        {bottomBar}
       </div>
     );
   };
@@ -503,6 +502,28 @@ export function ScenarioEditor() {
         scenario={selectedScenario}
         onDelete={handleDeleteScenario}
         isPending={deleteScenario.isPending}
+      />
+
+      <TextPromptDialog
+        open={headingDialogOpen}
+        onOpenChange={setHeadingDialogOpen}
+        title="Dodaj nagłówek"
+        label="Tekst nagłówka"
+        placeholder="np. Część I — Wejście"
+        value={headingValue}
+        onValueChange={setHeadingValue}
+        onConfirm={confirmAddHeading}
+      />
+
+      <TextPromptDialog
+        open={qrDialogOpen}
+        onOpenChange={setQrDialogOpen}
+        title="Dodaj kod QR"
+        label="Wartość kodu QR (URL lub tekst)"
+        placeholder="https://…"
+        value={qrValue}
+        onValueChange={setQrValue}
+        onConfirm={confirmAddQR}
       />
     </div>
   );
