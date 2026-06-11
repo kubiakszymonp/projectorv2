@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import * as playerApi from '@/api/player';
-import { useSocketEvent } from './useSocket';
+import { useSocketEvent, useSocketReconnect } from './useSocket';
 
 // ========== QUERY KEYS ==========
 
@@ -13,9 +13,10 @@ export const playerKeys = {
 
 /**
  * Hook do pobierania aktualnego stanu ekranu
- * Aktualizacje przez WebSocket, bez pollingu
+ * Aktualizacje przez WebSocket.
+ * @param options.pollingFallback - włącz awaryjny polling (dla /display, gdy socket padnie)
  */
-export function useScreenState() {
+export function useScreenState(options?: { pollingFallback?: boolean }) {
   const queryClient = useQueryClient();
 
   // Listen to socket events for screen state changes
@@ -23,9 +24,16 @@ export function useScreenState() {
     queryClient.invalidateQueries({ queryKey: playerKeys.state() });
   });
 
+  // Po (ponownym) połączeniu socketu stan mógł się zmienić — wymuś odświeżenie
+  useSocketReconnect(() => {
+    queryClient.invalidateQueries({ queryKey: playerKeys.state() });
+  });
+
   return useQuery({
     queryKey: playerKeys.state(),
     queryFn: playerApi.getScreenState,
+    // Fallback polling dla ekranu publicznego — działa nawet gdy socket padnie
+    refetchInterval: options?.pollingFallback ? 10000 : false,
   });
 }
 

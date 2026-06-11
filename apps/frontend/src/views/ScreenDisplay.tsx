@@ -9,8 +9,8 @@ import type { ScreenState, TextDisplayItem } from '@/types/player';
 // ========== MAIN COMPONENT ==========
 
 export function ScreenDisplay() {
-  // Updates via WebSocket notifications only, no polling
-  const { data: screenState } = useScreenState();
+  // Updates via WebSocket; polling fallback keeps the public screen fresh if the socket dies
+  const { data: screenState } = useScreenState({ pollingFallback: true });
   const { data: settings } = useSettings();
 
   const state = screenState ?? { mode: 'empty' as const };

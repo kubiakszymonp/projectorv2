@@ -17,6 +17,7 @@ import {
   Trash2,
   Edit,
   QrCode,
+  WifiOff,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -31,6 +32,7 @@ import {
 } from '@/hooks/usePlayer';
 import { useScenario } from '@/hooks/useScenarios';
 import { useText } from '@/hooks/useTexts';
+import { useSocketStatus } from '@/hooks/useSocket';
 import type { ScreenState, DisplayItem, TextDisplayItem } from '@/types/player';
 import { getStepType, getStepValue } from '@/types/scenarios';
 import { cn } from '@/lib/utils';
@@ -101,6 +103,7 @@ function getDisplayItemColor(item: DisplayItem): string {
 
 export function ScreenControl() {
   const { data: screenState, isLoading } = useScreenState();
+  const isConnected = useSocketStatus();
   const clearScreen = useClearScreen();
   const navigateSlide = useNavigateSlide();
   const navigateStep = useNavigateStep();
@@ -160,6 +163,15 @@ export function ScreenControl() {
         <div className="flex items-center gap-2">
           <Monitor className="h-5 w-5 text-blue-400" />
           <h1 className="text-lg font-semibold">Sterowanie ekranem</h1>
+          {!isConnected && (
+            <span
+              className="flex items-center gap-1 text-xs text-amber-400"
+              title="Brak połączenia z serwerem — próba ponownego połączenia…"
+            >
+              <WifiOff className="h-4 w-4" />
+              <span className="hidden sm:inline">Brak połączenia</span>
+            </span>
+          )}
         </div>
         <div className="flex items-center gap-4">
           {/* Visibility Switch */}

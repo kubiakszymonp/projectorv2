@@ -1,7 +1,24 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 
 let socketInstance: Socket | null = null;
+
+// Connection status tracking
+let isConnected = false;
+const statusListeners = new Set<(connected: boolean) => void>();
+// Fires on every (re)connection so consumers can refetch state that may have
+// changed while the socket was down.
+const reconnectListeners = new Set<() => void>();
+
+function setConnected(value: boolean) {
+  if (isConnected === value) return;
+  isConnected = value;
+  statusListeners.forEach((cb) => cb(value));
+}
+
+function notifyReconnect() {
+  reconnectListeners.forEach((cb) => cb());
+}
 
 /**
  * Get or create socket instance
@@ -11,11 +28,11 @@ function getSocket(): Socket {
     // In production (Docker), use relative URL so nginx can proxy the request
     // In development, use direct backend URL
     const isDevelopment = import.meta.env.DEV;
-    const backendUrl = isDevelopment 
-      ? 'http://localhost:10000' 
+    const backendUrl = isDevelopment
+      ? 'http://localhost:10000'
       : window.location.origin;
     const namespace = '/notifications';
-    
+
     console.debug('[Socket] Creating new socket connection:', {
       backendUrl,
       namespace,
@@ -23,14 +40,15 @@ function getSocket(): Socket {
       origin: window.location.origin,
       href: window.location.href,
     });
-    
+
     // Socket.IO client automatically handles /socket.io/ prefix
     // Just pass the base URL and namespace
     socketInstance = io(`${backendUrl}${namespace}`, {
       transports: ['websocket', 'polling'], // Prefer websocket, fallback to polling
       reconnection: true,
       reconnectionDelay: 1000,
-      reconnectionAttempts: 5,
+      reconnectionDelayMax: 5000, // cap backoff so a TV recovers quickly
+      reconnectionAttempts: Infinity, // never give up — church TV must self-heal
       autoConnect: true,
       timeout: 20000, // 20 seconds timeout
       forceNew: false,
@@ -43,10 +61,15 @@ function getSocket(): Socket {
         id: socketInstance?.id,
         transport: socketInstance?.io.engine?.transport?.name,
       });
+      setConnected(true);
+      // State may have changed while we were offline (initial connect too) —
+      // force a refetch.
+      notifyReconnect();
     });
 
     socketInstance.on('disconnect', (reason) => {
       console.debug('[Socket] ❌ Disconnected:', reason);
+      setConnected(false);
     });
 
     socketInstance.on('connect_error', (error) => {
@@ -54,6 +77,7 @@ function getSocket(): Socket {
         message: error.message,
         error: error,
       });
+      setConnected(false);
     });
 
     socketInstance.on('error', (error) => {
@@ -114,6 +138,46 @@ export function useSocketEvent(
 }
 
 /**
+ * Hook that runs a callback every time the socket (re)connects.
+ * Use to refetch server state that may have drifted while offline.
+ */
+export function useSocketReconnect(callback: () => void) {
+  const callbackRef = useRef(callback);
+  useEffect(() => {
+    callbackRef.current = callback;
+  }, [callback]);
+
+  useEffect(() => {
+    getSocket(); // ensure socket exists
+    const handler = () => callbackRef.current();
+    reconnectListeners.add(handler);
+    return () => {
+      reconnectListeners.delete(handler);
+    };
+  }, []);
+}
+
+/**
+ * Hook returning the current socket connection status (true = connected).
+ * For a discreet "no connection" indicator in the control panel.
+ */
+export function useSocketStatus(): boolean {
+  const [connected, setConnectedState] = useState(isConnected);
+
+  useEffect(() => {
+    getSocket(); // ensure socket exists
+    setConnectedState(isConnected);
+    const handler = (value: boolean) => setConnectedState(value);
+    statusListeners.add(handler);
+    return () => {
+      statusListeners.delete(handler);
+    };
+  }, []);
+
+  return connected;
+}
+
+/**
  * Cleanup socket connection (for testing or cleanup)
  */
 export function disconnectSocket() {
@@ -122,4 +186,3 @@ export function disconnectSocket() {
     socketInstance = null;
   }
 }
-
