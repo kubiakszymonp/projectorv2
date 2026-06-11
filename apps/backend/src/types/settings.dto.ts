@@ -8,10 +8,9 @@ import {
   IsBoolean,
   ValidateNested,
   Min,
-  IsNotEmpty,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { DisplayContentType, TextAlign } from './settings';
+import { TextAlign } from './settings';
 
 /**
  * DTO for padding update
@@ -131,101 +130,5 @@ export class UpdateSettingsDto {
   @ValidateNested()
   @Type(() => UpdateWifiSettingsDto)
   wifi?: UpdateWifiSettingsDto;
-}
-
-// ========== DISPLAY STATE DTOs ==========
-
-/**
- * DTO for displaying a text slide (song, reading, etc.)
- * PUT /api/settings/display (type: 'text')
- */
-export class DisplayTextDto {
-  @IsIn(['text'])
-  type: 'text';
-
-  @IsNotEmpty()
-  @IsString()
-  textId: string;
-
-  @IsNumber()
-  @Min(0)
-  verseIndex: number;
-
-  @IsNotEmpty()
-  @IsString()
-  text: string;
-
-  @IsOptional()
-  @IsString()
-  title?: string;
-}
-
-/**
- * DTO for displaying media
- * PUT /api/settings/display (type: 'image' | 'video')
- */
-export class DisplayMediaDto {
-  @IsIn(['image', 'video'])
-  type: 'image' | 'video';
-
-  @IsNotEmpty()
-  @IsString()
-  mediaPath: string;
-}
-
-/**
- * DTO for displaying an announcement
- * PUT /api/settings/display (type: 'announcement')
- */
-export class DisplayAnnouncementDto {
-  @IsIn(['announcement'])
-  type: 'announcement';
-
-  @IsNotEmpty()
-  @IsString()
-  text: string;
-}
-
-/**
- * DTO for blank screen
- * PUT /api/settings/display (type: 'blank')
- */
-export class DisplayBlankDto {
-  @IsIn(['blank'])
-  type: 'blank';
-}
-
-/**
- * Union DTO for updating display state
- * PUT /api/settings/display
- * 
- * Note: In controller we manually validate based on type
- */
-export class UpdateDisplayStateDto {
-  @IsIn(['blank', 'text', 'image', 'video', 'announcement'])
-  type: DisplayContentType;
-
-  // Text fields (song, reading, etc.)
-  @IsOptional()
-  @IsString()
-  textId?: string;
-
-  @IsOptional()
-  @IsNumber()
-  @Min(0)
-  verseIndex?: number;
-
-  @IsOptional()
-  @IsString()
-  text?: string;
-
-  @IsOptional()
-  @IsString()
-  title?: string;
-
-  // Media fields
-  @IsOptional()
-  @IsString()
-  mediaPath?: string;
 }
 

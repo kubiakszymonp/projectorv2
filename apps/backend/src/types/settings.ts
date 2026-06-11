@@ -87,73 +87,9 @@ export const DEFAULT_SETTINGS: ProjectorSettings = {
   },
 };
 
-// ========== DISPLAY STATE (IN-MEMORY) ==========
-
-/**
- * Types of content that can be displayed
- */
-export type DisplayContentType = 'blank' | 'text' | 'image' | 'video' | 'announcement';
-
-/**
- * Content for displaying a text slide (song, reading, etc.)
- */
-export interface TextDisplayContent {
-  textId: string;
-  verseIndex: number;
-  text: string;
-  title?: string;
-}
-
-/**
- * Content for displaying media (image/video)
- */
-export interface MediaDisplayContent {
-  mediaPath: string;
-  mediaType: 'image' | 'video';
-}
-
-/**
- * Content for displaying an announcement
- */
-export interface AnnouncementDisplayContent {
-  text: string;
-}
-
-/**
- * Union type for all display content types
- */
-export type DisplayContent = 
-  | TextDisplayContent 
-  | MediaDisplayContent 
-  | AnnouncementDisplayContent 
-  | null;
-
-/**
- * Current display state (what is shown on projector)
- * Always starts with blank (black screen)
- */
-export interface DisplayState {
-  type: DisplayContentType;
-  content: DisplayContent;
-  updatedAt: string;
-}
-
-/**
- * Initial blank display state
- */
-export const INITIAL_DISPLAY_STATE: DisplayState = {
-  type: 'blank',
-  content: null,
-  updatedAt: new Date().toISOString(),
-};
-
 // ========== API RESPONSES ==========
 
 export interface SettingsResponse {
   settings: ProjectorSettings;
-}
-
-export interface DisplayStateResponse {
-  state: DisplayState;
 }
 
