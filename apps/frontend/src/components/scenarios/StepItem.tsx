@@ -1,18 +1,12 @@
 import { useNavigate } from 'react-router-dom';
 import {
   GripVertical,
-  FileText,
-  Image,
-  Video,
-  Music2,
-  Type,
-  Square,
-  QrCode,
   MoreVertical,
   Trash2,
   ChevronUp,
   ChevronDown,
 } from 'lucide-react';
+import { getStepStyle } from '@/lib/stepStyles';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -67,24 +61,7 @@ export function StepItem({
   const textId = textRef ? textRef.split('__').pop() || null : null;
   const { data: textDoc } = useText(textId);
 
-  const getStepIcon = () => {
-    switch (stepType) {
-      case 'text':
-        return <FileText className="h-4 w-4" />;
-      case 'image':
-        return <Image className="h-4 w-4" />;
-      case 'video':
-        return <Video className="h-4 w-4" />;
-      case 'audio':
-        return <Music2 className="h-4 w-4" />;
-      case 'heading':
-        return <Type className="h-4 w-4" />;
-      case 'blank':
-        return <Square className="h-4 w-4" />;
-      case 'qrcode':
-        return <QrCode className="h-4 w-4" />;
-    }
-  };
+  const StepIcon = getStepStyle(stepType).icon;
 
   const getStepLabel = () => {
     switch (stepType) {
@@ -111,24 +88,7 @@ export function StepItem({
     }
   };
 
-  const getStepColor = () => {
-    switch (stepType) {
-      case 'text':
-        return 'text-emerald-400 bg-emerald-500/10';
-      case 'image':
-        return 'text-purple-400 bg-purple-500/10';
-      case 'video':
-        return 'text-pink-400 bg-pink-500/10';
-      case 'audio':
-        return 'text-amber-400 bg-amber-500/10';
-      case 'heading':
-        return 'text-blue-400 bg-blue-500/10';
-      case 'blank':
-        return 'text-gray-400 bg-gray-500/10';
-      case 'qrcode':
-        return 'text-cyan-400 bg-cyan-500/10';
-    }
-  };
+  const getStepColor = () => getStepStyle(stepType).color;
 
   return (
     <div
@@ -151,7 +111,7 @@ export function StepItem({
       <span className="text-sm text-muted-foreground font-mono w-6">{index + 1}</span>
 
       <div className={cn('w-8 h-8 rounded-md flex items-center justify-center flex-shrink-0', getStepColor())}>
-        {getStepIcon()}
+        <StepIcon className="h-4 w-4" />
       </div>
 
       <div 

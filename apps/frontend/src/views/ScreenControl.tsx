@@ -7,16 +7,10 @@ import {
   ChevronLeft,
   ChevronRight,
   Loader2,
-  Image,
-  Video,
-  Music2,
-  FileText,
-  Type,
   Square,
   ListOrdered,
   Trash2,
   Edit,
-  QrCode,
   WifiOff,
   Tv,
   TvMinimal,
@@ -39,6 +33,7 @@ import { useSocketStatus } from '@/hooks/useSocket';
 import { useScreenConnections } from '@/hooks/useScreenConnections';
 import { useSettings } from '@/hooks/useSettings';
 import { QuickSearchDialog } from '@/components/control/QuickSearchDialog';
+import { getStepStyle } from '@/lib/stepStyles';
 import { SlideRenderer } from '@/components/display/SlideRenderer';
 import { DEFAULT_SETTINGS } from '@/types/settings';
 import type { ScreenState, DisplayItem, TextDisplayItem } from '@/types/player';
@@ -48,22 +43,8 @@ import { cn } from '@/lib/utils';
 // ========== HELPERS ==========
 
 function getDisplayItemIcon(item: DisplayItem) {
-  switch (item.type) {
-    case 'text':
-      return <FileText className="h-5 w-5" />;
-    case 'image':
-      return <Image className="h-5 w-5" />;
-    case 'video':
-      return <Video className="h-5 w-5" />;
-    case 'audio':
-      return <Music2 className="h-5 w-5" />;
-    case 'heading':
-      return <Type className="h-5 w-5" />;
-    case 'blank':
-      return <Square className="h-5 w-5" />;
-    case 'qrcode':
-      return <QrCode className="h-5 w-5" />;
-  }
+  const Icon = getStepStyle(item.type).icon;
+  return <Icon className="h-5 w-5" />;
 }
 
 function getDisplayItemLabel(item: DisplayItem): string {
@@ -89,22 +70,7 @@ function getDisplayItemLabel(item: DisplayItem): string {
 }
 
 function getDisplayItemColor(item: DisplayItem): string {
-  switch (item.type) {
-    case 'text':
-      return 'text-emerald-400 bg-emerald-500/10';
-    case 'image':
-      return 'text-purple-400 bg-purple-500/10';
-    case 'video':
-      return 'text-pink-400 bg-pink-500/10';
-    case 'audio':
-      return 'text-amber-400 bg-amber-500/10';
-    case 'heading':
-      return 'text-blue-400 bg-blue-500/10';
-    case 'blank':
-      return 'text-gray-400 bg-gray-500/10';
-    case 'qrcode':
-      return 'text-cyan-400 bg-cyan-500/10';
-  }
+  return getStepStyle(item.type).color;
 }
 
 // ========== COMPONENT ==========
@@ -660,22 +626,7 @@ function ScenarioStepItem({ step, index, isActive, onClick }: ScenarioStepItemPr
   const textId = textRef ? textRef.split('__').pop() || null : null;
   const { data: textDoc } = useText(textId);
 
-  const getStepIcon = () => {
-    switch (stepType) {
-      case 'text':
-        return <FileText className="h-4 w-4" />;
-      case 'image':
-        return <Image className="h-4 w-4" />;
-      case 'video':
-        return <Video className="h-4 w-4" />;
-      case 'audio':
-        return <Music2 className="h-4 w-4" />;
-      case 'heading':
-        return <Type className="h-4 w-4" />;
-      case 'blank':
-        return <Square className="h-4 w-4" />;
-    }
-  };
+  const StepIcon = getStepStyle(stepType).icon;
 
   const getStepLabel = () => {
     switch (stepType) {
@@ -694,25 +645,10 @@ function ScenarioStepItem({ step, index, isActive, onClick }: ScenarioStepItemPr
         return (stepValue as string).split('/').pop() ?? (stepValue as string);
       case 'heading':
         return stepValue as string;
+      case 'qrcode':
+        return stepValue as string;
       case 'blank':
         return 'Pusty slajd';
-    }
-  };
-
-  const getStepColor = () => {
-    switch (stepType) {
-      case 'text':
-        return 'text-emerald-400 bg-emerald-500/10';
-      case 'image':
-        return 'text-purple-400 bg-purple-500/10';
-      case 'video':
-        return 'text-pink-400 bg-pink-500/10';
-      case 'audio':
-        return 'text-amber-400 bg-amber-500/10';
-      case 'heading':
-        return 'text-blue-400 bg-blue-500/10';
-      case 'blank':
-        return 'text-gray-400 bg-gray-500/10';
     }
   };
 
@@ -728,9 +664,9 @@ function ScenarioStepItem({ step, index, isActive, onClick }: ScenarioStepItemPr
     >
       <div className={cn(
         'w-8 h-8 rounded-md flex items-center justify-center shrink-0',
-        getStepColor()
+        getStepStyle(stepType).color
       )}>
-        {getStepIcon()}
+        <StepIcon className="h-4 w-4" />
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
