@@ -8,9 +8,11 @@ import {
   Body,
   UseInterceptors,
   UploadedFile,
+  Req,
   Res,
   StreamableFile,
   BadRequestException,
+  NotFoundException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
@@ -22,7 +24,7 @@ import {
   ApiBody,
   ApiResponse,
 } from '@nestjs/swagger';
-import type { Response } from 'express';
+import type { Request, Response } from 'express';
 import * as fs from 'fs';
 import * as path from 'path';
 import { FilesService } from './files.service';
@@ -274,13 +276,14 @@ export class FilesController {
   })
   async getFile(
     @Query() dto: GetFileDto,
+    @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ): Promise<StreamableFile> {
     const filePath = this.filesService.getFilePath(dto.path);
 
     // Sprawdź czy plik istnieje
     if (!fs.existsSync(filePath)) {
-      throw new BadRequestException('File not found');
+      throw new NotFoundException('File not found');
     }
 
     const stat = fs.statSync(filePath);
@@ -288,17 +291,53 @@ export class FilesController {
       throw new BadRequestException('Path is not a file');
     }
 
-    // Ustaw Content-Type
     const fileName = path.basename(filePath);
     const mimeType = this.getMimeType(fileName);
+    const fileSize = stat.size;
+    const range = req.headers.range;
 
+    // Obsługa nagłówka Range (przewijanie wideo, Safari wymaga 206)
+    if (range) {
+      const match = /^bytes=(\d*)-(\d*)$/.exec(range);
+      if (match) {
+        const start = match[1] ? parseInt(match[1], 10) : 0;
+        const end = match[2] ? parseInt(match[2], 10) : fileSize - 1;
+
+        // Zakres nie do spełnienia
+        if (Number.isNaN(start) || start >= fileSize || start > end) {
+          res.status(416);
+          res.set({ 'Content-Range': `bytes */${fileSize}` });
+          return new StreamableFile(Buffer.alloc(0));
+        }
+
+        const clampedEnd = Math.min(end, fileSize - 1);
+        const chunkSize = clampedEnd - start + 1;
+
+        res.status(206);
+        res.set({
+          'Content-Type': mimeType,
+          'Content-Disposition': `inline; filename="${fileName}"`,
+          'Content-Range': `bytes ${start}-${clampedEnd}/${fileSize}`,
+          'Accept-Ranges': 'bytes',
+          'Content-Length': chunkSize,
+        });
+
+        const partialStream = fs.createReadStream(filePath, {
+          start,
+          end: clampedEnd,
+        });
+        return new StreamableFile(partialStream);
+      }
+    }
+
+    // Pełny plik
     res.set({
       'Content-Type': mimeType,
       'Content-Disposition': `inline; filename="${fileName}"`,
-      'Content-Length': stat.size,
+      'Content-Length': fileSize,
+      'Accept-Ranges': 'bytes',
     });
 
-    // Streaming pliku
     const fileStream = fs.createReadStream(filePath);
     return new StreamableFile(fileStream);
   }
