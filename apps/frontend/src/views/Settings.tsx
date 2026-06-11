@@ -18,6 +18,7 @@ import { DisplaySettingsTab } from '@/components/settings/DisplaySettingsTab';
 import { WifiSettingsTab } from '@/components/settings/WifiSettingsTab';
 import { SystemStatusSection } from '@/components/settings/SystemStatusSection';
 import { BackupSection } from '@/components/settings/BackupSection';
+import { SecuritySection } from '@/components/settings/SecuritySection';
 import type { ProjectorSettings } from '@/types/settings';
 import { DEFAULT_SETTINGS } from '@/types/settings';
 
@@ -281,6 +282,7 @@ export function Settings() {
                 <div className="p-4 bg-muted/10">
                   <SystemStatusSection />
                   <BackupSection />
+                  <SecuritySection />
                 </div>
               )}
             </div>

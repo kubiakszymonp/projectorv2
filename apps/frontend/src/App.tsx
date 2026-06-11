@@ -8,13 +8,14 @@ import { Settings } from '@/views/Settings';
 import { SongCatalog } from '@/views/SongCatalog';
 import { ScenarioEditor } from '@/views/ScenarioEditor';
 import { Navbar } from '@/components/ui/navbar';
+import { AuthGate } from '@/components/auth/AuthGate';
 
 function AppLayout() {
   const location = useLocation();
   const isDisplayRoute = location.pathname === '/display';
 
   return (
-    <>
+    <AuthGate>
       {!isDisplayRoute && <Navbar />}
       <Routes>
         <Route path="/" element={<MainMenu />} />
@@ -27,7 +28,7 @@ function AppLayout() {
         <Route path="/settings" element={<Settings />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-    </>
+    </AuthGate>
   );
 }
 

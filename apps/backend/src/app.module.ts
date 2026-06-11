@@ -8,9 +8,10 @@ import { ScenariosModule } from './modules/scenarios/scenarios.module';
 import { PlayerModule } from './modules/player/player.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { BackupModule } from './modules/backup/backup.module';
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
-  imports: [TextsModule, FilesModule, SettingsModule, ScenariosModule, PlayerModule, NotificationsModule, BackupModule],
+  imports: [TextsModule, FilesModule, SettingsModule, ScenariosModule, PlayerModule, NotificationsModule, BackupModule, AuthModule],
   controllers: [AppController],
   providers: [AppService],
 })
