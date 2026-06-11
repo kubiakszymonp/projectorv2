@@ -213,9 +213,9 @@ export function Settings() {
       />
 
       {/* Main Content */}
-      <main className="flex-1 min-w-0">
+      <main className="flex-1 min-w-0 overflow-x-hidden">
         <ScrollArea className="h-full">
-          <div className="p-4 sm:p-6 max-w-3xl">
+          <div className="p-4 sm:p-6 max-w-3xl w-full overflow-x-hidden">
             {/* Display Settings Accordion */}
             <div className="border-b">
               <button

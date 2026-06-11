@@ -33,16 +33,12 @@ export function Navbar() {
   const isMobile = useIsMobile();
   const [moreOpen, setMoreOpen] = useState(false);
 
-  // Don't show navbar on home page
-  if (location.pathname === '/') {
-    return null;
-  }
-
   const isActive = (item: (typeof NAV_ITEMS)[number]) =>
     item.exact ? location.pathname === item.path : location.pathname.startsWith(item.path);
 
   const isSecondaryActive = MOBILE_SECONDARY.some((item) => isActive(item));
 
+  // On mobile: show bottom nav everywhere (including /), not on /display
   if (isMobile) {
     return (
       <>
@@ -116,6 +112,11 @@ export function Navbar() {
         )}
       </>
     );
+  }
+
+  // Desktop — hide top nav on home page (home has its own menu cards)
+  if (location.pathname === '/') {
+    return null;
   }
 
   // Desktop — top nav z pełnymi podpisami

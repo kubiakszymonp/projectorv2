@@ -80,7 +80,7 @@ export function MainMenu() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8 sm:px-6 sm:py-12">
+      <div className="container mx-auto px-4 py-8 pb-24 sm:px-6 sm:py-12 sm:pb-12">
         {/* Header */}
         <div className="mb-6 sm:mb-8 space-y-3">
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight">
