@@ -10,6 +10,9 @@ import {
   duplicateRefrainBetweenVerses,
   isRefrainSlide,
 } from '@/lib/songSections';
+import { formatTextToPages } from '@/lib/textFormatter';
+import { useSettings } from '@/hooks/useSettings';
+import { DEFAULT_SETTINGS } from '@/types/settings';
 
 interface SongContentEditorProps {
   content: string;
@@ -176,50 +179,80 @@ function SlidePreviewPanel({
   truncateSlides,
 }: SlidePreviewPanelProps) {
   const labels = buildSlideLabels(slides);
+  const { data: settings } = useSettings();
+  const display = settings?.display ?? DEFAULT_SETTINGS.display;
+
   return (
     <div className="flex-1 flex flex-col min-h-0 bg-muted/20">
       <div className="p-3 border-b bg-muted/30">
         <span className="text-sm font-medium">Podgląd slajdów</span>
         <span className="text-sm text-muted-foreground ml-2">
-          ({slides.length})
+          ({slides.length}) — z rzeczywistą paginacją
         </span>
       </div>
       <ScrollArea className="flex-1">
         <div className="p-3 space-y-2">
-          {slides.map((slide, index) => (
-            <Card
-              key={index}
-              className={cn(
-                'cursor-pointer transition-all hover:border-foreground/20',
-                previewSlide === index && 'ring-2 ring-emerald-500'
-              )}
-              onClick={() => onPreviewSlideChange(previewSlide === index ? null : index)}
-            >
-              <div className="p-3">
-                <div className="flex items-center justify-between mb-2">
-                  <span
-                    className={cn(
-                      'text-xs font-medium',
-                      labels[index]?.kind === 'refrain'
-                        ? 'text-amber-400'
-                        : labels[index]?.kind === 'bridge'
-                          ? 'text-cyan-400'
-                          : 'text-muted-foreground',
-                    )}
-                  >
-                    {labels[index]?.label ?? `Slajd ${index + 1}`}
-                  </span>
-                  <Eye className="h-3 w-3 text-muted-foreground" />
+          {slides.map((slide, index) => {
+            const pages = formatTextToPages(slide, {
+              maxCharsPerLine: display.maxCharsPerLine,
+              maxLinesPerPage: display.maxLinesPerPage,
+            });
+            return (
+              <Card
+                key={index}
+                className={cn(
+                  'cursor-pointer transition-all hover:border-foreground/20',
+                  previewSlide === index && 'ring-2 ring-emerald-500',
+                )}
+                onClick={() => onPreviewSlideChange(previewSlide === index ? null : index)}
+              >
+                <div className="p-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <span
+                      className={cn(
+                        'text-xs font-medium',
+                        labels[index]?.kind === 'refrain'
+                          ? 'text-amber-400'
+                          : labels[index]?.kind === 'bridge'
+                            ? 'text-cyan-400'
+                            : 'text-muted-foreground',
+                      )}
+                    >
+                      {labels[index]?.label ?? `Slajd ${index + 1}`}
+                      {pages.length > 1 && (
+                        <span className="text-muted-foreground ml-1">
+                          → {pages.length} stron
+                        </span>
+                      )}
+                    </span>
+                    <Eye className="h-3 w-3 text-muted-foreground" />
+                  </div>
+                  <div className="space-y-2">
+                    {pages.map((page, pageIdx) => (
+                      <div
+                        key={pageIdx}
+                        className="rounded border border-border/50 bg-background/50 p-2"
+                      >
+                        {pages.length > 1 && (
+                          <div className="text-[10px] text-muted-foreground mb-1">
+                            Strona {pageIdx + 1}/{pages.length}
+                          </div>
+                        )}
+                        <p
+                          className={cn(
+                            'text-sm whitespace-pre-wrap',
+                            truncateSlides && 'line-clamp-6',
+                          )}
+                        >
+                          {page}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-                <p className={cn(
-                  'text-sm whitespace-pre-wrap',
-                  truncateSlides && 'line-clamp-4'
-                )}>
-                  {slide}
-                </p>
-              </div>
-            </Card>
-          ))}
+              </Card>
+            );
+          })}
           {slides.length === 0 && (
             <p className="text-sm text-muted-foreground text-center py-8">
               Brak slajdów
