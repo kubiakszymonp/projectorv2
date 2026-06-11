@@ -2,3 +2,6 @@
 /.yarn/releases/*    binary
 /.yarn/plugins/**/*  binary
 /.pnp.*              binary linguist-generated
+
+# Shell scripts must use LF — CRLF breaks the shebang on Raspberry Pi / Linux
+*.sh text eol=lf
