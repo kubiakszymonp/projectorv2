@@ -84,13 +84,18 @@ export function ScreenDisplay() {
     }
   };
 
+  // Klucz zmienia się przy każdej zmianie treści/widoczności → wyzwala fade
+  const fadeKey = JSON.stringify(state);
+
   return (
     <div
       className="h-screen w-screen overflow-hidden cursor-none"
       style={{ backgroundColor: displaySettings.backgroundColor }}
       onClick={handleClick}
     >
-      <SlideRenderer state={state} displaySettings={displaySettings} />
+      <div key={fadeKey} className="slide-fade w-full h-full">
+        <SlideRenderer state={state} displaySettings={displaySettings} />
+      </div>
     </div>
   );
 }

@@ -53,3 +53,13 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #52525b;
 }
+
+/* Smooth fade for slide / visibility changes on the public display */
+@keyframes slideFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.slide-fade {
+  animation: slideFade 180ms ease-in;
+}
