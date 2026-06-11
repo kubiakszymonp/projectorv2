@@ -1,3 +1,4 @@
+import { toast } from 'sonner';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useSongEditor } from '@/hooks/useSongEditor';
 import { useReloadTexts, useImportTexts } from '@/hooks/useTexts';
@@ -29,7 +30,7 @@ export function SongCatalog() {
       );
       const domain = editor.selectedDomain ?? 'songs';
       const { created } = await importTexts.mutateAsync({ domain, items });
-      window.alert(`Zaimportowano ${created} pieśni do „${domain}".`);
+      toast.success(`Zaimportowano ${created} pieśni do „${domain}".`);
     };
     input.click();
   };
