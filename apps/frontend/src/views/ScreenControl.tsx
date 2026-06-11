@@ -138,6 +138,54 @@ export function ScreenControl() {
     toggleVisibility.mutate();
   };
 
+  // Skróty klawiaturowe dla operatora (laptop). Ignoruj, gdy fokus w polu tekstowym.
+  React.useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (
+        target &&
+        (target.tagName === 'INPUT' ||
+          target.tagName === 'TEXTAREA' ||
+          target.isContentEditable)
+      ) {
+        return;
+      }
+      switch (e.key) {
+        case 'ArrowRight':
+        case ' ':
+          e.preventDefault();
+          navigateSlide.mutate('next');
+          break;
+        case 'ArrowLeft':
+          e.preventDefault();
+          navigateSlide.mutate('prev');
+          break;
+        case 'PageDown':
+          e.preventDefault();
+          navigateStep.mutate('next');
+          break;
+        case 'PageUp':
+          e.preventDefault();
+          navigateStep.mutate('prev');
+          break;
+        case 'b':
+        case 'B':
+          e.preventDefault();
+          toggleVisibility.mutate();
+          break;
+        case 'Escape':
+          e.preventDefault();
+          if (window.confirm('Wyczyścić ekran?')) {
+            clearScreen.mutate();
+          }
+          break;
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   if (isLoading) {
     return (
       <div className="h-screen flex flex-col bg-background">
