@@ -8,11 +8,11 @@ type FormFieldProps = {
 
 export function FormField({ label, description, children }: FormFieldProps) {
   return (
-    <div className="space-y-2">
+    <div className="space-y-2 py-1">
       <div>
         <label className="text-sm font-medium">{label}</label>
         {description && (
-          <p className="text-xs text-muted-foreground">{description}</p>
+          <p className="text-xs text-muted-foreground mt-0.5">{description}</p>
         )}
       </div>
       {children}
@@ -32,13 +32,13 @@ export function ColorInput({ value, onChange }: ColorInputProps) {
         type="color"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-10 h-10 rounded border cursor-pointer"
+        className="w-11 h-11 rounded border cursor-pointer shrink-0"
       />
       <Input
         type="text"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="flex-1 font-mono text-sm"
+        className="flex-1 font-mono text-sm h-11"
         placeholder="#000000"
       />
     </div>
@@ -64,9 +64,9 @@ export function NumberInput({ value, onChange, min, max, step = 1, unit }: Numbe
         min={min}
         max={max}
         step={step}
-        className="flex-1"
+        className="flex-1 h-11"
       />
-      {unit && <span className="text-sm text-muted-foreground w-8">{unit}</span>}
+      {unit && <span className="text-sm text-muted-foreground w-8 shrink-0">{unit}</span>}
     </div>
   );
 }
@@ -82,7 +82,7 @@ export function SelectInput({ value, onChange, options }: SelectInputProps) {
     <select
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className="w-full h-10 px-3 rounded-md border bg-background text-sm"
+      className="w-full h-11 px-3 rounded-md border bg-background text-sm"
     >
       {options.map((opt) => (
         <option key={opt.value} value={opt.value}>

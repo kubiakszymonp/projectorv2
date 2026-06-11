@@ -10,7 +10,7 @@ import {
   Trash2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { TooltipProvider, Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { TooltipProvider } from '@/components/ui/tooltip';
 import { FileTree } from '@/components/files/FileTree';
 import { FileList } from '@/components/files/FileList';
 import { Breadcrumb } from '@/components/files/Breadcrumb';
@@ -30,7 +30,9 @@ import {
   useSaveFile,
 } from '@/hooks/useFiles';
 import { useSetMedia } from '@/hooks/usePlayer';
+import { useIsMobile } from '@/hooks/useIsMobile';
 import { checkPathType } from '@/api/files';
+import { cn } from '@/lib/utils';
 import type { FileNode } from '@/types/files';
 import type { ScenarioStep } from '@/types/scenarios';
 
@@ -66,12 +68,13 @@ function createMediaStep(file: FileNode): ScenarioStep | null {
 export function FilesExplorer({ initialPath = '', title = 'Edytor plików' }: FilesExplorerProps) {
   const [searchParams, setSearchParams] = useSearchParams();
   const pathFromUrl = searchParams.get('path') || initialPath;
+  const isMobile = useIsMobile();
 
   // State - nawigacja
   const [currentPath, setCurrentPath] = useState(pathFromUrl);
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
   const [selectedFile, setSelectedFile] = useState<FileNode | null>(null);
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // State - otwarty plik (modal)
   const [openFile, setOpenFile] = useState<OpenFile | null>(null);
@@ -168,6 +171,7 @@ export function FilesExplorer({ initialPath = '', title = 'Edytor plików' }: Fi
   const handleSelectFolder = useCallback((path: string) => {
     setCurrentPath(path);
     setSelectedFile(null);
+    if (isMobile) setSidebarOpen(false);
 
     // Auto-expand parent folders
     if (path) {
@@ -180,7 +184,7 @@ export function FilesExplorer({ initialPath = '', title = 'Edytor plików' }: Fi
       }
       setExpandedFolders(newExpanded);
     }
-  }, [expandedFolders]);
+  }, [expandedFolders, isMobile]);
 
   const handleToggleExpand = useCallback((path: string) => {
     setExpandedFolders((prev) => {
@@ -290,7 +294,7 @@ export function FilesExplorer({ initialPath = '', title = 'Edytor plików' }: Fi
 
   return (
     <TooltipProvider>
-      <div className="h-screen flex flex-col bg-background">
+      <div className="app-page flex flex-col bg-background">
         {/* Header */}
         <header className="flex items-center justify-between px-3 py-2.5 sm:px-4 sm:py-3 border-b">
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
@@ -309,55 +313,56 @@ export function FilesExplorer({ initialPath = '', title = 'Edytor plików' }: Fi
             <h1 className="text-base sm:text-lg font-semibold truncate">{title}</h1>
           </div>
           <div className="flex items-center gap-2">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setTrashOpen(true)}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Kosz</p>
-              </TooltipContent>
-            </Tooltip>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setTrashOpen(true)}
+              className="gap-1.5"
+            >
+              <Trash2 className="h-4 w-4" />
+              <span className="hidden sm:inline">Kosz</span>
+            </Button>
             <Button
               variant="outline"
               size="sm"
               onClick={() => refetch()}
               disabled={isLoadingFiles}
+              className="gap-1.5"
             >
-              <RefreshCw
-                className={`h-4 w-4 ${isLoadingFiles ? 'animate-spin' : ''}`}
-              />
+              <RefreshCw className={cn('h-4 w-4', isLoadingFiles && 'animate-spin')} />
+              <span className="hidden sm:inline">Odśwież</span>
             </Button>
           </div>
         </header>
 
         {/* Main */}
-        <div className="flex-1 flex min-h-0">
-          {/* Sidebar - drzewo folderów */}
+        <div className="flex-1 flex min-h-0 relative">
+          {/* Backdrop for mobile drawer */}
+          {isMobile && sidebarOpen && (
+            <div
+              className="absolute inset-0 z-30 bg-black/50"
+              onClick={() => setSidebarOpen(false)}
+            />
+          )}
+
+          {/* Sidebar — inline na desktop, drawer na mobile */}
           {sidebarOpen && (
-            <aside className="w-64 border-r flex flex-col bg-muted/20">
+            <aside className={cn(
+              'flex flex-col bg-muted/20 border-r',
+              isMobile
+                ? 'absolute inset-y-0 left-0 z-40 w-72 shadow-xl'
+                : 'w-64'
+            )}>
               <div className="p-2 border-b">
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="w-full justify-start"
-                      onClick={() => setCreateFolderOpen(true)}
-                    >
-                      <FolderPlus className="h-4 w-4 sm:mr-2" />
-                      <span className="hidden sm:inline">Nowy folder</span>
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Nowy folder</p>
-                  </TooltipContent>
-                </Tooltip>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full justify-start gap-2"
+                  onClick={() => setCreateFolderOpen(true)}
+                >
+                  <FolderPlus className="h-4 w-4" />
+                  Nowy folder
+                </Button>
               </div>
               <FileTree
                 folders={folderTree?.folders ?? []}
@@ -376,32 +381,19 @@ export function FilesExplorer({ initialPath = '', title = 'Edytor plików' }: Fi
               <div className="flex-1 min-w-0">
                 <Breadcrumb path={currentPath} onNavigate={handleSelectFolder} />
               </div>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button variant="outline" size="sm" onClick={handleUpload}>
-                    <Upload className="h-4 w-4 sm:mr-2" />
-                    <span className="hidden sm:inline">Upload</span>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Upload</p>
-                </TooltipContent>
-              </Tooltip>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setCreateFolderOpen(true)}
-                  >
-                    <FolderPlus className="h-4 w-4 sm:mr-2" />
-                    <span className="hidden sm:inline">Folder</span>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Nowy folder</p>
-                </TooltipContent>
-              </Tooltip>
+              <Button variant="outline" size="sm" onClick={handleUpload} className="gap-1.5 shrink-0">
+                <Upload className="h-4 w-4" />
+                <span className="hidden sm:inline">Upload</span>
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCreateFolderOpen(true)}
+                className="gap-1.5 shrink-0"
+              >
+                <FolderPlus className="h-4 w-4" />
+                <span className="hidden sm:inline">Folder</span>
+              </Button>
             </div>
 
             {/* File list */}

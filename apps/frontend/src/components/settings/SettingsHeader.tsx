@@ -20,10 +20,8 @@ export function SettingsHeader({
   onReset,
 }: SettingsHeaderProps) {
   return (
-    <header className="flex items-center justify-between px-3 py-2.5 sm:px-4 sm:py-3 border-b">
-      <div className="flex items-center gap-2">
-        <h1 className="text-lg font-semibold">Konfiguracja</h1>
-      </div>
+    <header className="flex items-center justify-between px-3 py-2.5 sm:px-4 sm:py-3 border-b gap-2 flex-wrap">
+      <h1 className="text-lg font-semibold">Konfiguracja</h1>
 
       <div className="flex items-center gap-2">
         <Button
@@ -31,32 +29,33 @@ export function SettingsHeader({
           size="sm"
           onClick={onReset}
           disabled={isResetting}
+          className="gap-1.5"
         >
-          <RotateCcw className="h-4 w-4 mr-2" />
-          Resetuj
+          <RotateCcw className="h-4 w-4" />
+          <span className="hidden sm:inline">Resetuj</span>
         </Button>
         <Button
           size="sm"
           onClick={onSave}
           disabled={!isDirty || isSaving}
           className={cn(
-            'min-w-[120px]',
+            'gap-1.5 min-w-[80px] sm:min-w-[120px]',
             saveSuccess && 'bg-green-600 hover:bg-green-600'
           )}
         >
           {isSaving ? (
             <>
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              Zapisuję...
+              <Loader2 className="h-4 w-4 animate-spin" />
+              <span className="hidden sm:inline">Zapisuję...</span>
             </>
           ) : saveSuccess ? (
             <>
-              <Check className="h-4 w-4 mr-2" />
-              Zapisano
+              <Check className="h-4 w-4" />
+              <span className="hidden sm:inline">Zapisano</span>
             </>
           ) : (
             <>
-              <Save className="h-4 w-4 mr-2" />
+              <Save className="h-4 w-4" />
               Zapisz{isDirty && ' *'}
             </>
           )}

@@ -166,7 +166,7 @@ export function FileItem({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-8 w-8 shrink-0 opacity-0 sm:group-hover:opacity-100"
+                  className="h-10 w-10 shrink-0 sm:opacity-0 sm:group-hover:opacity-100"
                   onClick={(e) => {
                     e.stopPropagation();
                   }}

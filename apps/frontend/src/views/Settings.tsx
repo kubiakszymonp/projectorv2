@@ -34,7 +34,7 @@ import { DEFAULT_SETTINGS } from '@/types/settings';
 type SectionId = 'display' | 'wifi' | 'system';
 
 export function Settings() {
-  const [openSections, setOpenSections] = useState<Set<SectionId>>(new Set(['display', 'wifi']));
+  const [openSections, setOpenSections] = useState<Set<SectionId>>(new Set(['display']));
   const [localSettings, setLocalSettings] = useState<ProjectorSettings>(DEFAULT_SETTINGS);
   const [isDirty, setIsDirty] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
@@ -168,7 +168,7 @@ export function Settings() {
   // Loading state
   if (isLoading) {
     return (
-      <div className="h-screen flex flex-col bg-background">
+      <div className="app-page flex flex-col bg-background">
         <header className="flex items-center gap-2 px-4 py-3 border-b">
           <SettingsIcon className="h-5 w-5 text-orange-400" />
           <h1 className="text-lg font-semibold">Konfiguracja</h1>
@@ -183,7 +183,7 @@ export function Settings() {
   // Error state
   if (error) {
     return (
-      <div className="h-screen flex flex-col bg-background">
+      <div className="app-page flex flex-col bg-background">
         <header className="flex items-center gap-2 px-4 py-3 border-b">
           <SettingsIcon className="h-5 w-5 text-orange-400" />
           <h1 className="text-lg font-semibold">Konfiguracja</h1>
@@ -202,7 +202,7 @@ export function Settings() {
   }
 
   return (
-    <div className="h-screen flex flex-col bg-background">
+    <div className="app-page flex flex-col bg-background">
       <SettingsHeader
         isDirty={isDirty}
         saveSuccess={saveSuccess}

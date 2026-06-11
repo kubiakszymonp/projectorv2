@@ -171,7 +171,7 @@ export function ScreenControl() {
 
   if (isLoading) {
     return (
-      <div className="h-screen flex flex-col bg-background">
+      <div className="app-page flex flex-col bg-background">
         <header className="flex items-center gap-2 px-4 py-3 border-b">
           <Monitor className="h-5 w-5 text-blue-400" />
           <h1 className="text-lg font-semibold">Sterowanie ekranem</h1>
@@ -188,7 +188,7 @@ export function ScreenControl() {
   const hasContent = state.mode !== 'empty';
 
   return (
-    <div className="h-screen flex flex-col bg-background">
+    <div className="app-page flex flex-col bg-background">
       {/* Header */}
       <header className="flex items-center justify-between px-3 py-2.5 sm:px-4 sm:py-3 border-b">
         <div className="flex items-center gap-2">
@@ -245,24 +245,25 @@ export function ScreenControl() {
           {/* Quick search */}
           <Button
             variant="ghost"
-            size="icon"
+            size="sm"
             onClick={() => setQuickSearchOpen(true)}
             title="Szybkie wyszukiwanie pieśni (Ctrl+K)"
-            aria-label="Szybkie wyszukiwanie pieśni"
+            className="gap-1.5"
           >
             <Search className="h-4 w-4" />
+            <span className="hidden sm:inline">Szukaj</span>
           </Button>
           {/* Clear Button */}
           <Button
             variant="ghost"
-            size="icon"
+            size="sm"
             onClick={handleClearScreen}
             disabled={!hasContent || clearScreen.isPending}
-            className="text-muted-foreground hover:text-destructive"
+            className="text-muted-foreground hover:text-destructive gap-1.5"
             title="Wyczyść ekran"
-            aria-label="Wyczyść ekran"
           >
             <Trash2 className="h-4 w-4" />
+            <span className="hidden sm:inline">Wyczyść</span>
           </Button>
         </div>
       </header>

@@ -472,7 +472,7 @@ export function ScenarioEditor() {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-background">
+    <div className="app-page flex flex-col bg-background">
       {viewMode === 'list' ? (
         <ScenarioList
           scenarios={filteredScenarios}

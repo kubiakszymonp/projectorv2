@@ -39,7 +39,7 @@ export function SongCatalog() {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-background">
+    <div className="app-page flex flex-col bg-background">
       {editor.viewMode === 'list' ? (
         <SongList
           search={editor.search}

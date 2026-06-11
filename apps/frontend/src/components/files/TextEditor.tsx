@@ -99,14 +99,14 @@ export function TextEditorModal({
                   size="sm"
                   onClick={handleSave}
                   disabled={!hasChanges || isSaving}
-                  className="shrink-0"
+                  className="shrink-0 gap-1.5"
                 >
                   {isSaving ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
                   ) : (
                     <Save className="h-4 w-4" />
                   )}
-                  <span className="ml-1 hidden sm:inline">Zapisz</span>
+                  Zapisz
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
