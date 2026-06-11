@@ -38,5 +38,12 @@ export class SettingsService implements OnModuleInit {
   async resetSettings(): Promise<ProjectorSettings> {
     return this.settingsRepo.reset();
   }
+
+  /**
+   * Subscribe to in-process settings changes. Returns an unsubscribe function.
+   */
+  onSettingsChange(listener: () => void): () => void {
+    return this.settingsRepo.onChange(listener);
+  }
 }
 

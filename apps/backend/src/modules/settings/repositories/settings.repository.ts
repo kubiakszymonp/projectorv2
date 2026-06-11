@@ -24,6 +24,7 @@ export class SettingsRepository {
   private readonly settingsDir: string;
   private readonly settingsPath: string;
   private settings: ProjectorSettings;
+  private readonly changeListeners = new Set<() => void>();
 
   constructor(private readonly notificationsGateway: NotificationsGateway) {
     const projectRoot = path.resolve(process.cwd(), '..', '..');
@@ -104,10 +105,26 @@ export class SettingsRepository {
   }
 
   /**
+   * Subscribe to in-process settings changes (e.g. to re-format the
+   * currently displayed slide). Returns an unsubscribe function.
+   */
+  onChange(listener: () => void): () => void {
+    this.changeListeners.add(listener);
+    return () => this.changeListeners.delete(listener);
+  }
+
+  /**
    * Notify all clients about settings change
    */
   private notify(): void {
     this.notificationsGateway.notifySettingsChanged();
+    this.changeListeners.forEach((cb) => {
+      try {
+        cb();
+      } catch (err) {
+        console.error('Settings change listener failed:', err);
+      }
+    });
   }
 
   /**

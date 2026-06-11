@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { ScreenState, TextDisplayItem } from '../../../types/player';
 import { ScreenStateRepository } from '../repositories/screen-state.repository';
 import { ScenariosService } from '../../scenarios/scenarios.service';
@@ -13,7 +13,7 @@ import { ScreenStateHelper } from '../helpers/screen-state.helper';
  * Handles business logic for displaying content on screen.
  */
 @Injectable()
-export class ScreenStateService {
+export class ScreenStateService implements OnModuleInit {
   constructor(
     private readonly screenStateRepo: ScreenStateRepository,
     private readonly scenariosService: ScenariosService,
@@ -21,6 +21,60 @@ export class ScreenStateService {
     private readonly textFormatterService: TextFormatterService,
     private readonly settingsService: SettingsService,
   ) {}
+
+  /**
+   * Re-format the current slide whenever display settings change so the screen
+   * reflects the new fontSize/maxLinesPerPage immediately (not just on next nav).
+   */
+  onModuleInit(): void {
+    this.settingsService.onSettingsChange(() => {
+      void this.reformatCurrentSlide();
+    });
+  }
+
+  /**
+   * Re-paginate the currently displayed text with current settings.
+   * No-op when nothing text-like is on screen.
+   */
+  async reformatCurrentSlide(): Promise<void> {
+    const state = this.screenStateRepo.get();
+    const textItem = ScreenStateHelper.getCurrentTextItem(state);
+    if (!textItem) {
+      return;
+    }
+
+    const textId = DisplayItemHelper.extractTextIdFromRef(textItem.textRef);
+    const text = await this.textsService.findById(textId);
+    if (!text) {
+      return;
+    }
+
+    const settings = this.settingsService.getSettings();
+    const slideContent = text.slides[textItem.slideIndex] || '';
+    const pages = this.textFormatterService.formatTextToPages(
+      slideContent,
+      settings.display,
+    );
+    const totalPages = pages.length;
+    const newPageIndex = Math.max(0, Math.min(textItem.pageIndex, totalPages - 1));
+
+    const newItem: TextDisplayItem = {
+      ...textItem,
+      pageIndex: newPageIndex,
+      totalPages,
+      slideContent: pages[newPageIndex] || '',
+    };
+
+    this.screenStateRepo.update((current) => {
+      if (current.mode === 'single') {
+        return { ...current, item: newItem };
+      }
+      if (current.mode === 'scenario') {
+        return { ...current, currentItem: newItem };
+      }
+      return current;
+    });
+  }
 
   /**
    * Get current screen state
