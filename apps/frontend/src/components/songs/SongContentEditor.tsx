@@ -1,9 +1,15 @@
-import { Eye, FileText } from 'lucide-react';
+import { Eye, FileText, Repeat } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import type { MobileContentTab } from '@/types/songCatalog';
 import { cn } from '@/lib/utils';
+import {
+  buildSlideLabels,
+  duplicateRefrainBetweenVerses,
+  isRefrainSlide,
+} from '@/lib/songSections';
 
 interface SongContentEditorProps {
   content: string;
@@ -121,13 +127,30 @@ interface TextEditorPanelProps {
 }
 
 function TextEditorPanel({ content, onContentChange }: TextEditorPanelProps) {
+  const hasRefrain = content
+    .split(/\n\s*\n+/)
+    .some((s) => isRefrainSlide(s));
+
   return (
     <div className="flex-1 flex flex-col min-h-0">
-      <div className="p-3 border-b bg-muted/30">
-        <span className="text-sm font-medium">Treść pieśni</span>
-        <span className="text-sm text-muted-foreground ml-2">
-          (slajdy oddzielone pustą linią)
-        </span>
+      <div className="p-3 border-b bg-muted/30 flex items-center justify-between gap-2">
+        <div>
+          <span className="text-sm font-medium">Treść pieśni</span>
+          <span className="text-sm text-muted-foreground ml-2">
+            (slajdy oddzielone pustą linią; refren oznacz „Ref:" lub „[Ref]")
+          </span>
+        </div>
+        {hasRefrain && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onContentChange(duplicateRefrainBetweenVerses(content))}
+            title="Wstaw refren po każdej zwrotce"
+          >
+            <Repeat className="h-4 w-4 sm:mr-2" />
+            <span className="hidden sm:inline">Powiel refren</span>
+          </Button>
+        )}
       </div>
       <Textarea
         value={content}
@@ -152,6 +175,7 @@ function SlidePreviewPanel({
   onPreviewSlideChange,
   truncateSlides,
 }: SlidePreviewPanelProps) {
+  const labels = buildSlideLabels(slides);
   return (
     <div className="flex-1 flex flex-col min-h-0 bg-muted/20">
       <div className="p-3 border-b bg-muted/30">
@@ -173,8 +197,17 @@ function SlidePreviewPanel({
             >
               <div className="p-3">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-medium text-muted-foreground">
-                    Slajd {index + 1}
+                  <span
+                    className={cn(
+                      'text-xs font-medium',
+                      labels[index]?.kind === 'refrain'
+                        ? 'text-amber-400'
+                        : labels[index]?.kind === 'bridge'
+                          ? 'text-cyan-400'
+                          : 'text-muted-foreground',
+                    )}
+                  >
+                    {labels[index]?.label ?? `Slajd ${index + 1}`}
                   </span>
                   <Eye className="h-3 w-3 text-muted-foreground" />
                 </div>
