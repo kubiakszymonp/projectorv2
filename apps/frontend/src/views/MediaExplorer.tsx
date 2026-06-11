@@ -13,6 +13,7 @@ import {
   Folder,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { PageHeader } from '@/components/ui/page-header';
 import { SearchInput } from '@/components/ui/search-input';
 import { AddToScenarioModal } from '@/components/scenarios/AddToScenarioModal';
 import { useFileList, useUploadFile } from '@/hooks/useFiles';
@@ -227,34 +228,29 @@ export function MediaExplorer() {
   return (
     <div className="app-page flex flex-col bg-background">
       {/* Header */}
-      <header className="flex items-center justify-between px-3 py-2.5 sm:px-4 sm:py-3 border-b shrink-0">
-        <h1 className="text-base sm:text-lg font-semibold">Media</h1>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => refetch()}
-            disabled={isLoading}
-            className="gap-1.5"
-          >
-            <RefreshCw className={cn('h-4 w-4', isLoading && 'animate-spin')} />
-            <span className="hidden sm:inline">Odśwież</span>
-          </Button>
-          <Button
-            size="sm"
-            onClick={handleUpload}
-            disabled={uploadFile.isPending}
-            className="gap-1.5"
-          >
-            {uploadFile.isPending ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Upload className="h-4 w-4" />
-            )}
-            Dodaj media
-          </Button>
-        </div>
-      </header>
+      <PageHeader
+        title="Media"
+        icon={ImageIcon}
+        iconColor="text-pink-400"
+        actions={[
+          {
+            key: 'refresh',
+            label: 'Odśwież',
+            icon: RefreshCw,
+            onClick: () => refetch(),
+            variant: 'outline',
+            loading: isLoading,
+          },
+          {
+            key: 'upload',
+            label: 'Dodaj media',
+            icon: Upload,
+            onClick: handleUpload,
+            variant: 'default',
+            loading: uploadFile.isPending,
+          },
+        ]}
+      />
 
       {/* Breadcrumb */}
       <div className="px-3 sm:px-4 py-2 border-b shrink-0 space-y-2">

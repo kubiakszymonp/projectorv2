@@ -6,7 +6,8 @@ import {
   RefreshCw,
   Upload,
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { PageHeader } from '@/components/ui/page-header';
+import type { Action } from '@/components/ui/action-bar';
 import { SearchInput } from '@/components/ui/search-input';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -45,37 +46,46 @@ export function SongList({
   onReload,
   isReloading,
 }: SongListProps) {
+  const actions: Action[] = [];
+  if (onReload) {
+    actions.push({
+      key: 'refresh',
+      label: 'Odśwież',
+      icon: RefreshCw,
+      onClick: onReload,
+      variant: 'outline',
+      loading: isReloading,
+    });
+  }
+  if (onImport) {
+    actions.push({
+      key: 'import',
+      label: 'Importuj',
+      icon: Upload,
+      onClick: onImport,
+      variant: 'outline',
+      loading: isImporting,
+    });
+  }
+  actions.push({
+    key: 'new',
+    label: 'Nowa pieśń',
+    icon: Plus,
+    onClick: onCreateNew,
+    variant: 'default',
+  });
+
   return (
     <div className="flex-1 flex flex-col min-h-0">
-      {/* Header */}
-      <div className="p-3 sm:p-4 space-y-4 border-b">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold tracking-tight">Katalog pieśni</h1>
-          <div className="flex items-center gap-2">
-            {onReload && (
-              <Button variant="outline" onClick={onReload} disabled={isReloading}>
-                <RefreshCw className={`h-4 w-4 mr-2 ${isReloading ? 'animate-spin' : ''}`} />
-                Odśwież
-              </Button>
-            )}
-            {onImport && (
-              <Button variant="outline" onClick={onImport} disabled={isImporting}>
-                {isImporting ? (
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                ) : (
-                  <Upload className="h-4 w-4 mr-2" />
-                )}
-                Importuj
-              </Button>
-            )}
-            <Button onClick={onCreateNew}>
-              <Plus className="h-4 w-4 mr-2" />
-              Nowa pieśń
-            </Button>
-          </div>
-        </div>
+      <PageHeader
+        title="Katalog pieśni"
+        icon={Music}
+        iconColor="text-emerald-400"
+        actions={actions}
+      />
 
-        {/* Search */}
+      {/* Search + filtry */}
+      <div className="p-3 sm:p-4 space-y-4 border-b">
         <SearchInput value={search} onChange={onSearchChange} placeholder="Szukaj pieśni..." />
 
         {/* Domain tabs */}

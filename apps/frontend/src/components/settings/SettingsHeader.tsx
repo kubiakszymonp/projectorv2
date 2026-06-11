@@ -1,4 +1,4 @@
-import { Save, RotateCcw, Loader2, Check } from 'lucide-react';
+import { Save, RotateCcw, Loader2, Check, Settings as SettingsIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -21,7 +21,10 @@ export function SettingsHeader({
 }: SettingsHeaderProps) {
   return (
     <header className="flex items-center justify-between px-3 py-2.5 sm:px-4 sm:py-3 border-b gap-2 flex-wrap">
-      <h1 className="text-lg font-semibold">Konfiguracja</h1>
+      <div className="flex items-center gap-2 min-w-0">
+        <SettingsIcon className="h-5 w-5 shrink-0 text-orange-400" />
+        <h1 className="text-lg font-semibold truncate">Konfiguracja</h1>
+      </div>
 
       <div className="flex items-center gap-2">
         <Button

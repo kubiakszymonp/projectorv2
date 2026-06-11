@@ -1,5 +1,6 @@
 import { Plus, ListOrdered, Loader2, ChevronRight, RefreshCw, Calendar } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { PageHeader } from '@/components/ui/page-header';
+import type { Action } from '@/components/ui/action-bar';
 import { SearchInput } from '@/components/ui/search-input';
 import { Card } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -29,23 +30,35 @@ export function ScenarioList({
 }: ScenarioListProps) {
   const isMobile = useIsMobile();
 
+  const actions: Action[] = [
+    {
+      key: 'refresh',
+      label: 'Odśwież',
+      icon: RefreshCw,
+      onClick: onReload,
+      variant: 'outline',
+      loading: isReloading,
+    },
+    {
+      key: 'new',
+      label: 'Nowy scenariusz',
+      icon: Plus,
+      onClick: onCreateScenario,
+      variant: 'default',
+    },
+  ];
+
   return (
     <div className="flex-1 flex flex-col min-h-0">
-      {/* Header */}
-      <div className="p-3 sm:p-4 space-y-4 border-b">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold tracking-tight">Scenariusze</h1>
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="icon" onClick={onReload} disabled={isReloading} title="Odśwież">
-              <RefreshCw className={`h-4 w-4 ${isReloading ? 'animate-spin' : ''}`} />
-            </Button>
-            <Button size="icon" onClick={onCreateScenario} title="Nowy scenariusz">
-              <Plus className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
+      <PageHeader
+        title="Scenariusze"
+        icon={ListOrdered}
+        iconColor="text-cyan-400"
+        actions={actions}
+      />
 
-        {/* Search */}
+      {/* Search */}
+      <div className="p-3 sm:p-4 border-b">
         <SearchInput value={search} onChange={onSearchChange} placeholder="Szukaj scenariuszy..." />
       </div>
 

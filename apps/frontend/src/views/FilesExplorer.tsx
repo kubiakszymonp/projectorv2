@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
   FolderPlus,
+  FolderOpen,
   Upload,
   RefreshCw,
   Loader2,
@@ -10,6 +11,7 @@ import {
   Trash2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { PageHeader } from '@/components/ui/page-header';
 import { SearchInput } from '@/components/ui/search-input';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { FileTree } from '@/components/files/FileTree';
@@ -304,13 +306,18 @@ export function FilesExplorer({ initialPath = '', title = 'Edytor plików' }: Fi
     <TooltipProvider>
       <div className="app-page flex flex-col bg-background">
         {/* Header */}
-        <header className="flex items-center justify-between px-3 py-2.5 sm:px-4 sm:py-3 border-b">
-          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+        <PageHeader
+          title={title}
+          icon={FolderOpen}
+          iconColor="text-purple-400"
+          leading={
             <Button
               variant="ghost"
               size="icon"
               onClick={() => setSidebarOpen(!sidebarOpen)}
               className="shrink-0"
+              title="Pokaż/ukryj foldery"
+              aria-label="Pokaż/ukryj foldery"
             >
               {sidebarOpen ? (
                 <PanelLeftClose className="h-5 w-5" />
@@ -318,30 +325,25 @@ export function FilesExplorer({ initialPath = '', title = 'Edytor plików' }: Fi
                 <PanelLeft className="h-5 w-5" />
               )}
             </Button>
-            <h1 className="text-base sm:text-lg font-semibold truncate">{title}</h1>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setTrashOpen(true)}
-              className="gap-1.5"
-            >
-              <Trash2 className="h-4 w-4" />
-              <span className="hidden sm:inline">Kosz</span>
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => refetch()}
-              disabled={isLoadingFiles}
-              className="gap-1.5"
-            >
-              <RefreshCw className={cn('h-4 w-4', isLoadingFiles && 'animate-spin')} />
-              <span className="hidden sm:inline">Odśwież</span>
-            </Button>
-          </div>
-        </header>
+          }
+          actions={[
+            {
+              key: 'trash',
+              label: 'Kosz',
+              icon: Trash2,
+              onClick: () => setTrashOpen(true),
+              variant: 'outline',
+            },
+            {
+              key: 'refresh',
+              label: 'Odśwież',
+              icon: RefreshCw,
+              onClick: () => refetch(),
+              variant: 'outline',
+              loading: isLoadingFiles,
+            },
+          ]}
+        />
 
         {/* Main */}
         <div className="flex-1 flex min-h-0 relative">
