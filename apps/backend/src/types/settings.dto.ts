@@ -98,6 +98,10 @@ export class UpdateDisplaySettingsDto {
   @IsOptional()
   @IsBoolean()
   showPageNumber?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  autoFitText?: boolean;
 }
 
 /**

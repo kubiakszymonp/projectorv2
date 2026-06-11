@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { getFileUrl } from '@/api/files';
 import { DEFAULT_SETTINGS } from '@/types/settings';
@@ -128,8 +128,35 @@ function paddingOf(d: Display) {
 }
 
 function TextDisplay({ item, displaySettings }: { item: TextDisplayItem; displaySettings: Display }) {
+  const autoFit = displaySettings.autoFitText;
+  const containerRef = useRef<HTMLDivElement>(null);
+  const textRef = useRef<HTMLDivElement>(null);
+  const [fontSize, setFontSize] = useState(displaySettings.fontSize);
+
+  // Auto-fit: shrink the font until the page fits the screen (measured in DOM)
+  useLayoutEffect(() => {
+    if (!autoFit) {
+      setFontSize(displaySettings.fontSize);
+      return;
+    }
+    const container = containerRef.current;
+    const text = textRef.current;
+    if (!container || !text) return;
+
+    let size = displaySettings.fontSize;
+    text.style.fontSize = `${size}px`;
+    const fits = () =>
+      text.scrollHeight <= container.clientHeight &&
+      text.scrollWidth <= container.clientWidth;
+    while (size > 12 && !fits()) {
+      size -= 2;
+      text.style.fontSize = `${size}px`;
+    }
+    setFontSize(size);
+  }, [autoFit, displaySettings, item.slideContent]);
+
   const textStyle = {
-    fontSize: `${displaySettings.fontSize}px`,
+    fontSize: `${autoFit ? fontSize : displaySettings.fontSize}px`,
     fontFamily: displaySettings.fontFamily,
     lineHeight: displaySettings.lineHeight,
     letterSpacing: `${displaySettings.letterSpacing}px`,
@@ -138,9 +165,13 @@ function TextDisplay({ item, displaySettings }: { item: TextDisplayItem; display
   } as const;
 
   return (
-    <div className="w-full h-full flex items-center justify-center" style={paddingOf(displaySettings)}>
+    <div
+      ref={containerRef}
+      className="w-full h-full flex items-center justify-center overflow-hidden"
+      style={paddingOf(displaySettings)}
+    >
       <div className="w-full">
-        <div className="whitespace-pre-line drop-shadow-lg" style={textStyle}>
+        <div ref={textRef} className="whitespace-pre-line drop-shadow-lg" style={textStyle}>
           {item.slideContent || ''}
         </div>
         {displaySettings.showPageNumber && item.totalPages > 1 && (

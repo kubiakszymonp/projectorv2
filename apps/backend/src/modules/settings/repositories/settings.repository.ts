@@ -167,6 +167,7 @@ export class SettingsRepository {
       blankScreen: update.blankScreen ?? current.blankScreen,
       blankLogoPath: update.blankLogoPath ?? current.blankLogoPath,
       showPageNumber: update.showPageNumber ?? current.showPageNumber,
+      autoFitText: update.autoFitText ?? current.autoFitText,
       padding: {
         top: update.padding?.top ?? current.padding.top,
         right: update.padding?.right ?? current.padding.right,

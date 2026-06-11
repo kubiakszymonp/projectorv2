@@ -37,6 +37,7 @@ export interface DisplaySettings {
   blankScreen: BlankScreenMode;
   blankLogoPath: string;
   showPageNumber: boolean;
+  autoFitText: boolean;
 }
 
 /**
@@ -78,6 +79,7 @@ export const DEFAULT_SETTINGS: ProjectorSettings = {
     blankScreen: 'black',
     blankLogoPath: '',
     showPageNumber: false,
+    autoFitText: false,
   },
   wifi: {
     ssid: '',

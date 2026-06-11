@@ -135,6 +135,16 @@ export function DisplaySettingsTab({
               onCheckedChange={(v) => onDisplayChange('showPageNumber', v)}
             />
           </FormField>
+
+          <FormField
+            label="Auto-dopasowanie tekstu"
+            description="Skaluj czcionkę, aby strona zawsze mieściła się na ekranie"
+          >
+            <Switch
+              checked={settings.display.autoFitText}
+              onCheckedChange={(v) => onDisplayChange('autoFitText', v)}
+            />
+          </FormField>
         </div>
       </div>
 
