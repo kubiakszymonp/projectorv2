@@ -309,11 +309,19 @@ function QRCodeDisplay({
     paddingLeft: `${displaySettings.padding.left}px`,
   };
 
-  // Calculate QR code size based on screen size
-  const qrSize = Math.min(800, window.innerHeight * 0.6);
+  // Recompute QR size on resize (was computed once at mount)
+  const [qrSize, setQrSize] = useState(() =>
+    Math.min(800, window.innerHeight * 0.6),
+  );
+
+  useEffect(() => {
+    const update = () => setQrSize(Math.min(800, window.innerHeight * 0.6));
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
+  }, []);
 
   return (
-    <div 
+    <div
       className="w-full h-screen flex flex-col items-center justify-center"
       style={paddingStyle}
     >
@@ -325,6 +333,17 @@ function QRCodeDisplay({
           includeMargin={false}
         />
       </div>
+      {item.label && (
+        <p
+          className="mt-8 text-center font-medium"
+          style={{
+            color: displaySettings.textColor,
+            fontSize: `${displaySettings.fontSize}px`,
+          }}
+        >
+          {item.label}
+        </p>
+      )}
     </div>
   );
 }
