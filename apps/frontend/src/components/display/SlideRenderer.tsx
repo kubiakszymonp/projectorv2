@@ -175,11 +175,13 @@ function VideoDisplay({
 
   return (
     <div className="w-full h-full flex items-center justify-center" style={paddingOf(displaySettings)}>
+      {/* No controls — playback is driven remotely from the panel */}
       <video
         key={key}
         src={getFileUrl(path)}
         autoPlay={!preview}
         muted={preview}
+        playsInline
         className="max-w-full max-h-full"
       />
     </div>
