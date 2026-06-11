@@ -1,5 +1,9 @@
 services:
   backend:
+    # Pre-built multi-arch image (see .github/workflows/docker-build.yml).
+    # On the Pi: `docker compose pull && docker compose up -d`.
+    # To build locally instead, the `build:` block below is used as fallback.
+    image: ghcr.io/kubiakszymonp/projector-backend:latest
     build:
       context: .
       dockerfile: apps/backend/Dockerfile
@@ -27,6 +31,7 @@ services:
       start_period: 40s
 
   frontend:
+    image: ghcr.io/kubiakszymonp/projector-frontend:latest
     build:
       context: .
       dockerfile: apps/frontend/Dockerfile
